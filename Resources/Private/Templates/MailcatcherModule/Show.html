@@ -1,0 +1,92 @@
+<html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
+
+<f:variable name="ll" value="LLL:EXT:ot_mailcatcher/Resources/Private/Language/locallang_mod.xlf:"/>
+
+<p><f:link.action action="index" class="btn btn-default btn-sm">&#8592; <f:translate key="{ll}action.back"/></f:link.action></p>
+
+<h1>{mail.subject}</h1>
+
+<table class="table table-sm mb-4">
+    <tbody>
+    <tr><th style="width:12rem"><f:translate key="{ll}list.from"/></th><td>{mail.from}</td></tr>
+    <tr><th><f:translate key="{ll}list.to"/></th><td>{mail.toAsString}</td></tr>
+    <f:if condition="{mail.cc}"><tr><th><f:translate key="{ll}show.header.cc"/></th><td>{mail.cc -> f:join(separator: ', ')}</td></tr></f:if>
+    <f:if condition="{mail.bcc}"><tr><th><f:translate key="{ll}show.header.bcc"/></th><td>{mail.bcc -> f:join(separator: ', ')}</td></tr></f:if>
+    <f:if condition="{mail.replyTo}"><tr><th><f:translate key="{ll}show.header.replyTo"/></th><td>{mail.replyTo -> f:join(separator: ', ')}</td></tr></f:if>
+    <f:if condition="{mail.context}"><tr><th><f:translate key="{ll}show.header.context"/></th><td><code>{mail.context}</code></td></tr></f:if>
+    <tr><th><f:translate key="{ll}list.date"/></th><td><f:if condition="{mail.date}"><f:format.date format="d.m.Y H:i:s">{mail.date}</f:format.date></f:if></td></tr>
+    </tbody>
+</table>
+
+<ul class="nav nav-tabs" role="tablist">
+    <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-checks" type="button" role="tab"><f:translate key="{ll}show.tab.checks"/> <span class="badge bg-secondary">{mail.checkResults -> f:count()}</span></button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-html" type="button" role="tab"><f:translate key="{ll}show.tab.html"/></button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-text" type="button" role="tab"><f:translate key="{ll}show.tab.text"/></button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-source" type="button" role="tab"><f:translate key="{ll}show.tab.source"/></button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-attachments" type="button" role="tab"><f:translate key="{ll}show.tab.attachments"/> <span class="badge bg-secondary">{mail.attachments -> f:count()}</span></button></li>
+</ul>
+
+<div class="tab-content border border-top-0 p-3">
+    <div class="tab-pane fade show active" id="tab-checks" role="tabpanel">
+        <f:if condition="{mail.checkResults}">
+            <f:then>
+                <f:for each="{mail.checkResults}" as="result">
+                    <div class="alert alert-{result.severity.cssClass}">
+                        <strong><f:translate key="{ll}{result.messageLabelKey}" arguments="{result.arguments}"/></strong>
+                        <div class="mt-1"><f:translate key="{ll}{result.hintLabelKey}"/></div>
+                    </div>
+                </f:for>
+            </f:then>
+            <f:else>
+                <div class="alert alert-success"><f:translate key="{ll}show.noFindings"/></div>
+            </f:else>
+        </f:if>
+    </div>
+
+    <div class="tab-pane fade" id="tab-html" role="tabpanel">
+        <f:if condition="{mail.hasHtmlPart}">
+            <f:then>
+                <p class="text-body-secondary small"><f:translate key="{ll}show.remoteImagesBlocked"/></p>
+                <iframe src="{bodyUri}" sandbox="" title="HTML" style="width:100%;height:32rem;border:1px solid #ccc;background:#fff"></iframe>
+            </f:then>
+            <f:else><p class="text-body-secondary"><f:translate key="{ll}show.noHtmlPart"/></p></f:else>
+        </f:if>
+    </div>
+
+    <div class="tab-pane fade" id="tab-text" role="tabpanel">
+        <f:if condition="{mail.hasTextPart}">
+            <f:then><pre style="white-space:pre-wrap">{mail.textBody}</pre></f:then>
+            <f:else><p class="text-body-secondary"><f:translate key="{ll}show.noTextPart"/></p></f:else>
+        </f:if>
+    </div>
+
+    <div class="tab-pane fade" id="tab-source" role="tabpanel">
+        <pre style="white-space:pre-wrap;max-height:32rem;overflow:auto">{mail.rawSource}</pre>
+    </div>
+
+    <div class="tab-pane fade" id="tab-attachments" role="tabpanel">
+        <f:if condition="{mail.attachments}">
+            <f:then>
+                <table class="table table-sm">
+                    <tbody>
+                    <f:for each="{mail.attachments}" as="attachment">
+                        <tr>
+                            <td>{attachment.fileName}</td>
+                            <td><code>{attachment.mimeType}</code></td>
+                            <td><f:format.bytes decimals="1">{attachment.size}</f:format.bytes></td>
+                            <td class="text-end">
+                                <f:link.action action="attachment" arguments="{identifier: mail.identifier, part: attachment.partIndex}" class="btn btn-default btn-sm">
+                                    <f:translate key="{ll}action.download"/>
+                                </f:link.action>
+                            </td>
+                        </tr>
+                    </f:for>
+                    </tbody>
+                </table>
+            </f:then>
+            <f:else><p class="text-body-secondary"><f:translate key="{ll}show.noAttachments"/></p></f:else>
+        </f:if>
+    </div>
+</div>
+
+</html>

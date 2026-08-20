@@ -36,6 +36,181 @@
       <trans-unit id="report.inactive.message" resname="report.inactive.message">
         <source>Mails are handed to the configured mail transport as usual.</source>
       </trans-unit>
+
+      <!-- Check findings -->
+      <trans-unit id="check.senderIsWebsiteVisitor.message" resname="check.senderIsWebsiteVisitor.message">
+        <source>The mail is sent as %1$s, but this site sends as %2$s. Mail servers reject that (SPF/DMARC), so the mail is filed as spam or silently dropped.</source>
+      </trans-unit>
+      <trans-unit id="check.senderIsWebsiteVisitor.hint" resname="check.senderIsWebsiteVisitor.hint">
+        <source>Use your own address as the sender and put the visitor's address into the reply address instead.</source>
+      </trans-unit>
+      <trans-unit id="check.missingReplyTo.message" resname="check.missingReplyTo.message">
+        <source>No reply address is set.</source>
+      </trans-unit>
+      <trans-unit id="check.missingReplyTo.hint" resname="check.missingReplyTo.hint">
+        <source>Set the reply address to whoever should receive the answer, usually the visitor who filled in the form.</source>
+      </trans-unit>
+      <trans-unit id="check.unresolvedTypo3Link.message" resname="check.unresolvedTypo3Link.message">
+        <source>The mail contains an unresolved TYPO3 link (t3://). The recipient sees the raw reference instead of a working link.</source>
+      </trans-unit>
+      <trans-unit id="check.unresolvedTypo3Link.hint" resname="check.unresolvedTypo3Link.hint">
+        <source>Render links in mail templates with f:link.typolink or the absolute URL, so they are resolved before sending.</source>
+      </trans-unit>
+      <trans-unit id="check.leftoverPlaceholder.message" resname="check.leftoverPlaceholder.message">
+        <source>A placeholder survived rendering and is visible in the mail.</source>
+      </trans-unit>
+      <trans-unit id="check.leftoverPlaceholder.hint" resname="check.leftoverPlaceholder.hint">
+        <source>Check the mail template for a typo in the placeholder, or for a variable that was never passed to it.</source>
+      </trans-unit>
+      <trans-unit id="check.missingTextPart.message" resname="check.missingTextPart.message">
+        <source>The mail has an HTML part but no plain text part.</source>
+      </trans-unit>
+      <trans-unit id="check.missingTextPart.hint" resname="check.missingTextPart.hint">
+        <source>Add a plain text version. It noticeably improves the spam rating and is what some clients display.</source>
+      </trans-unit>
+      <trans-unit id="check.emptySubject.message" resname="check.emptySubject.message">
+        <source>The mail has no subject.</source>
+      </trans-unit>
+      <trans-unit id="check.emptySubject.hint" resname="check.emptySubject.hint">
+        <source>Set a subject in the finisher or the mail template.</source>
+      </trans-unit>
+      <trans-unit id="check.recipientEqualsSender.message" resname="check.recipientEqualsSender.message">
+        <source>Sender and recipient are the same address.</source>
+      </trans-unit>
+      <trans-unit id="check.recipientEqualsSender.hint" resname="check.recipientEqualsSender.hint">
+        <source>Usually a finisher whose sender and recipient fields were filled with the same value — worth a look.</source>
+      </trans-unit>
+      <trans-unit id="check.relativeLink.message" resname="check.relativeLink.message">
+        <source>The mail contains a relative link.</source>
+      </trans-unit>
+      <trans-unit id="check.relativeLink.hint" resname="check.relativeLink.hint">
+        <source>A mail program has no base address, so relative links do not work. Always use absolute URLs in mails.</source>
+      </trans-unit>
+      <trans-unit id="check.insecureLink.message" resname="check.insecureLink.message">
+        <source>The mail contains an http:// link.</source>
+      </trans-unit>
+      <trans-unit id="check.insecureLink.hint" resname="check.insecureLink.hint">
+        <source>Use https://. Many mail clients flag or rewrite plain http links.</source>
+      </trans-unit>
+      <trans-unit id="check.brokenEncoding.message" resname="check.brokenEncoding.message">
+        <source>The decoded mail contains replacement characters, which means umlauts or special characters are broken.</source>
+      </trans-unit>
+      <trans-unit id="check.brokenEncoding.hint" resname="check.brokenEncoding.hint">
+        <source>The mail was assembled with the wrong character set. Check the template and the data source for their encoding.</source>
+      </trans-unit>
+
+      <!-- Module user interface -->
+      <trans-unit id="flash.notFound.message" resname="flash.notFound.message">
+        <source>The requested mail no longer exists.</source>
+      </trans-unit>
+      <trans-unit id="flash.notAllowed.message" resname="flash.notAllowed.message">
+        <source>The mail catcher must not be switched on in this environment.</source>
+      </trans-unit>
+      <trans-unit id="flash.enabled.message" resname="flash.enabled.message">
+        <source>Mail catcher switched on — no mail is being sent from now on.</source>
+      </trans-unit>
+      <trans-unit id="flash.disabled.message" resname="flash.disabled.message">
+        <source>Mail catcher switched off — mails are being delivered normally again.</source>
+      </trans-unit>
+      <trans-unit id="flash.deletedAll.message" resname="flash.deletedAll.message">
+        <source>Deleted %1$s captured mails.</source>
+      </trans-unit>
+      <trans-unit id="status.active" resname="status.active">
+        <source>Active — no mail is being sent</source>
+      </trans-unit>
+      <trans-unit id="status.inactive" resname="status.inactive">
+        <source>Inactive — mails are delivered normally</source>
+      </trans-unit>
+      <trans-unit id="status.notAllowed" resname="status.notAllowed">
+        <source>Locked in this environment. Set MAILCATCHER_ALLOWED=1 to unlock it.</source>
+      </trans-unit>
+      <trans-unit id="status.storage" resname="status.storage">
+        <source>Storage directory</source>
+      </trans-unit>
+      <trans-unit id="action.enable" resname="action.enable">
+        <source>Switch on</source>
+      </trans-unit>
+      <trans-unit id="action.disable" resname="action.disable">
+        <source>Switch off</source>
+      </trans-unit>
+      <trans-unit id="action.show" resname="action.show">
+        <source>Show</source>
+      </trans-unit>
+      <trans-unit id="action.delete" resname="action.delete">
+        <source>Delete</source>
+      </trans-unit>
+      <trans-unit id="action.deleteAll" resname="action.deleteAll">
+        <source>Delete all</source>
+      </trans-unit>
+      <trans-unit id="action.back" resname="action.back">
+        <source>Back to the list</source>
+      </trans-unit>
+      <trans-unit id="action.download" resname="action.download">
+        <source>Download</source>
+      </trans-unit>
+      <trans-unit id="list.empty" resname="list.empty">
+        <source>No mails captured yet.</source>
+      </trans-unit>
+      <trans-unit id="list.findings" resname="list.findings">
+        <source>Findings</source>
+      </trans-unit>
+      <trans-unit id="list.subject" resname="list.subject">
+        <source>Subject</source>
+      </trans-unit>
+      <trans-unit id="list.from" resname="list.from">
+        <source>From</source>
+      </trans-unit>
+      <trans-unit id="list.to" resname="list.to">
+        <source>To</source>
+      </trans-unit>
+      <trans-unit id="list.date" resname="list.date">
+        <source>Date</source>
+      </trans-unit>
+      <trans-unit id="list.size" resname="list.size">
+        <source>Size</source>
+      </trans-unit>
+      <trans-unit id="show.noFindings" resname="show.noFindings">
+        <source>No findings — this mail passes every check.</source>
+      </trans-unit>
+      <trans-unit id="show.tab.checks" resname="show.tab.checks">
+        <source>Findings</source>
+      </trans-unit>
+      <trans-unit id="show.tab.html" resname="show.tab.html">
+        <source>HTML</source>
+      </trans-unit>
+      <trans-unit id="show.tab.text" resname="show.tab.text">
+        <source>Text</source>
+      </trans-unit>
+      <trans-unit id="show.tab.source" resname="show.tab.source">
+        <source>Source</source>
+      </trans-unit>
+      <trans-unit id="show.tab.attachments" resname="show.tab.attachments">
+        <source>Attachments</source>
+      </trans-unit>
+      <trans-unit id="show.noHtmlPart" resname="show.noHtmlPart">
+        <source>This mail has no HTML part.</source>
+      </trans-unit>
+      <trans-unit id="show.noTextPart" resname="show.noTextPart">
+        <source>This mail has no plain text part.</source>
+      </trans-unit>
+      <trans-unit id="show.noAttachments" resname="show.noAttachments">
+        <source>This mail has no attachments.</source>
+      </trans-unit>
+      <trans-unit id="show.remoteImagesBlocked" resname="show.remoteImagesBlocked">
+        <source>Remote images are blocked in this preview.</source>
+      </trans-unit>
+      <trans-unit id="show.header.replyTo" resname="show.header.replyTo">
+        <source>Reply to</source>
+      </trans-unit>
+      <trans-unit id="show.header.cc" resname="show.header.cc">
+        <source>Cc</source>
+      </trans-unit>
+      <trans-unit id="show.header.bcc" resname="show.header.bcc">
+        <source>Bcc</source>
+      </trans-unit>
+      <trans-unit id="show.header.context" resname="show.header.context">
+        <source>Origin</source>
+      </trans-unit>
     </body>
   </file>
 </xliff>

@@ -45,6 +45,238 @@
         <source>Mails are handed to the configured mail transport as usual.</source>
         <target>Mails werden wie gewohnt an den konfigurierten Mail-Transport übergeben.</target>
       </trans-unit>
+
+      <!-- Check findings -->
+      <trans-unit id="check.senderIsWebsiteVisitor.message" resname="check.senderIsWebsiteVisitor.message" approved="yes">
+        <source>The mail is sent as %1$s, but this site sends as %2$s. Mail servers reject that (SPF/DMARC), so the mail is filed as spam or silently dropped.</source>
+        <target>Die Mail wird als %1$s versendet, diese Website versendet aber als %2$s. Mailserver lehnen das ab (SPF/DMARC) — die Mail landet im Spam oder verschwindet stillschweigend.</target>
+      </trans-unit>
+      <trans-unit id="check.senderIsWebsiteVisitor.hint" resname="check.senderIsWebsiteVisitor.hint" approved="yes">
+        <source>Use your own address as the sender and put the visitor's address into the reply address instead.</source>
+        <target>Als Absender die eigene Adresse verwenden und die Besucheradresse stattdessen als Antwortadresse eintragen.</target>
+      </trans-unit>
+      <trans-unit id="check.missingReplyTo.message" resname="check.missingReplyTo.message" approved="yes">
+        <source>No reply address is set.</source>
+        <target>Es ist keine Antwortadresse gesetzt.</target>
+      </trans-unit>
+      <trans-unit id="check.missingReplyTo.hint" resname="check.missingReplyTo.hint" approved="yes">
+        <source>Set the reply address to whoever should receive the answer, usually the visitor who filled in the form.</source>
+        <target>Als Antwortadresse eintragen, wer die Antwort erhalten soll — in der Regel der Besucher, der das Formular ausgefüllt hat.</target>
+      </trans-unit>
+      <trans-unit id="check.unresolvedTypo3Link.message" resname="check.unresolvedTypo3Link.message" approved="yes">
+        <source>The mail contains an unresolved TYPO3 link (t3://). The recipient sees the raw reference instead of a working link.</source>
+        <target>Die Mail enthält einen nicht aufgelösten TYPO3-Link (t3://). Der Empfänger sieht die rohe Referenz statt eines funktionierenden Links.</target>
+      </trans-unit>
+      <trans-unit id="check.unresolvedTypo3Link.hint" resname="check.unresolvedTypo3Link.hint" approved="yes">
+        <source>Render links in mail templates with f:link.typolink or the absolute URL, so they are resolved before sending.</source>
+        <target>Links in Mail-Templates über f:link.typolink oder die absolute URL ausgeben, damit sie vor dem Versand aufgelöst werden.</target>
+      </trans-unit>
+      <trans-unit id="check.leftoverPlaceholder.message" resname="check.leftoverPlaceholder.message" approved="yes">
+        <source>A placeholder survived rendering and is visible in the mail.</source>
+        <target>Ein Platzhalter hat das Rendern überlebt und ist in der Mail sichtbar.</target>
+      </trans-unit>
+      <trans-unit id="check.leftoverPlaceholder.hint" resname="check.leftoverPlaceholder.hint" approved="yes">
+        <source>Check the mail template for a typo in the placeholder, or for a variable that was never passed to it.</source>
+        <target>Das Mail-Template auf einen Tippfehler im Platzhalter prüfen — oder auf eine Variable, die nie übergeben wurde.</target>
+      </trans-unit>
+      <trans-unit id="check.missingTextPart.message" resname="check.missingTextPart.message" approved="yes">
+        <source>The mail has an HTML part but no plain text part.</source>
+        <target>Die Mail hat einen HTML-Teil, aber keinen Textteil.</target>
+      </trans-unit>
+      <trans-unit id="check.missingTextPart.hint" resname="check.missingTextPart.hint" approved="yes">
+        <source>Add a plain text version. It noticeably improves the spam rating and is what some clients display.</source>
+        <target>Eine Textfassung ergänzen. Sie verbessert die Spam-Bewertung spürbar und ist das, was manche Programme anzeigen.</target>
+      </trans-unit>
+      <trans-unit id="check.emptySubject.message" resname="check.emptySubject.message" approved="yes">
+        <source>The mail has no subject.</source>
+        <target>Die Mail hat keinen Betreff.</target>
+      </trans-unit>
+      <trans-unit id="check.emptySubject.hint" resname="check.emptySubject.hint" approved="yes">
+        <source>Set a subject in the finisher or the mail template.</source>
+        <target>Im Finisher oder im Mail-Template einen Betreff setzen.</target>
+      </trans-unit>
+      <trans-unit id="check.recipientEqualsSender.message" resname="check.recipientEqualsSender.message" approved="yes">
+        <source>Sender and recipient are the same address.</source>
+        <target>Absender und Empfänger sind dieselbe Adresse.</target>
+      </trans-unit>
+      <trans-unit id="check.recipientEqualsSender.hint" resname="check.recipientEqualsSender.hint" approved="yes">
+        <source>Usually a finisher whose sender and recipient fields were filled with the same value — worth a look.</source>
+        <target>Meist ein Finisher, bei dem Absender- und Empfängerfeld denselben Wert tragen — einen Blick wert.</target>
+      </trans-unit>
+      <trans-unit id="check.relativeLink.message" resname="check.relativeLink.message" approved="yes">
+        <source>The mail contains a relative link.</source>
+        <target>Die Mail enthält einen relativen Link.</target>
+      </trans-unit>
+      <trans-unit id="check.relativeLink.hint" resname="check.relativeLink.hint" approved="yes">
+        <source>A mail program has no base address, so relative links do not work. Always use absolute URLs in mails.</source>
+        <target>Ein Mailprogramm hat keine Basisadresse, relative Links funktionieren dort nicht. In Mails immer absolute URLs verwenden.</target>
+      </trans-unit>
+      <trans-unit id="check.insecureLink.message" resname="check.insecureLink.message" approved="yes">
+        <source>The mail contains an http:// link.</source>
+        <target>Die Mail enthält einen http://-Link.</target>
+      </trans-unit>
+      <trans-unit id="check.insecureLink.hint" resname="check.insecureLink.hint" approved="yes">
+        <source>Use https://. Many mail clients flag or rewrite plain http links.</source>
+        <target>https:// verwenden. Viele Mailprogramme markieren oder ersetzen einfache http-Links.</target>
+      </trans-unit>
+      <trans-unit id="check.brokenEncoding.message" resname="check.brokenEncoding.message" approved="yes">
+        <source>The decoded mail contains replacement characters, which means umlauts or special characters are broken.</source>
+        <target>Die dekodierte Mail enthält Ersatzzeichen — Umlaute oder Sonderzeichen sind also kaputt.</target>
+      </trans-unit>
+      <trans-unit id="check.brokenEncoding.hint" resname="check.brokenEncoding.hint" approved="yes">
+        <source>The mail was assembled with the wrong character set. Check the template and the data source for their encoding.</source>
+        <target>Die Mail wurde mit dem falschen Zeichensatz zusammengebaut. Template und Datenquelle auf ihre Kodierung prüfen.</target>
+      </trans-unit>
+
+      <!-- Module user interface -->
+      <trans-unit id="flash.notFound.message" resname="flash.notFound.message" approved="yes">
+        <source>The requested mail no longer exists.</source>
+        <target>Die angeforderte Mail existiert nicht mehr.</target>
+      </trans-unit>
+      <trans-unit id="flash.notAllowed.message" resname="flash.notAllowed.message" approved="yes">
+        <source>The mail catcher must not be switched on in this environment.</source>
+        <target>Der Mailcatcher darf in dieser Umgebung nicht eingeschaltet werden.</target>
+      </trans-unit>
+      <trans-unit id="flash.enabled.message" resname="flash.enabled.message" approved="yes">
+        <source>Mail catcher switched on — no mail is being sent from now on.</source>
+        <target>Mailcatcher eingeschaltet — ab jetzt wird keine Mail mehr versendet.</target>
+      </trans-unit>
+      <trans-unit id="flash.disabled.message" resname="flash.disabled.message" approved="yes">
+        <source>Mail catcher switched off — mails are being delivered normally again.</source>
+        <target>Mailcatcher ausgeschaltet — Mails werden wieder normal zugestellt.</target>
+      </trans-unit>
+      <trans-unit id="flash.deletedAll.message" resname="flash.deletedAll.message" approved="yes">
+        <source>Deleted %1$s captured mails.</source>
+        <target>%1$s abgefangene Mails gelöscht.</target>
+      </trans-unit>
+      <trans-unit id="status.active" resname="status.active" approved="yes">
+        <source>Active — no mail is being sent</source>
+        <target>Aktiv — es wird keine Mail versendet</target>
+      </trans-unit>
+      <trans-unit id="status.inactive" resname="status.inactive" approved="yes">
+        <source>Inactive — mails are delivered normally</source>
+        <target>Inaktiv — Mails werden normal zugestellt</target>
+      </trans-unit>
+      <trans-unit id="status.notAllowed" resname="status.notAllowed" approved="yes">
+        <source>Locked in this environment. Set MAILCATCHER_ALLOWED=1 to unlock it.</source>
+        <target>In dieser Umgebung gesperrt. Mit MAILCATCHER_ALLOWED=1 freischalten.</target>
+      </trans-unit>
+      <trans-unit id="status.storage" resname="status.storage" approved="yes">
+        <source>Storage directory</source>
+        <target>Ablageverzeichnis</target>
+      </trans-unit>
+      <trans-unit id="action.enable" resname="action.enable" approved="yes">
+        <source>Switch on</source>
+        <target>Einschalten</target>
+      </trans-unit>
+      <trans-unit id="action.disable" resname="action.disable" approved="yes">
+        <source>Switch off</source>
+        <target>Ausschalten</target>
+      </trans-unit>
+      <trans-unit id="action.show" resname="action.show" approved="yes">
+        <source>Show</source>
+        <target>Anzeigen</target>
+      </trans-unit>
+      <trans-unit id="action.delete" resname="action.delete" approved="yes">
+        <source>Delete</source>
+        <target>Löschen</target>
+      </trans-unit>
+      <trans-unit id="action.deleteAll" resname="action.deleteAll" approved="yes">
+        <source>Delete all</source>
+        <target>Alle löschen</target>
+      </trans-unit>
+      <trans-unit id="action.back" resname="action.back" approved="yes">
+        <source>Back to the list</source>
+        <target>Zurück zur Liste</target>
+      </trans-unit>
+      <trans-unit id="action.download" resname="action.download" approved="yes">
+        <source>Download</source>
+        <target>Herunterladen</target>
+      </trans-unit>
+      <trans-unit id="list.empty" resname="list.empty" approved="yes">
+        <source>No mails captured yet.</source>
+        <target>Bisher wurden keine Mails abgefangen.</target>
+      </trans-unit>
+      <trans-unit id="list.findings" resname="list.findings" approved="yes">
+        <source>Findings</source>
+        <target>Befunde</target>
+      </trans-unit>
+      <trans-unit id="list.subject" resname="list.subject" approved="yes">
+        <source>Subject</source>
+        <target>Betreff</target>
+      </trans-unit>
+      <trans-unit id="list.from" resname="list.from" approved="yes">
+        <source>From</source>
+        <target>Von</target>
+      </trans-unit>
+      <trans-unit id="list.to" resname="list.to" approved="yes">
+        <source>To</source>
+        <target>An</target>
+      </trans-unit>
+      <trans-unit id="list.date" resname="list.date" approved="yes">
+        <source>Date</source>
+        <target>Datum</target>
+      </trans-unit>
+      <trans-unit id="list.size" resname="list.size" approved="yes">
+        <source>Size</source>
+        <target>Größe</target>
+      </trans-unit>
+      <trans-unit id="show.noFindings" resname="show.noFindings" approved="yes">
+        <source>No findings — this mail passes every check.</source>
+        <target>Keine Befunde — diese Mail besteht alle Prüfungen.</target>
+      </trans-unit>
+      <trans-unit id="show.tab.checks" resname="show.tab.checks" approved="yes">
+        <source>Findings</source>
+        <target>Befunde</target>
+      </trans-unit>
+      <trans-unit id="show.tab.html" resname="show.tab.html" approved="yes">
+        <source>HTML</source>
+        <target>HTML</target>
+      </trans-unit>
+      <trans-unit id="show.tab.text" resname="show.tab.text" approved="yes">
+        <source>Text</source>
+        <target>Text</target>
+      </trans-unit>
+      <trans-unit id="show.tab.source" resname="show.tab.source" approved="yes">
+        <source>Source</source>
+        <target>Quelltext</target>
+      </trans-unit>
+      <trans-unit id="show.tab.attachments" resname="show.tab.attachments" approved="yes">
+        <source>Attachments</source>
+        <target>Anhänge</target>
+      </trans-unit>
+      <trans-unit id="show.noHtmlPart" resname="show.noHtmlPart" approved="yes">
+        <source>This mail has no HTML part.</source>
+        <target>Diese Mail hat keinen HTML-Teil.</target>
+      </trans-unit>
+      <trans-unit id="show.noTextPart" resname="show.noTextPart" approved="yes">
+        <source>This mail has no plain text part.</source>
+        <target>Diese Mail hat keinen Textteil.</target>
+      </trans-unit>
+      <trans-unit id="show.noAttachments" resname="show.noAttachments" approved="yes">
+        <source>This mail has no attachments.</source>
+        <target>Diese Mail hat keine Anhänge.</target>
+      </trans-unit>
+      <trans-unit id="show.remoteImagesBlocked" resname="show.remoteImagesBlocked" approved="yes">
+        <source>Remote images are blocked in this preview.</source>
+        <target>Externe Bilder sind in dieser Vorschau blockiert.</target>
+      </trans-unit>
+      <trans-unit id="show.header.replyTo" resname="show.header.replyTo" approved="yes">
+        <source>Reply to</source>
+        <target>Antwort an</target>
+      </trans-unit>
+      <trans-unit id="show.header.cc" resname="show.header.cc" approved="yes">
+        <source>Cc</source>
+        <target>Cc</target>
+      </trans-unit>
+      <trans-unit id="show.header.bcc" resname="show.header.bcc" approved="yes">
+        <source>Bcc</source>
+        <target>Bcc</target>
+      </trans-unit>
+      <trans-unit id="show.header.context" resname="show.header.context" approved="yes">
+        <source>Origin</source>
+        <target>Herkunft</target>
+      </trans-unit>
     </body>
   </file>
 </xliff>

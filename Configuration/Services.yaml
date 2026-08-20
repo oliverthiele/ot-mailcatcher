@@ -4,11 +4,25 @@ services:
     autoconfigure: true
     public: false
 
+  _instanceof:
+    OliverThiele\OtMailcatcher\Check\MailCheckInterface:
+      tags: ['ot_mailcatcher.check']
+
   OliverThiele\OtMailcatcher\:
     resource: '../Classes/*'
+
+  OliverThiele\OtMailcatcher\Check\CheckRunner:
+    arguments:
+      $checks: !tagged_iterator ot_mailcatcher.check
 
   OliverThiele\OtMailcatcher\Command\TestMailCommand:
     tags:
       - name: console.command
         command: 'mailcatcher:testmail'
         description: 'Send a pair of test mails (receiver + sender) in a single run.'
+
+  OliverThiele\OtMailcatcher\Command\PruneCommand:
+    tags:
+      - name: console.command
+        command: 'mailcatcher:prune'
+        description: 'Delete captured mails beyond a retention period.'
