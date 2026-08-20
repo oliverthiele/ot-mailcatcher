@@ -91,7 +91,17 @@ class MailcatcherModuleController extends ActionController
             return new HtmlResponse('', 404);
         }
 
-        return new HtmlResponse($mail->htmlBody);
+        // Own CSP for this one response. The backend policy allows img-src 'self'
+        // only, which blocks every logo and every remote image a real mail uses —
+        // exactly what an editor opens the preview to look at. TYPO3's CSP
+        // middleware leaves a response alone once it carries its own header
+        // (ContentSecurityPolicyHeaders::process()), so this stays scoped to the
+        // preview and does not relax the backend. Scripts and frames stay denied
+        // through `default-src 'none'` on top of the iframe's sandbox attribute.
+        return (new HtmlResponse($mail->htmlBody))->withHeader(
+            'Content-Security-Policy',
+            "default-src 'none'; img-src * data:; style-src * 'unsafe-inline'; font-src * data:"
+        );
     }
 
     public function attachmentAction(string $identifier, int $part): ResponseInterface

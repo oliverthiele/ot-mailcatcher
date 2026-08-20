@@ -5,6 +5,21 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] — 2026-08-20
+
+### Fixed
+
+- The HTML preview inherited the backend policy `img-src 'self'`, so every logo
+  and every remote image in a captured mail was blocked — the one thing the
+  preview exists to show. The preview response now carries its own
+  Content-Security-Policy, scoped to that route; the backend policy is untouched
+  and scripts stay denied.
+
+### Changed
+
+- Label `show.remoteImagesBlocked` replaced by `show.previewNote`, which now
+  states that images load and scripts do not.
+
 ## [0.1.1] — 2026-08-20
 
 ### Fixed

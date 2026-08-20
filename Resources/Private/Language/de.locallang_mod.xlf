@@ -257,9 +257,9 @@
         <source>This mail has no attachments.</source>
         <target>Diese Mail hat keine Anhänge.</target>
       </trans-unit>
-      <trans-unit id="show.remoteImagesBlocked" resname="show.remoteImagesBlocked" approved="yes">
-        <source>Remote images are blocked in this preview.</source>
-        <target>Externe Bilder sind in dieser Vorschau blockiert.</target>
+      <trans-unit id="show.previewNote" resname="show.previewNote" approved="yes">
+        <source>Images are loaded, scripts are blocked. Remote images can tell the sender the mail was opened.</source>
+        <target>Bilder werden geladen, Skripte sind blockiert. Externe Bilder können dem Absender das Öffnen melden.</target>
       </trans-unit>
       <trans-unit id="show.header.replyTo" resname="show.header.replyTo" approved="yes">
         <source>Reply to</source>
