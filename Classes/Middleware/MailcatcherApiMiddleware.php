@@ -115,7 +115,7 @@ final class MailcatcherApiMiddleware implements MiddlewareInterface
             'hasHtmlPart' => $mail->hasHtmlPart,
             'hasTextPart' => $mail->hasTextPart,
             'checks' => array_map(
-                static fn($result): array => [
+                static fn ($result): array => [
                     'identifier' => $result->identifier,
                     'severity' => $result->severity->value,
                 ],
@@ -127,7 +127,7 @@ final class MailcatcherApiMiddleware implements MiddlewareInterface
             $data['text'] = $mail->textBody;
             $data['html'] = $mail->htmlBody;
             $data['attachments'] = array_map(
-                static fn($attachment): array => [
+                static fn ($attachment): array => [
                     'fileName' => $attachment->fileName,
                     'mimeType' => $attachment->mimeType,
                     'size' => $attachment->size,
