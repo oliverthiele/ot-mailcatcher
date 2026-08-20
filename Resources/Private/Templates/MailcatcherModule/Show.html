@@ -1,5 +1,9 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
 
+<f:layout name="Module"/>
+
+<f:section name="Content">
+
 <f:variable name="ll" value="LLL:EXT:ot_mailcatcher/Resources/Private/Language/locallang_mod.xlf:"/>
 
 <p><f:link.action action="index" class="btn btn-default btn-sm">&#8592; <f:translate key="{ll}action.back"/></f:link.action></p>
@@ -88,5 +92,6 @@
         </f:if>
     </div>
 </div>
+</f:section>
 
 </html>
