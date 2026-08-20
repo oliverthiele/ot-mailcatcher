@@ -1,0 +1,30 @@
+{
+	"name": "oliverthiele/ot-mailcatcher",
+	"type": "typo3-cms-extension",
+	"description": "Mailcatcher - Capture outgoing mails as files instead of sending them, review them in the backend and check them for the usual configuration mistakes.",
+	"homepage": "https://www.oliver-thiele.de/",
+	"license": [
+		"GPL-2.0-or-later"
+	],
+	"keywords": [
+		"TYPO3 CMS",
+		"mail",
+		"testing"
+	],
+	"require": {
+		"php": "^8.2",
+		"typo3/cms-core": "^13.4 || ^14.3",
+		"typo3/cms-backend": "^13.4 || ^14.3",
+		"zbateson/mail-mime-parser": "^3.0"
+	},
+	"autoload": {
+		"psr-4": {
+			"OliverThiele\\OtMailcatcher\\": "Classes/"
+		}
+	},
+	"extra": {
+		"typo3/cms": {
+			"extension-key": "ot_mailcatcher"
+		}
+	}
+}

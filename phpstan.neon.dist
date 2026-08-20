@@ -1,0 +1,11 @@
+# ============================================================
+# PHPStan configuration for ot_mailcatcher (TYPO3 Extension)
+# ============================================================
+
+parameters:
+  level: 9
+  paths:
+    - Classes/
+  tmpDir: ../../var/cache/phpstan/ot-mailcatcher
+  reportUnmatchedIgnoredErrors: false
+  checkUninitializedProperties: true

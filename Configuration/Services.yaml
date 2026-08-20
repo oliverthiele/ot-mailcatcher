@@ -1,0 +1,14 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+    public: false
+
+  OliverThiele\OtMailcatcher\:
+    resource: '../Classes/*'
+
+  OliverThiele\OtMailcatcher\Command\TestMailCommand:
+    tags:
+      - name: console.command
+        command: 'mailcatcher:testmail'
+        description: 'Send a pair of test mails (receiver + sender) in a single run.'
