@@ -32,9 +32,14 @@ final class BackendBannerListener
 
         // Only a style attribute, never a <style> element: the backend CSP allows
         // style-src-attr 'unsafe-inline', but an inline <style> block would need a nonce.
+        // Anchored right and capped at half the width: a full-width bar covers the
+        // last entry of the module menu. Slightly translucent so what is behind it
+        // stays readable.
         $banner = '<div data-ot-mailcatcher-banner="1"'
-            . ' style="position:fixed;left:0;right:0;bottom:0;z-index:9999;padding:.5rem 1rem;'
-            . 'background:#c83c3c;color:#fff;font-weight:bold;text-align:center">'
+            . ' style="position:fixed;right:0;bottom:0;z-index:9999;max-width:50%;'
+            . 'padding:.4rem 1rem;border-radius:.25rem 0 0 0;'
+            . 'background:rgba(200,60,60,.88);color:#fff;font-weight:bold;'
+            . 'text-align:right;backdrop-filter:blur(2px)">'
             . $message
             . '</div>';
 
