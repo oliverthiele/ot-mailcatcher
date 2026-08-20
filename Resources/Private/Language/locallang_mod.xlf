@@ -196,8 +196,8 @@
       <trans-unit id="show.noAttachments" resname="show.noAttachments">
         <source>This mail has no attachments.</source>
       </trans-unit>
-      <trans-unit id="show.remoteImagesBlocked" resname="show.remoteImagesBlocked">
-        <source>Remote images are blocked in this preview.</source>
+      <trans-unit id="show.previewNote" resname="show.previewNote">
+        <source>Images are loaded, scripts are blocked. Remote images can tell the sender the mail was opened.</source>
       </trans-unit>
       <trans-unit id="show.header.replyTo" resname="show.header.replyTo">
         <source>Reply to</source>
