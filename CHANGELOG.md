@@ -5,6 +5,14 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.1] — 2026-08-20
+
+### Fixed
+
+- The backend module templates did not declare the core `Module` layout, so the
+  module content was rendered without the `module-body` wrapper — no padding, and
+  flash messages from the toggle and delete actions were never displayed.
+
 ## [0.1.0] — 2026-08-20
 
 ### Added

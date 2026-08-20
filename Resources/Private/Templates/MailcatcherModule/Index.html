@@ -1,5 +1,9 @@
 <html xmlns:f="http://typo3.org/ns/TYPO3/CMS/Fluid/ViewHelpers" data-namespace-typo3-fluid="true">
 
+<f:layout name="Module"/>
+
+<f:section name="Content">
+
 <f:variable name="ll" value="LLL:EXT:ot_mailcatcher/Resources/Private/Language/locallang_mod.xlf:"/>
 
 <div class="mb-4 p-3 border rounded {f:if(condition: isActive, then: 'border-warning bg-warning-subtle', else: 'border-secondary')}">
@@ -95,5 +99,6 @@
         <p class="text-body-secondary"><f:translate key="{ll}list.empty"/></p>
     </f:else>
 </f:if>
+</f:section>
 
 </html>
