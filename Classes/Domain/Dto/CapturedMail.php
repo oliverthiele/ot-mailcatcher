@@ -40,7 +40,8 @@ final class CapturedMail
         public readonly array $attachments = [],
         public readonly array $headers = [],
         public readonly array $checkResults = [],
-    ) {}
+    ) {
+    }
 
     public function getToAsString(): string
     {

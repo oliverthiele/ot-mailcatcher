@@ -20,7 +20,8 @@ class CheckRunner
      */
     public function __construct(
         private readonly iterable $checks,
-    ) {}
+    ) {
+    }
 
     /**
      * @return CheckResult[]
@@ -36,7 +37,7 @@ class CheckRunner
 
         usort(
             $results,
-            static fn (CheckResult $a, CheckResult $b): int => self::weigh($a->severity) <=> self::weigh($b->severity)
+            static fn(CheckResult $a, CheckResult $b): int => self::weigh($a->severity) <=> self::weigh($b->severity)
         );
 
         return $results;

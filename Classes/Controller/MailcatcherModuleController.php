@@ -6,6 +6,7 @@ namespace OliverThiele\OtMailcatcher\Controller;
 
 use OliverThiele\OtMailcatcher\Check\CheckRunner;
 use OliverThiele\OtMailcatcher\Domain\Repository\CapturedMailRepository;
+use OliverThiele\OtMailcatcher\Service\ConfigurationValidator;
 use OliverThiele\OtMailcatcher\Service\LabelProvider;
 use OliverThiele\OtMailcatcher\Service\MailcatcherState;
 use Psr\Http\Message\ResponseInterface;
@@ -34,7 +35,9 @@ class MailcatcherModuleController extends ActionController
         private readonly CheckRunner $checkRunner,
         private readonly LabelProvider $labelProvider,
         private readonly PageRenderer $pageRenderer,
-    ) {}
+        private readonly ConfigurationValidator $configurationValidator,
+    ) {
+    }
 
     public function indexAction(): ResponseInterface
     {
@@ -52,7 +55,8 @@ class MailcatcherModuleController extends ActionController
             'mails' => $mails,
             'isEnabled' => MailcatcherState::isEnabled(),
             'isAllowed' => MailcatcherState::isAllowed(),
-            'isActive' => MailcatcherState::isActive(),
+            'status' => $this->configurationValidator->getStatus(),
+            'environmentFindings' => $this->configurationValidator->getEnvironmentFindings(),
             'storageDirectory' => MailcatcherState::getStorageDirectory(),
         ]);
 

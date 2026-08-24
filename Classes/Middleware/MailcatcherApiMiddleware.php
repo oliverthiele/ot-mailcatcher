@@ -31,12 +31,13 @@ final class MailcatcherApiMiddleware implements MiddlewareInterface
 {
     private const ROUTE_PREFIX = '/_mailcatcher/api/messages';
     private const TOKEN_HEADER = 'X-Mailcatcher-Token';
-    private const TOKEN_ENVIRONMENT_VARIABLE = 'MAILCATCHER_API_TOKEN';
+    public const TOKEN_ENVIRONMENT_VARIABLE = 'MAILCATCHER_API_TOKEN';
 
     public function __construct(
         private readonly CapturedMailRepository $capturedMailRepository,
         private readonly CheckRunner $checkRunner,
-    ) {}
+    ) {
+    }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
@@ -115,7 +116,7 @@ final class MailcatcherApiMiddleware implements MiddlewareInterface
             'hasHtmlPart' => $mail->hasHtmlPart,
             'hasTextPart' => $mail->hasTextPart,
             'checks' => array_map(
-                static fn ($result): array => [
+                static fn($result): array => [
                     'identifier' => $result->identifier,
                     'severity' => $result->severity->value,
                 ],
@@ -128,7 +129,7 @@ final class MailcatcherApiMiddleware implements MiddlewareInterface
             $data['html'] = $mail->htmlBody;
             $data['headers'] = $mail->headers;
             $data['attachments'] = array_map(
-                static fn ($attachment): array => [
+                static fn($attachment): array => [
                     'fileName' => $attachment->fileName,
                     'mimeType' => $attachment->mimeType,
                     'size' => $attachment->size,
@@ -154,14 +155,7 @@ final class MailcatcherApiMiddleware implements MiddlewareInterface
 
     private function readToken(): string
     {
-        $value = getenv(self::TOKEN_ENVIRONMENT_VARIABLE);
-        if (is_string($value) && $value !== '') {
-            return $value;
-        }
-
-        $fallback = $_ENV[self::TOKEN_ENVIRONMENT_VARIABLE] ?? null;
-
-        return is_scalar($fallback) ? (string)$fallback : '';
+        return MailcatcherState::readEnvironmentVariable(self::TOKEN_ENVIRONMENT_VARIABLE);
     }
 
     /**

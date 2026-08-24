@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace OliverThiele\OtMailcatcher\Report;
 
-use OliverThiele\OtMailcatcher\Service\MailcatcherState;
-use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
+use OliverThiele\OtMailcatcher\Service\ConfigurationValidator;
 use OliverThiele\OtMailcatcher\Service\LabelProvider;
-use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
+use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use TYPO3\CMS\Reports\Status;
 use TYPO3\CMS\Reports\StatusProviderInterface;
 
@@ -16,34 +15,38 @@ final class MailcatcherStatusProvider implements StatusProviderInterface
 {
     public function __construct(
         private readonly LabelProvider $labelProvider,
-    ) {}
+        private readonly ConfigurationValidator $configurationValidator,
+    ) {
+    }
 
     /**
      * @return Status[]
      */
     public function getStatus(): array
     {
-        $title = $this->labelProvider->get('report.title');
+        $status = $this->configurationValidator->getStatus();
 
-        if (!MailcatcherState::isActive()) {
-            return [
-                new Status(
-                    $title,
-                    $this->labelProvider->get('report.inactive.value'),
-                    $this->labelProvider->get('report.inactive.message'),
-                    ContextualFeedbackSeverity::OK
-                ),
-            ];
-        }
-
-        return [
+        // The administrator is the audience here, so this is the one place that
+        // names files, variables and the missing line verbatim.
+        $statuses = [
             new Status(
-                $title,
-                $this->labelProvider->get('report.active.value'),
-                $this->labelProvider->get('report.active.message'),
-                ContextualFeedbackSeverity::WARNING
+                $this->labelProvider->get('report.title'),
+                $this->labelProvider->get($status->getReportValueLabelKey()),
+                $this->labelProvider->get($status->getReportMessageLabelKey()),
+                $status->toContextualFeedbackSeverity()
             ),
         ];
+
+        foreach ($this->configurationValidator->getEnvironmentFindings() as $finding) {
+            $statuses[] = new Status(
+                $this->labelProvider->get('report.title'),
+                $this->labelProvider->get($finding->getMessageLabelKey()),
+                $this->labelProvider->get($finding->getHintLabelKey()),
+                $finding->severity->toContextualFeedbackSeverity()
+            );
+        }
+
+        return $statuses;
     }
 
     public function getLabel(): string

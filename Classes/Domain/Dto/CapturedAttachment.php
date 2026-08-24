@@ -11,5 +11,6 @@ final class CapturedAttachment
         public readonly string $fileName,
         public readonly string $mimeType,
         public readonly int $size,
-    ) {}
+    ) {
+    }
 }
