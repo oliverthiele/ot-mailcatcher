@@ -23,6 +23,19 @@ final class MailcatcherState
     public const ALLOW_ENVIRONMENT_VARIABLE = 'MAILCATCHER_ALLOWED';
 
     /**
+     * Whether config/system/additional.php had already pointed the transport at
+     * the catcher by the time ext_localconf.php ran.
+     *
+     * The two wiring layers cover different bootstraps: ext_localconf.php is
+     * skipped by reduced bootstraps such as the install tool's mail test, which
+     * builds a container without loading extension configuration, while
+     * additional.php is read by every bootstrap. Once ext_localconf.php has
+     * assigned the transport the difference is invisible — so it is recorded
+     * here, before the assignment.
+     */
+    private static bool $wiredByProjectConfiguration = false;
+
+    /**
      * Directory holding the captured .eml files and the state file.
      */
     public static function getStorageDirectory(): string
@@ -96,6 +109,16 @@ final class MailcatcherState
      * this check the backend would claim no mail is being sent while every mail
      * goes out as usual — see ConfigurationValidator.
      */
+    public static function markWiredByProjectConfiguration(): void
+    {
+        self::$wiredByProjectConfiguration = true;
+    }
+
+    public static function wasWiredByProjectConfiguration(): bool
+    {
+        return self::$wiredByProjectConfiguration;
+    }
+
     public static function isWired(): bool
     {
         $configurationVariables = $GLOBALS['TYPO3_CONF_VARS'] ?? null;

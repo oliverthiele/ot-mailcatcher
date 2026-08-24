@@ -164,6 +164,12 @@
       </trans-unit>
 
       <!-- Configuration findings -->
+      <trans-unit id="configuration.projectBlockMissing.message" resname="configuration.projectBlockMissing.message">
+        <source>The transport switch is missing from config/system/additional.php.</source>
+      </trans-unit>
+      <trans-unit id="configuration.projectBlockMissing.hint" resname="configuration.projectBlockMissing.hint">
+        <source>Normal requests are captured through the extension’s own ext_localconf.php, so most mail is safe. But reduced bootstraps skip extension configuration — the install tool’s mail test under Environment builds its container without it and would deliver its mail for real. See the Installation section of the extension README for the block to add.</source>
+      </trans-unit>
       <trans-unit id="configuration.productionUnlocked.message" resname="configuration.productionUnlocked.message">
         <source>MAILCATCHER_ALLOWED=1 is set in the Production context.</source>
       </trans-unit>
