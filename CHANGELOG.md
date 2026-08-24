@@ -5,6 +5,30 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.2] — 2026-08-25
+
+### Fixed
+
+- **No action in the module ever reported its result.** Switching the catcher on
+  or off, deleting, resending — all of them queued a flash message that was never
+  displayed, so every action looked like it had done nothing. The core module
+  layout renders one specific queue,
+  `<f:flashMessages queueIdentifier="{flashMessageQueueIdentifier}" />`, whose
+  identifier comes from `ModuleTemplate`, while `addFlashMessage()` writes into
+  Extbase's own plugin-namespaced queue. The two are now connected through
+  `ModuleTemplate::setFlashMessageQueue()`, in a single place so it cannot be
+  forgotten for a new action.
+
+  This is why a failed resend appeared to do nothing at all: it had reported both
+  the failure and its reason, and neither reached the screen. The 0.1.1 entry
+  claiming this was fixed by declaring the `Module` layout was wrong — the layout
+  restored the padding, not the messages.
+
+### Changed
+
+- The "sent %s mails" message is only shown when something was actually sent. A
+  green "sent 0" next to a red error was more confusing than no message.
+
 ## [0.3.1] — 2026-08-25
 
 ### Fixed
