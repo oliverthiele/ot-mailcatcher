@@ -8,15 +8,27 @@ use OliverThiele\OtMailcatcher\Service\MailcatcherState;
 
 defined('TYPO3') or die();
 
-// Wired here rather than in the project's config/system/additional.php, which is
-// where this used to live. ext_localconf.php runs after additional.php (see
-// Bootstrap::populateLocalConfiguration() vs. ExtLocalconfFactory::load()), so
-// this wins over any project code that rewrites the MAIL array — and, more
-// importantly, it cannot be forgotten. A missing project block used to mean the
-// backend reported that no mail was being sent while every mail went out.
+// One of two wiring layers, and on its own not enough.
+//
+// This one runs after config/system/additional.php (Bootstrap:
+// populateLocalConfiguration() vs. ExtLocalconfFactory::load()), so it wins over
+// project code that rewrites the MAIL array, and it works without any project
+// configuration at all.
+//
+// What it does NOT cover is a reduced bootstrap. The install tool's mail test
+// calls BootService::getContainer() without loadExtLocalconfDatabaseAndExtTables(),
+// so no extension configuration is loaded and this file never runs — that mail
+// would be delivered for real. additional.php is read by every bootstrap and
+// covers exactly that gap, which is why the README still asks for it.
 //
 // The condition is evaluated on every request: ext_localconf.php is cached as
 // concatenated PHP, but that PHP is executed each time.
+// Recorded before the assignment below, while the two layers can still be told
+// apart. See MailcatcherState::wasWiredByProjectConfiguration().
+if (MailcatcherState::isWired()) {
+    MailcatcherState::markWiredByProjectConfiguration();
+}
+
 if (MailcatcherState::isActive()) {
     $GLOBALS['TYPO3_CONF_VARS']['MAIL']['transport'] = FileTransport::class;
 } elseif (MailcatcherState::isEnabled()) {

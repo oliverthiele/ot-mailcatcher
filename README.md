@@ -49,14 +49,35 @@ editor can act on.
 composer require oliverthiele/ot-mailcatcher
 ```
 
-That is the whole installation. The extension wires the mail transport in its
-own `ext_localconf.php`, which TYPO3 loads *after* `config/system/additional.php`
-— so it overrides project code that rewrites the `MAIL` array, and there is
-nothing to forget.
+Then add the transport switch at the **end** of `config/system/additional.php` —
+after any block that rewrites the `MAIL` array:
 
-> **Upgrading from 0.2.x:** the block you were asked to add to
-> `config/system/additional.php` is no longer needed. Leaving it in place is
-> harmless — it sets the same value and is overridden anyway — but it can go.
+```php
+use OliverThiele\OtMailcatcher\Mail\FileTransport;
+use OliverThiele\OtMailcatcher\Service\MailcatcherState;
+
+if (class_exists(MailcatcherState::class) && MailcatcherState::isActive()) {
+    $GLOBALS['TYPO3_CONF_VARS']['MAIL']['transport'] = FileTransport::class;
+}
+```
+
+**Why both this block and the extension's own wiring?** They cover different
+bootstraps, and neither covers everything:
+
+| | `ext_localconf.php` (in the extension) | `additional.php` (this block) |
+|---|---|---|
+| Normal frontend, backend, CLI | yes | yes |
+| After project code rewrites `MAIL` | yes — loads later | depends on placement |
+| Reduced bootstrap, e.g. the install tool's mail test | **no** | yes |
+
+The install tool's mail test under **Environment** calls
+`BootService::getContainer()` without loading extension configuration, so
+`ext_localconf.php` never runs there and the mail would be delivered for real.
+`config/system/additional.php` is read by every bootstrap and closes that gap.
+
+If the block is missing, the backend says so: normal mail is still captured
+through the extension's own wiring, and the module reports that reduced
+bootstraps are not covered.
 
 While the catcher is switched on, **no mail leaves the system, on any process**.
 Where a process may not run the catcher — a Production context without

@@ -5,6 +5,32 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.1] — 2026-08-25
+
+### Fixed
+
+- The install tool's mail test under **Environment** was not captured and
+  delivered its mail for real. 0.3.0 moved the transport wiring into the
+  extension's `ext_localconf.php` and dropped the block in
+  `config/system/additional.php` as no longer needed — which was wrong.
+  `EnvironmentController::mailTestAction()` calls
+  `BootService::getContainer()` without
+  `loadExtLocalconfDatabaseAndExtTables()`, so no extension configuration is
+  loaded and the wiring never runs. `additional.php` is read by every bootstrap
+  and does not have that gap.
+
+  The block is therefore required again, and the README explains what each of the
+  two layers covers. `ext_localconf.php` stays: it works without any project
+  configuration and overrides project code that rewrites the `MAIL` array, so a
+  missing block is now a narrow gap rather than a total one.
+
+### Added
+
+- Finding `projectBlockMissing`: while the catcher is on, the backend reports
+  whether `config/system/additional.php` wired the transport before
+  `ext_localconf.php` did — the only point at which the two layers can still be
+  told apart.
+
 ## [0.3.0] — 2026-08-25
 
 ### Added

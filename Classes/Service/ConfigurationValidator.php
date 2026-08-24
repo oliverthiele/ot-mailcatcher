@@ -75,6 +75,12 @@ final class ConfigurationValidator
             $findings[] = new ConfigurationFinding('allowValueIgnored', Severity::HINT);
         }
 
+        // Only detectable while the catcher is on, because the project block is
+        // guarded by isActive() and assigns nothing otherwise.
+        if (MailcatcherState::isActive() && !MailcatcherState::wasWiredByProjectConfiguration()) {
+            $findings[] = new ConfigurationFinding('projectBlockMissing', Severity::WARNING);
+        }
+
         $apiToken = MailcatcherState::readEnvironmentVariable(
             MailcatcherApiMiddleware::TOKEN_ENVIRONMENT_VARIABLE
         );
