@@ -11,6 +11,7 @@ use OliverThiele\OtMailcatcher\Service\LabelProvider;
 use OliverThiele\OtMailcatcher\Service\MailcatcherState;
 use OliverThiele\OtMailcatcher\Service\ResendService;
 use Psr\Http\Message\ResponseInterface;
+use TYPO3\CMS\Backend\Template\ModuleTemplate;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Http\AllowedMethodsTrait;
@@ -42,6 +43,22 @@ class MailcatcherModuleController extends ActionController
     ) {
     }
 
+    /**
+     * Builds the module template with this controller's flash message queue.
+     *
+     * Without the queue, nothing this module reports ever reaches the screen.
+     * The core layout renders one specific queue —
+     * <f:flashMessages queueIdentifier="{flashMessageQueueIdentifier}" /> — and
+     * that identifier comes from ModuleTemplate, while addFlashMessage() writes
+     * into Extbase's own plugin-namespaced queue. The two only meet if they are
+     * connected here.
+     */
+    private function createModuleTemplate(): ModuleTemplate
+    {
+        return $this->moduleTemplateFactory->create($this->request)
+            ->setFlashMessageQueue($this->getFlashMessageQueue());
+    }
+
     public function indexAction(): ResponseInterface
     {
         $mails = [];
@@ -53,7 +70,7 @@ class MailcatcherModuleController extends ActionController
             ];
         }
 
-        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
+        $moduleTemplate = $this->createModuleTemplate();
         $moduleTemplate->assignMultiple([
             'mails' => $mails,
             'isEnabled' => MailcatcherState::isEnabled(),
@@ -93,7 +110,7 @@ class MailcatcherModuleController extends ActionController
                 : '@typo3/backend/tabs.js'
         );
 
-        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
+        $moduleTemplate = $this->createModuleTemplate();
         $moduleTemplate->assignMultiple([
             'mail' => $mail,
             'bodyUri' => $this->uriBuilder->reset()->uriFor('body', ['identifier' => $identifier]),
@@ -204,7 +221,7 @@ class MailcatcherModuleController extends ActionController
             return $this->redirect('index');
         }
 
-        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
+        $moduleTemplate = $this->createModuleTemplate();
         $moduleTemplate->assignMultiple([
             'operation' => $operation,
             'count' => $this->capturedMailRepository->countAll(),
@@ -247,11 +264,13 @@ class MailcatcherModuleController extends ActionController
             return $this->redirect('index');
         }
 
-        $this->addFlashMessage(
-            sprintf($this->labelProvider->get('flash.resentAll.message'), $result['sent']),
-            '',
-            ContextualFeedbackSeverity::OK
-        );
+        if ($result['sent'] > 0) {
+            $this->addFlashMessage(
+                sprintf($this->labelProvider->get('flash.resentAll.message'), $result['sent']),
+                '',
+                ContextualFeedbackSeverity::OK
+            );
+        }
 
         if ($result['failed'] > 0) {
             $this->addFlashMessage(
