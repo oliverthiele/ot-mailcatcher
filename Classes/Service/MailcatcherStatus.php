@@ -100,7 +100,12 @@ enum MailcatcherStatus: string
     }
 
     /**
-     * Bootstrap contextual class, for the module's status box.
+     * Backend callout variant for the module's status box.
+     *
+     * A callout rather than a Bootstrap background utility: `.callout-*` sets
+     * background *and* text colour from theme-aware tokens, while
+     * `.bg-*-subtle` only sets the background — which left light text on a light
+     * ground in the dark backend theme.
      */
     public function getCssClass(): string
     {
@@ -112,17 +117,4 @@ enum MailcatcherStatus: string
         };
     }
 
-    /**
-     * The status box's border and background, assembled here rather than in
-     * Fluid: the tinted background belongs on every state except the normal one,
-     * and expressing that inline needs quotes nested inside quotes.
-     */
-    public function getBoxCssClasses(): string
-    {
-        if ($this === self::INACTIVE) {
-            return 'border-secondary';
-        }
-
-        return 'border-' . $this->getCssClass() . ' bg-' . $this->getCssClass() . '-subtle';
-    }
 }

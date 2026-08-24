@@ -6,8 +6,8 @@
 
 <f:variable name="ll" value="LLL:EXT:ot_mailcatcher/Resources/Private/Language/locallang_mod.xlf:"/>
 
-<div class="mb-4 p-3 border rounded {status.boxCssClasses}">
-    <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+<div class="callout callout-{status.cssClass}">
+    <div class="callout-content d-flex align-items-center justify-content-between flex-wrap gap-3">
         <div>
             <strong><f:translate key="{ll}{status.statusLabelKey}"/></strong>
             <f:if condition="{status.hintLabelKey}">
