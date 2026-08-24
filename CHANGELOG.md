@@ -5,6 +5,16 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.3] — 2026-08-25
+
+### Fixed
+
+- The list of captured mails was not rendered. Reworking the status box in 0.2.0
+  left an orphaned fragment behind — the tail of the old markup, including three
+  stray `</div>` tags that closed the module body early, so the table was emitted
+  outside its container and never became visible. A second, unreachable
+  "Delete all" button below the status box was the visible symptom.
+
 ## [0.2.2] — 2026-08-25
 
 ### Added
