@@ -126,18 +126,49 @@
         <source>The mail was assembled with the wrong character set. Check the template and the data source for their encoding.</source>
       </trans-unit>
 
+      <trans-unit id="status.enabledSince" resname="status.enabledSince">
+        <source>Switched on since %1$s</source>
+      </trans-unit>
+      <trans-unit id="action.resendAll" resname="action.resendAll">
+        <source>Send remaining</source>
+      </trans-unit>
+      <trans-unit id="flash.resentAll.message" resname="flash.resentAll.message">
+        <source>Sent %1$s captured mails.</source>
+      </trans-unit>
+      <trans-unit id="flash.resendFailed.message" resname="flash.resendFailed.message">
+        <source>%1$s mails could not be sent and are still here.</source>
+      </trans-unit>
+      <trans-unit id="confirm.cancel" resname="confirm.cancel">
+        <source>Cancel</source>
+      </trans-unit>
+      <trans-unit id="confirm.deleteAll.title" resname="confirm.deleteAll.title">
+        <source>Delete all captured mails?</source>
+      </trans-unit>
+      <trans-unit id="confirm.deleteAll.body" resname="confirm.deleteAll.body">
+        <source>This permanently deletes %1$s mails. Mails that were captured instead of delivered are gone for good — nobody ever received them, and there is no second copy.</source>
+      </trans-unit>
+      <trans-unit id="confirm.deleteAll.submit" resname="confirm.deleteAll.submit">
+        <source>Yes, delete all</source>
+      </trans-unit>
+      <trans-unit id="confirm.resendAll.title" resname="confirm.resendAll.title">
+        <source>Send the remaining mails?</source>
+      </trans-unit>
+      <trans-unit id="confirm.resendAll.body" resname="confirm.resendAll.body">
+        <source>This delivers %1$s mails to their original recipients. Delete the test and debug mails first — everything still here will go out. Each mail keeps its original headers, so the date the recipient sees is the date it was captured.</source>
+      </trans-unit>
+      <trans-unit id="confirm.resendAll.submit" resname="confirm.resendAll.submit">
+        <source>Yes, send them</source>
+      </trans-unit>
+      <trans-unit id="confirm.productionNote" resname="confirm.productionNote">
+        <source>This is a Production system. What is captured here may be real customer communication.</source>
+      </trans-unit>
+
       <!-- Configuration findings -->
       <trans-unit id="configuration.productionUnlocked.message" resname="configuration.productionUnlocked.message">
         <source>MAILCATCHER_ALLOWED=1 is set in the Production context.</source>
       </trans-unit>
       <trans-unit id="configuration.productionUnlocked.hint" resname="configuration.productionUnlocked.hint">
         <source>The catcher can be switched on in this context and then stops all outgoing mail. On a staging system that is usually intended; on the live system the variable belongs removed. Development contexts do not need it at all — the catcher is unlocked there anyway.</source>
-      </trans-unit>
-      <trans-unit id="configuration.allowedMissing.message" resname="configuration.allowedMissing.message">
-        <source>MAILCATCHER_ALLOWED is not set — the catcher is unlocked by context alone.</source>
-      </trans-unit>
-      <trans-unit id="configuration.allowedMissing.hint" resname="configuration.allowedMissing.hint">
-        <source>Any process running in a Production context then captures nothing and sends for real. The command line defaults to that context even where the web server sets a development one, so a bulk send from a console command or a scheduler task reaches real recipients while the backend reports that no mail is being sent. Set MAILCATCHER_ALLOWED=1 in the .env that is loaded for the Production context.</source>
       </trans-unit>
       <trans-unit id="configuration.allowValueIgnored.message" resname="configuration.allowValueIgnored.message">
         <source>MAILCATCHER_ALLOWED is set to a value other than 1 and is therefore ignored.</source>

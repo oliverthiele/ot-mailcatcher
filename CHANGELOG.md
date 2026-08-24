@@ -5,6 +5,44 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] — 2026-08-25
+
+### Added
+
+- Captured mail can be delivered after the fact. Switch the catcher off, delete
+  the test and debug mails, then **Send remaining** — the rest goes to its
+  original recipients. Delivered files move to `var/mailcatcher/sent/` instead of
+  being deleted, so a failure never destroys the only copy. Sending is refused
+  while the catcher is on, because the mails would be captured again.
+- Both destructive actions now go through a confirmation step naming the count,
+  with an extra note in a Production context. It is a rendered step rather than a
+  JavaScript dialog: it works regardless of what the backend loads, and the
+  friction is the point.
+- The backend shows since when the catcher has been on. A tool meant for a short
+  incident window reads differently after three days than after ten minutes, and
+  the people who notice the missing mail are website visitors, who never see the
+  banner.
+- `mailcatcher:prune` requires `--force` in a Production context.
+
+### Changed
+
+- **The transport is wired in the extension's own `ext_localconf.php`.** It used
+  to require a block in `config/system/additional.php`, and forgetting it meant
+  the backend reported that no mail was being sent while every mail went out.
+  `ext_localconf.php` loads after `additional.php`, so this also overrides
+  project code that rewrites the `MAIL` array. The project block is no longer
+  needed; leaving it in place is harmless.
+- **A process that may not capture now refuses to send.** Previously it fell back
+  to real delivery, which is how a command line resolving a `Production` context
+  came to deliver mail while the backend reported the opposite. `RefusingTransport`
+  throws instead. This is a behaviour change on misconfigured systems: mail that
+  used to go out now fails loudly.
+
+### Removed
+
+- Finding `allowedMissing`, obsolete: the divergence it warned about is no longer
+  a silent failure but an abort.
+
 ## [0.2.3] — 2026-08-25
 
 ### Fixed

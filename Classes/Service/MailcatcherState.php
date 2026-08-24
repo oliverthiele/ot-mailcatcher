@@ -56,22 +56,27 @@ final class MailcatcherState
      */
     public static function isEnabled(): bool
     {
+        return (self::readState()['enabled'] ?? false) === true;
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private static function readState(): array
+    {
         $stateFilePath = self::getStateFilePath();
         if (!is_file($stateFilePath)) {
-            return false;
+            return [];
         }
 
         $rawState = file_get_contents($stateFilePath);
         if ($rawState === false) {
-            return false;
+            return [];
         }
 
         $decodedState = json_decode($rawState, true);
-        if (!is_array($decodedState)) {
-            return false;
-        }
 
-        return ($decodedState['enabled'] ?? false) === true;
+        return is_array($decodedState) ? $decodedState : [];
     }
 
     /**
@@ -104,6 +109,32 @@ final class MailcatcherState
         }
 
         return ($mailConfiguration['transport'] ?? null) === FileTransport::class;
+    }
+
+    /**
+     * When the catcher was switched on, or null while it is off.
+     *
+     * The backend shows this because a catcher meant for a short incident window
+     * reads differently after three days than after ten minutes — and the people
+     * who notice the missing mail are website visitors, who never see the banner.
+     */
+    public static function getEnabledSince(): ?\DateTimeImmutable
+    {
+        if (!self::isEnabled()) {
+            return null;
+        }
+
+        $state = self::readState();
+        $changedAt = $state['changedAt'] ?? null;
+        if (!is_string($changedAt)) {
+            return null;
+        }
+
+        try {
+            return new \DateTimeImmutable($changedAt);
+        } catch (\Exception) {
+            return null;
+        }
     }
 
     public static function setEnabled(bool $enabled): void

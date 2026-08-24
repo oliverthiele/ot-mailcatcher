@@ -8,4 +8,12 @@ parameters:
     - Classes/
   tmpDir: ../../var/cache/phpstan/ot-mailcatcher
   reportUnmatchedIgnoredErrors: false
+  ignoreErrors:
+    # TransportFactory instantiates a transport as
+    # makeInstance($class, $mailSettings), so the parameter is part of the
+    # contract even where a transport has nothing to configure. Dropping it
+    # would make $mailSettings land on the event dispatcher parameter.
+    -
+      identifier: constructor.unusedParameter
+      path: Classes/Mail/RefusingTransport.php
   checkUninitializedProperties: true

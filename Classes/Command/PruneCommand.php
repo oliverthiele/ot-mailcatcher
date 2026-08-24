@@ -10,6 +10,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use TYPO3\CMS\Core\Core\Environment;
 
 /**
  * Deletes captured mails beyond a retention period.
@@ -31,7 +32,13 @@ final class PruneCommand extends Command
                 'Delete captured mails older than this many days.',
                 (string)self::DEFAULT_RETENTION_DAYS
             )
-            ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Only report what would be deleted.');
+            ->addOption('dry-run', null, InputOption::VALUE_NONE, 'Only report what would be deleted.')
+            ->addOption(
+                'force',
+                null,
+                InputOption::VALUE_NONE,
+                'Required in a Production context, where a captured mail may be real customer communication that was never delivered.'
+            );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output): int
@@ -46,6 +53,21 @@ final class PruneCommand extends Command
         }
 
         $isDryRun = $input->getOption('dry-run') === true;
+
+        // On a live system the catcher is switched on for an incident, and what
+        // it holds may be real mail that no recipient has seen yet. Deleting
+        // that on a retention timer, from a scheduler task, is the quiet version
+        // of losing customer communication — so it takes an explicit --force.
+        if (!$isDryRun
+            && Environment::getContext()->isProduction()
+            && $input->getOption('force') !== true
+        ) {
+            $inputOutput->error(
+                'Refusing to delete captured mails in a Production context without --force. '
+                . 'Run with --dry-run to see what would go, or pass --force if that is intended.'
+            );
+            return Command::INVALID;
+        }
         $threshold = time() - ($days * 86400);
 
         $files = glob(MailcatcherState::getStorageDirectory() . '/*.eml');

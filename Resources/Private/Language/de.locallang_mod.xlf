@@ -163,6 +163,55 @@
         <target>Die Mail wurde mit dem falschen Zeichensatz zusammengebaut. Template und Datenquelle auf ihre Kodierung prüfen.</target>
       </trans-unit>
 
+      <trans-unit id="status.enabledSince" resname="status.enabledSince" approved="yes">
+        <source>Switched on since %1$s</source>
+        <target>Eingeschaltet seit %1$s</target>
+      </trans-unit>
+      <trans-unit id="action.resendAll" resname="action.resendAll" approved="yes">
+        <source>Send remaining</source>
+        <target>Verbleibende versenden</target>
+      </trans-unit>
+      <trans-unit id="flash.resentAll.message" resname="flash.resentAll.message" approved="yes">
+        <source>Sent %1$s captured mails.</source>
+        <target>%1$s abgefangene Mails versendet.</target>
+      </trans-unit>
+      <trans-unit id="flash.resendFailed.message" resname="flash.resendFailed.message" approved="yes">
+        <source>%1$s mails could not be sent and are still here.</source>
+        <target>%1$s Mails konnten nicht versendet werden und liegen weiterhin hier.</target>
+      </trans-unit>
+      <trans-unit id="confirm.cancel" resname="confirm.cancel" approved="yes">
+        <source>Cancel</source>
+        <target>Abbrechen</target>
+      </trans-unit>
+      <trans-unit id="confirm.deleteAll.title" resname="confirm.deleteAll.title" approved="yes">
+        <source>Delete all captured mails?</source>
+        <target>Alle abgefangenen Mails löschen?</target>
+      </trans-unit>
+      <trans-unit id="confirm.deleteAll.body" resname="confirm.deleteAll.body" approved="yes">
+        <source>This permanently deletes %1$s mails. Mails that were captured instead of delivered are gone for good — nobody ever received them, and there is no second copy.</source>
+        <target>Damit werden %1$s Mails endgültig gelöscht. Abgefangene Mails wurden nie zugestellt — es gibt keine zweite Kopie, und niemand hat sie je erhalten.</target>
+      </trans-unit>
+      <trans-unit id="confirm.deleteAll.submit" resname="confirm.deleteAll.submit" approved="yes">
+        <source>Yes, delete all</source>
+        <target>Ja, alle löschen</target>
+      </trans-unit>
+      <trans-unit id="confirm.resendAll.title" resname="confirm.resendAll.title" approved="yes">
+        <source>Send the remaining mails?</source>
+        <target>Verbleibende Mails versenden?</target>
+      </trans-unit>
+      <trans-unit id="confirm.resendAll.body" resname="confirm.resendAll.body" approved="yes">
+        <source>This delivers %1$s mails to their original recipients. Delete the test and debug mails first — everything still here will go out. Each mail keeps its original headers, so the date the recipient sees is the date it was captured.</source>
+        <target>Damit werden %1$s Mails an ihre ursprünglichen Empfänger zugestellt. Vorher die Test- und Debug-Mails löschen — alles, was noch hier liegt, geht raus. Jede Mail behält ihre ursprünglichen Header, das Datum beim Empfänger ist also das des Abfangens.</target>
+      </trans-unit>
+      <trans-unit id="confirm.resendAll.submit" resname="confirm.resendAll.submit" approved="yes">
+        <source>Yes, send them</source>
+        <target>Ja, versenden</target>
+      </trans-unit>
+      <trans-unit id="confirm.productionNote" resname="confirm.productionNote" approved="yes">
+        <source>This is a Production system. What is captured here may be real customer communication.</source>
+        <target>Dies ist ein Produktivsystem. Was hier liegt, kann echte Kundenkommunikation sein.</target>
+      </trans-unit>
+
       <!-- Configuration findings -->
       <trans-unit id="configuration.productionUnlocked.message" resname="configuration.productionUnlocked.message" approved="yes">
         <source>MAILCATCHER_ALLOWED=1 is set in the Production context.</source>
@@ -171,14 +220,6 @@
       <trans-unit id="configuration.productionUnlocked.hint" resname="configuration.productionUnlocked.hint" approved="yes">
         <source>The catcher can be switched on in this context and then stops all outgoing mail. On a staging system that is usually intended; on the live system the variable belongs removed. Development contexts do not need it at all — the catcher is unlocked there anyway.</source>
         <target>Der Mailcatcher lässt sich in diesem Kontext einschalten und stoppt dann den gesamten Mailversand. Auf einem Staging-System ist das meist gewollt, auf dem Live-System gehört die Variable entfernt. In Entwicklungskontexten wird sie gar nicht gebraucht — dort ist der Mailcatcher ohnehin freigeschaltet.</target>
-      </trans-unit>
-      <trans-unit id="configuration.allowedMissing.message" resname="configuration.allowedMissing.message" approved="yes">
-        <source>MAILCATCHER_ALLOWED is not set — the catcher is unlocked by context alone.</source>
-        <target>MAILCATCHER_ALLOWED ist nicht gesetzt — der Mailcatcher ist hier allein über den Kontext freigeschaltet.</target>
-      </trans-unit>
-      <trans-unit id="configuration.allowedMissing.hint" resname="configuration.allowedMissing.hint" approved="yes">
-        <source>Any process running in a Production context then captures nothing and sends for real. The command line defaults to that context even where the web server sets a development one, so a bulk send from a console command or a scheduler task reaches real recipients while the backend reports that no mail is being sent. Set MAILCATCHER_ALLOWED=1 in the .env that is loaded for the Production context.</source>
-        <target>Prozesse in einem Production-Kontext fangen dann nichts ab und versenden reell. Die Kommandozeile nutzt diesen Kontext standardmäßig — auch dort, wo der Webserver einen Entwicklungskontext setzt. Ein Massenversand über ein Konsolen-Kommando oder den Scheduler ginge damit an echte Empfänger, während das Backend meldet, es werde keine Mail versendet. MAILCATCHER_ALLOWED=1 in der .env eintragen, die für den Production-Kontext geladen wird.</target>
       </trans-unit>
       <trans-unit id="configuration.allowValueIgnored.message" resname="configuration.allowValueIgnored.message" approved="yes">
         <source>MAILCATCHER_ALLOWED is set to a value other than 1 and is therefore ignored.</source>
