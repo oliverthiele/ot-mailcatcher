@@ -31,7 +31,7 @@ final class MailcatcherApiMiddleware implements MiddlewareInterface
 {
     private const ROUTE_PREFIX = '/_mailcatcher/api/messages';
     private const TOKEN_HEADER = 'X-Mailcatcher-Token';
-    private const TOKEN_ENVIRONMENT_VARIABLE = 'MAILCATCHER_API_TOKEN';
+    public const TOKEN_ENVIRONMENT_VARIABLE = 'MAILCATCHER_API_TOKEN';
 
     public function __construct(
         private readonly CapturedMailRepository $capturedMailRepository,
@@ -154,14 +154,7 @@ final class MailcatcherApiMiddleware implements MiddlewareInterface
 
     private function readToken(): string
     {
-        $value = getenv(self::TOKEN_ENVIRONMENT_VARIABLE);
-        if (is_string($value) && $value !== '') {
-            return $value;
-        }
-
-        $fallback = $_ENV[self::TOKEN_ENVIRONMENT_VARIABLE] ?? null;
-
-        return is_scalar($fallback) ? (string)$fallback : '';
+        return MailcatcherState::readEnvironmentVariable(self::TOKEN_ENVIRONMENT_VARIABLE);
     }
 
     /**

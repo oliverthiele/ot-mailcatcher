@@ -6,15 +6,13 @@
 
 <f:variable name="ll" value="LLL:EXT:ot_mailcatcher/Resources/Private/Language/locallang_mod.xlf:"/>
 
-<div class="mb-4 p-3 border rounded {f:if(condition: isActive, then: 'border-warning bg-warning-subtle', else: 'border-secondary')}">
+<div class="mb-4 p-3 border rounded {status.boxCssClasses}">
     <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
         <div>
-            <strong>
-                <f:if condition="{isActive}">
-                    <f:then><f:translate key="{ll}status.active"/></f:then>
-                    <f:else><f:translate key="{ll}status.inactive"/></f:else>
-                </f:if>
-            </strong>
+            <strong><f:translate key="{ll}{status.statusLabelKey}"/></strong>
+            <f:if condition="{status.hintLabelKey}">
+                <div class="mt-1"><f:translate key="{ll}{status.hintLabelKey}"/></div>
+            </f:if>
             <f:if condition="{isAllowed}">
                 <f:else>
                     <div class="text-danger mt-1"><f:translate key="{ll}status.notAllowed"/></div>
@@ -36,6 +34,22 @@
                 </f:form>
             </f:if>
             <f:if condition="{mails}">
+                <f:form action="deleteAll" method="post">
+                    <button type="submit" class="btn btn-default"><f:translate key="{ll}action.deleteAll"/></button>
+                </f:form>
+            </f:if>
+        </div>
+    </div>
+</div>
+
+<f:for each="{environmentFindings}" as="finding">
+    <div class="alert alert-{finding.severity.cssClass}">
+        <strong><f:translate key="{ll}{finding.messageLabelKey}"/></strong>
+        <div class="mt-1"><f:translate key="{ll}{finding.hintLabelKey}"/></div>
+    </div>
+</f:for>
+
+<f:if condition="{mails}">
                 <f:form action="deleteAll" method="post">
                     <button type="submit" class="btn btn-default"><f:translate key="{ll}action.deleteAll"/></button>
                 </f:form>

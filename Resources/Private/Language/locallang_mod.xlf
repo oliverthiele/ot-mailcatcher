@@ -12,12 +12,19 @@
         <source>Review the mails captured instead of being sent, and check them for the usual configuration mistakes.</source>
       </trans-unit>
 
-      <!-- Warnings shown while the catcher is active -->
+      <!-- Warnings shown while the catcher is switched on -->
       <trans-unit id="warning.active.toolbar" resname="warning.active.toolbar">
         <source>Mailcatcher is active — no mail is being sent</source>
       </trans-unit>
       <trans-unit id="warning.active.banner" resname="warning.active.banner">
-        <source>Mailcatcher is active: outgoing mails are written to a file and no recipient receives anything.</source>
+        <source>Mailcatcher is active — no mail is being sent. Every mail only lands in the Mailcatcher module.</source>
+      </trans-unit>
+
+      <trans-unit id="warning.notTakingEffect.banner" resname="warning.notTakingEffect.banner">
+        <source>Mailcatcher is switched on but is not taking effect — mails are still being sent. Do not test with real addresses; please inform your administrator.</source>
+      </trans-unit>
+      <trans-unit id="warning.notTakingEffect.toolbar" resname="warning.notTakingEffect.toolbar">
+        <source>Mailcatcher not taking effect — mails are being sent</source>
       </trans-unit>
 
       <!-- Reports module -->
@@ -35,6 +42,19 @@
       </trans-unit>
       <trans-unit id="report.inactive.message" resname="report.inactive.message">
         <source>Mails are handed to the configured mail transport as usual.</source>
+      </trans-unit>
+
+      <trans-unit id="report.notTakingEffect.value" resname="report.notTakingEffect.value">
+        <source>Switched on but ineffective — mails are being sent</source>
+      </trans-unit>
+      <trans-unit id="report.notTakingEffect.message" resname="report.notTakingEffect.message">
+        <source>The catcher is switched on, but the mail transport still points at regular delivery. The block that assigns FileTransport is missing from config/system/additional.php — see the Installation section of the extension README for the exact lines. Until it is there, the backend cannot capture a single mail.</source>
+      </trans-unit>
+      <trans-unit id="report.strayTransport.value" resname="report.strayTransport.value">
+        <source>Switched off, but the transport points at the catcher</source>
+      </trans-unit>
+      <trans-unit id="report.strayTransport.message" resname="report.strayTransport.message">
+        <source>The catcher is switched off, yet FileTransport is the configured mail transport, so no mail is delivered. This usually means the assignment was made without the MailcatcherState::isActive() guard around it, or was left behind in settings.php after a debugging session.</source>
       </trans-unit>
 
       <!-- Check findings -->
@@ -99,6 +119,32 @@
         <source>The mail was assembled with the wrong character set. Check the template and the data source for their encoding.</source>
       </trans-unit>
 
+      <!-- Configuration findings -->
+      <trans-unit id="configuration.productionUnlocked.message" resname="configuration.productionUnlocked.message">
+        <source>MAILCATCHER_ALLOWED=1 is set in the Production context.</source>
+      </trans-unit>
+      <trans-unit id="configuration.productionUnlocked.hint" resname="configuration.productionUnlocked.hint">
+        <source>The catcher can be switched on here, and would then stop all outgoing mail on a live system. The variable belongs in the .env of development and staging environments only.</source>
+      </trans-unit>
+      <trans-unit id="configuration.allowValueIgnored.message" resname="configuration.allowValueIgnored.message">
+        <source>MAILCATCHER_ALLOWED is set to a value other than 1 and is therefore ignored.</source>
+      </trans-unit>
+      <trans-unit id="configuration.allowValueIgnored.hint" resname="configuration.allowValueIgnored.hint">
+        <source>Only the exact value 1 unlocks the catcher. Spellings such as true, yes or on have no effect — remove the variable, or set it to 1.</source>
+      </trans-unit>
+      <trans-unit id="configuration.apiTokenInProduction.message" resname="configuration.apiTokenInProduction.message">
+        <source>MAILCATCHER_API_TOKEN is set in the Production context.</source>
+      </trans-unit>
+      <trans-unit id="configuration.apiTokenInProduction.hint" resname="configuration.apiTokenInProduction.hint">
+        <source>The test API is meant for end-to-end tests, not for a live system. Leave the variable empty there; the route then answers 404 and stays closed.</source>
+      </trans-unit>
+      <trans-unit id="configuration.apiTokenTooShort.message" resname="configuration.apiTokenTooShort.message">
+        <source>MAILCATCHER_API_TOKEN is shorter than 32 characters.</source>
+      </trans-unit>
+      <trans-unit id="configuration.apiTokenTooShort.hint" resname="configuration.apiTokenTooShort.hint">
+        <source>A short token can be guessed, and the API hands out the full content of every captured mail. Generate a new one with: openssl rand -hex 32</source>
+      </trans-unit>
+
       <!-- Module user interface -->
       <trans-unit id="flash.notFound.message" resname="flash.notFound.message">
         <source>The requested mail no longer exists.</source>
@@ -120,6 +166,18 @@
       </trans-unit>
       <trans-unit id="status.inactive" resname="status.inactive">
         <source>Inactive — mails are delivered normally</source>
+      </trans-unit>
+      <trans-unit id="status.notTakingEffect" resname="status.notTakingEffect">
+        <source>Switched on but ineffective — mails are being sent</source>
+      </trans-unit>
+      <trans-unit id="status.notTakingEffect.hint" resname="status.notTakingEffect.hint">
+        <source>The transport assignment is missing from config/system/additional.php. Until it is added, switching the catcher on has no effect — see the Reports module for details.</source>
+      </trans-unit>
+      <trans-unit id="status.strayTransport" resname="status.strayTransport">
+        <source>Switched off, but the transport points at the catcher</source>
+      </trans-unit>
+      <trans-unit id="status.strayTransport.hint" resname="status.strayTransport.hint">
+        <source>The mail transport is set to the catcher although it is switched off, so no mail is delivered. Most likely a fixed assignment in the configuration — see the Reports module for details.</source>
       </trans-unit>
       <trans-unit id="status.notAllowed" resname="status.notAllowed">
         <source>Locked in this environment. Set MAILCATCHER_ALLOWED=1 to unlock it.</source>

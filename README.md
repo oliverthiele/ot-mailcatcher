@@ -25,6 +25,10 @@ editor can act on.
   stable identifiers, so an end-to-end test can assert on them.
 - **Impossible to forget.** While the catcher is active it says so in the system
   information toolbar, in the Reports module, and in a banner on every backend page.
+- **It never claims more than it can deliver.** The switch in the backend module and
+  the actual capturing are two different things — the latter needs one block in
+  `additional.php`. If that block is missing, the extension says so instead of
+  reporting that no mail is being sent.
 - **Locked out of Production** unless explicitly allowed.
 
 ## Requirements
@@ -52,14 +56,28 @@ if (class_exists(MailcatcherState::class) && MailcatcherState::isActive()) {
 }
 ```
 
+Forgetting this block used to be the extension's worst failure: the backend
+reported *no mail is being sent* while every mail went out as usual. It now checks
+the mail transport itself, and reports **Switched on but ineffective — mails are
+being sent** in the module, the toolbar and the Reports module until the block is
+in place.
+
+The `MailcatcherState::isActive()` guard is part of the block, not decoration.
+Assigning `FileTransport` unconditionally silences mail delivery even with the
+catcher switched off; the Reports module flags that case too.
+
 ## Configuration
 
 Two environment variables, both optional:
 
 | Variable | Effect |
 |---|---|
-| `MAILCATCHER_ALLOWED` | `1` permits the catcher in the `Production` context. Without it, Production refuses to switch on — a forgotten catcher there stops all mail silently. |
-| `MAILCATCHER_API_TOKEN` | Enables the test API. While empty the route answers `404` and stays completely closed. |
+| `MAILCATCHER_ALLOWED` | `1` permits the catcher in the `Production` context. Without it, Production refuses to switch on — a forgotten catcher there stops all mail silently. Only the literal `1` unlocks; `true` or `yes` do nothing. |
+| `MAILCATCHER_API_TOKEN` | Enables the test API. While empty the route answers `404` and stays completely closed. Generate one with `openssl rand -hex 32`. |
+
+Both are validated. The backend module and the Reports module report an
+unlocked Production context, a `MAILCATCHER_ALLOWED` value that is silently
+ignored, an API token on a Production system, and a token short enough to guess.
 
 Switch the catcher on and off in **System → Mailcatcher**. The state lives in
 `var/mailcatcher/state.json`, not in `settings.php`, which is version-controlled in

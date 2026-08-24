@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OliverThiele\OtMailcatcher\Service;
 
+use OliverThiele\OtMailcatcher\Mail\FileTransport;
 use TYPO3\CMS\Core\Core\Environment;
 
 /**
@@ -19,7 +20,7 @@ final class MailcatcherState
 {
     private const DIRECTORY_NAME = 'mailcatcher';
     private const STATE_FILE_NAME = 'state.json';
-    private const ALLOW_ENVIRONMENT_VARIABLE = 'MAILCATCHER_ALLOWED';
+    public const ALLOW_ENVIRONMENT_VARIABLE = 'MAILCATCHER_ALLOWED';
 
     /**
      * Directory holding the captured .eml files and the state file.
@@ -42,7 +43,7 @@ final class MailcatcherState
      */
     public static function isAllowed(): bool
     {
-        if (self::readAllowEnvironmentVariable() === '1') {
+        if (self::readEnvironmentVariable(self::ALLOW_ENVIRONMENT_VARIABLE) === '1') {
             return true;
         }
 
@@ -81,6 +82,30 @@ final class MailcatcherState
         return self::isAllowed() && self::isEnabled();
     }
 
+    /**
+     * Whether the mail transport actually points at the catcher.
+     *
+     * This is the only honest answer to "will an outgoing mail be captured?".
+     * isActive() merely reports the switch; the capturing itself is wired up in
+     * config/system/additional.php, and that line is easy to forget. Without
+     * this check the backend would claim no mail is being sent while every mail
+     * goes out as usual — see ConfigurationValidator.
+     */
+    public static function isWired(): bool
+    {
+        $configurationVariables = $GLOBALS['TYPO3_CONF_VARS'] ?? null;
+        if (!is_array($configurationVariables)) {
+            return false;
+        }
+
+        $mailConfiguration = $configurationVariables['MAIL'] ?? null;
+        if (!is_array($mailConfiguration)) {
+            return false;
+        }
+
+        return ($mailConfiguration['transport'] ?? null) === FileTransport::class;
+    }
+
     public static function setEnabled(bool $enabled): void
     {
         $storageDirectory = self::getStorageDirectory();
@@ -99,14 +124,22 @@ final class MailcatcherState
         );
     }
 
-    private static function readAllowEnvironmentVariable(): string
+    /**
+     * Reads one of this extension's environment variables, falling back to
+     * $_ENV for setups where the variable never reaches getenv().
+     *
+     * Public because the API middleware and the configuration validator read
+     * their variables the same way, and one implementation is easier to keep
+     * honest than three.
+     */
+    public static function readEnvironmentVariable(string $name): string
     {
-        $value = getenv(self::ALLOW_ENVIRONMENT_VARIABLE);
+        $value = getenv($name);
         if (is_string($value) && $value !== '') {
             return $value;
         }
 
-        $fallback = $_ENV[self::ALLOW_ENVIRONMENT_VARIABLE] ?? null;
+        $fallback = $_ENV[$name] ?? null;
 
         return is_scalar($fallback) ? (string)$fallback : '';
     }

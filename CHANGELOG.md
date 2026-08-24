@@ -5,6 +5,45 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] — 2026-08-24
+
+### Added
+
+- `ConfigurationValidator`, checking that the extension is wired up and configured
+  the way it claims. It answers the only question that matters — does the mail
+  transport actually point at the catcher — instead of merely reading the switch.
+- Two new states, reported in the backend module, the system information toolbar
+  and the Reports module. **Switched on but ineffective** means the block in
+  `config/system/additional.php` is missing and mails are being sent although the
+  catcher is on. **Switched off, but the transport points at the catcher** is the
+  reverse: an assignment made without the `MailcatcherState::isActive()` guard, or
+  left behind in `settings.php`, silently stops delivery.
+- Validation of both environment variables, reported in the module and in the
+  Reports module: `MAILCATCHER_ALLOWED=1` in the Production context, a
+  `MAILCATCHER_ALLOWED` value other than `1` or `0` that is silently ignored,
+  `MAILCATCHER_API_TOKEN` on a Production system, and a token shorter than 32
+  characters.
+- `MailcatcherState::isWired()` and the `MailcatcherStatus` enum, which derives
+  every label key from its case so a new state cannot render an empty string in
+  one of the four places that report it.
+
+### Fixed
+
+- The backend claimed *no mail is being sent* whenever the catcher was switched
+  on, regardless of whether the transport had ever been wired up. With the block
+  in `additional.php` forgotten, that was the most damaging wrong answer the
+  extension could give: it invites deliberate test mails to real addresses.
+
+### Changed
+
+- The banner and toolbar wording drops the implementation detail. Editors are told
+  where their mail can be found — "Every mail only lands in the Mailcatcher module"
+  — instead of that it is written to a file. `var/mailcatcher/` stays in the
+  Reports module, where the audience is the administration.
+- `MailcatcherApiMiddleware` reads its token through
+  `MailcatcherState::readEnvironmentVariable()` rather than its own copy of the
+  same `getenv()`/`$_ENV` fallback.
+
 ## [0.1.5] — 2026-08-24
 
 ### Fixed
