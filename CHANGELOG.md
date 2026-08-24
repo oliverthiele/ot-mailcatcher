@@ -5,6 +5,15 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.5] — 2026-08-24
+
+### Fixed
+
+- The HTML preview stayed blank: an entirely empty `sandbox` attribute kept the
+  framed document from rendering. It now uses `sandbox="allow-same-origin"`,
+  which is inert without `allow-scripts` — scripts, forms and popups remain
+  denied, and the response still carries its own Content-Security-Policy.
+
 ## [0.1.4] — 2026-08-24
 
 ### Fixed
