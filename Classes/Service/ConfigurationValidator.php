@@ -75,15 +75,6 @@ final class ConfigurationValidator
             $findings[] = new ConfigurationFinding('allowValueIgnored', Severity::HINT);
         }
 
-        // Unlocked by context alone. Every process running in a Production
-        // context then sends for real — and the command line defaults to
-        // Production even where the web server sets a development context, so a
-        // bulk send from a scheduler task reaches real recipients while the
-        // backend reports that nothing is being sent.
-        if (MailcatcherState::isEnabled() && !$isProduction && $allowValue !== '1') {
-            $findings[] = new ConfigurationFinding('allowedMissing', Severity::WARNING);
-        }
-
         $apiToken = MailcatcherState::readEnvironmentVariable(
             MailcatcherApiMiddleware::TOKEN_ENVIRONMENT_VARIABLE
         );

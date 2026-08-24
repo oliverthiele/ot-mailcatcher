@@ -29,7 +29,12 @@ editor can act on.
   the actual capturing are two different things — the latter needs one block in
   `additional.php`. If that block is missing, the extension says so instead of
   reporting that no mail is being sent.
-- **Locked out of Production** unless explicitly allowed.
+- **Locked out of Production** unless explicitly allowed, so an administrator
+  cannot silence a live site by accident.
+- **Nothing escapes while it is on.** A process that may not capture refuses to
+  send rather than falling back to real delivery.
+- **Captured mail can still be delivered.** Delete the test and debug mails, then
+  send what is left to the original recipients.
 
 ## Requirements
 
@@ -44,27 +49,22 @@ editor can act on.
 composer require oliverthiele/ot-mailcatcher
 ```
 
-Then add the transport switch at the **end** of `config/system/additional.php` —
-after any block that rewrites the `MAIL` array, otherwise it is overwritten again:
+That is the whole installation. The extension wires the mail transport in its
+own `ext_localconf.php`, which TYPO3 loads *after* `config/system/additional.php`
+— so it overrides project code that rewrites the `MAIL` array, and there is
+nothing to forget.
 
-```php
-use OliverThiele\OtMailcatcher\Mail\FileTransport;
-use OliverThiele\OtMailcatcher\Service\MailcatcherState;
+> **Upgrading from 0.2.x:** the block you were asked to add to
+> `config/system/additional.php` is no longer needed. Leaving it in place is
+> harmless — it sets the same value and is overridden anyway — but it can go.
 
-if (class_exists(MailcatcherState::class) && MailcatcherState::isActive()) {
-    $GLOBALS['TYPO3_CONF_VARS']['MAIL']['transport'] = FileTransport::class;
-}
-```
-
-Forgetting this block used to be the extension's worst failure: the backend
-reported *no mail is being sent* while every mail went out as usual. It now checks
-the mail transport itself, and reports **Switched on but ineffective — mails are
-being sent** in the module, the toolbar and the Reports module until the block is
-in place.
-
-The `MailcatcherState::isActive()` guard is part of the block, not decoration.
-Assigning `FileTransport` unconditionally silences mail delivery even with the
-catcher switched off; the Reports module flags that case too.
+While the catcher is switched on, **no mail leaves the system, on any process**.
+Where a process may not run the catcher — a Production context without
+`MAILCATCHER_ALLOWED=1`, which the command line resolves even when the web server
+sets a development context — mail is **refused with an exception** rather than
+delivered. Loud beats silently wrong: the alternative is a scheduler task
+delivering a bulk send to real recipients while the backend reports that nothing
+is being sent.
 
 ## Configuration
 
@@ -134,6 +134,25 @@ token in the `X-Mailcatcher-Token` header.
 curl -H "X-Mailcatcher-Token: $MAILCATCHER_API_TOKEN" \
      https://example.ddev.site/_mailcatcher/api/messages
 ```
+
+### After a live incident
+
+Switching the catcher on during a live incident is defensible because nothing is
+lost. Getting the mail out again afterwards:
+
+1. **Switch the catcher off** — normal delivery resumes.
+2. **Delete the test and debug mails** individually.
+3. **Send remaining** — delivers everything still captured to its original
+   recipients, after a confirmation naming the count.
+
+Sending is refused while the catcher is still on; the mails would go straight
+back into it. Delivered mails move to `var/mailcatcher/sent/` rather than being
+deleted, so a delivery stays traceable and a failure never destroys the only copy.
+Each mail keeps its original headers, so the `Date` the recipient sees is the
+date it was captured.
+
+`mailcatcher:prune` requires `--force` in a Production context: what it holds
+there may be real customer mail that nobody has received yet.
 
 ### Command line
 

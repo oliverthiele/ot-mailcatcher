@@ -9,8 +9,10 @@ use OliverThiele\OtMailcatcher\Domain\Repository\CapturedMailRepository;
 use OliverThiele\OtMailcatcher\Service\ConfigurationValidator;
 use OliverThiele\OtMailcatcher\Service\LabelProvider;
 use OliverThiele\OtMailcatcher\Service\MailcatcherState;
+use OliverThiele\OtMailcatcher\Service\ResendService;
 use Psr\Http\Message\ResponseInterface;
 use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Http\AllowedMethodsTrait;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Http\Response;
@@ -36,6 +38,7 @@ class MailcatcherModuleController extends ActionController
         private readonly LabelProvider $labelProvider,
         private readonly PageRenderer $pageRenderer,
         private readonly ConfigurationValidator $configurationValidator,
+        private readonly ResendService $resendService,
     ) {
     }
 
@@ -56,6 +59,7 @@ class MailcatcherModuleController extends ActionController
             'isEnabled' => MailcatcherState::isEnabled(),
             'isAllowed' => MailcatcherState::isAllowed(),
             'status' => $this->configurationValidator->getStatus(),
+            'enabledSince' => MailcatcherState::getEnabledSince()?->format('d.m.Y H:i'),
             'environmentFindings' => $this->configurationValidator->getEnvironmentFindings(),
             'storageDirectory' => MailcatcherState::getStorageDirectory(),
         ]);
@@ -186,6 +190,34 @@ class MailcatcherModuleController extends ActionController
         $this->assertAllowedHttpMethod($this->request, 'POST');
     }
 
+    /**
+     * Asks before anything irreversible happens.
+     *
+     * A rendered step rather than a JavaScript dialog: it works regardless of
+     * what the backend loads, it survives a reload, and the friction is the
+     * point — on a live system these two actions decide whether real customer
+     * mail is destroyed or delivered.
+     */
+    public function confirmAction(string $operation): ResponseInterface
+    {
+        if (!in_array($operation, ['deleteAll', 'resendAll'], true)) {
+            return $this->redirect('index');
+        }
+
+        $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
+        $moduleTemplate->assignMultiple([
+            'operation' => $operation,
+            'count' => $this->capturedMailRepository->countAll(),
+            'isProduction' => Environment::getContext()->isProduction(),
+            // Assembled here rather than inline in Fluid: an inline f:if needs
+            // quotes nested inside quotes, which is exactly how the status box
+            // broke once already.
+            'variant' => $operation === 'deleteAll' ? 'danger' : 'warning',
+        ]);
+
+        return $moduleTemplate->renderResponse('MailcatcherModule/Confirm');
+    }
+
     public function deleteAllAction(): ResponseInterface
     {
         $deleted = $this->capturedMailRepository->deleteAll();
@@ -193,6 +225,42 @@ class MailcatcherModuleController extends ActionController
         $this->addFlashMessage(
             sprintf($this->labelProvider->get('flash.deletedAll.message'), $deleted)
         );
+
+        return $this->redirect('index');
+    }
+
+    public function initializeResendAllAction(): void
+    {
+        $this->assertAllowedHttpMethod($this->request, 'POST');
+    }
+
+    public function resendAllAction(): ResponseInterface
+    {
+        try {
+            $result = $this->resendService->resendAll();
+        } catch (\RuntimeException $exception) {
+            $this->addFlashMessage(
+                $exception->getMessage(),
+                '',
+                ContextualFeedbackSeverity::ERROR
+            );
+            return $this->redirect('index');
+        }
+
+        $this->addFlashMessage(
+            sprintf($this->labelProvider->get('flash.resentAll.message'), $result['sent']),
+            '',
+            ContextualFeedbackSeverity::OK
+        );
+
+        if ($result['failed'] > 0) {
+            $this->addFlashMessage(
+                sprintf($this->labelProvider->get('flash.resendFailed.message'), $result['failed'])
+                    . ' ' . implode(' | ', array_slice($result['errors'], 0, 5)),
+                '',
+                ContextualFeedbackSeverity::ERROR
+            );
+        }
 
         return $this->redirect('index');
     }

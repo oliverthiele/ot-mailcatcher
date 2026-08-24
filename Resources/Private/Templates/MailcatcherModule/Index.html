@@ -10,6 +10,9 @@
     <div class="callout-content d-flex align-items-center justify-content-between flex-wrap gap-3">
         <div>
             <strong><f:translate key="{ll}{status.statusLabelKey}"/></strong>
+            <f:if condition="{enabledSince}">
+                <div class="mt-1"><f:translate key="{ll}status.enabledSince" arguments="{0: enabledSince}"/></div>
+            </f:if>
             <f:if condition="{status.hintLabelKey}">
                 <div class="mt-1"><f:translate key="{ll}{status.hintLabelKey}"/></div>
             </f:if>
@@ -34,9 +37,18 @@
                 </f:form>
             </f:if>
             <f:if condition="{mails}">
-                <f:form action="deleteAll" method="post">
-                    <button type="submit" class="btn btn-default"><f:translate key="{ll}action.deleteAll"/></button>
-                </f:form>
+                <f:link.action action="confirm" arguments="{operation: 'deleteAll'}" class="btn btn-default">
+                    <f:translate key="{ll}action.deleteAll"/>
+                </f:link.action>
+            </f:if>
+            <f:if condition="{mails}">
+                <f:if condition="{isEnabled}">
+                    <f:else>
+                        <f:link.action action="confirm" arguments="{operation: 'resendAll'}" class="btn btn-warning">
+                            <f:translate key="{ll}action.resendAll"/>
+                        </f:link.action>
+                    </f:else>
+                </f:if>
             </f:if>
         </div>
     </div>
