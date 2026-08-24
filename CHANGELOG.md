@@ -5,6 +5,17 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.4] — 2026-08-24
+
+### Fixed
+
+- The detail view's tabs did nothing: the backend has Bootstrap in its importmap
+  but never loads it, so `data-bs-toggle="tab"` was unwired and every pane except
+  the first stayed hidden — the HTML, text, source and attachment tabs appeared
+  empty. The module now loads the core's own tab module, `@typo3/backend/tab.js`
+  on v14 and `@typo3/backend/tabs.js` on v13, where the former does not exist.
+  The `fade` class was dropped so display no longer depends on a transition.
+
 ## [0.1.3] — 2026-08-24
 
 ### Added

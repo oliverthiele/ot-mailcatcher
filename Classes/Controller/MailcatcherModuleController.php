@@ -13,6 +13,8 @@ use TYPO3\CMS\Backend\Template\ModuleTemplateFactory;
 use TYPO3\CMS\Core\Http\AllowedMethodsTrait;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Http\Response;
+use TYPO3\CMS\Core\Information\Typo3Version;
+use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 
@@ -31,6 +33,7 @@ class MailcatcherModuleController extends ActionController
         private readonly CapturedMailRepository $capturedMailRepository,
         private readonly CheckRunner $checkRunner,
         private readonly LabelProvider $labelProvider,
+        private readonly PageRenderer $pageRenderer,
     ) {}
 
     public function indexAction(): ResponseInterface
@@ -69,6 +72,18 @@ class MailcatcherModuleController extends ActionController
         }
 
         $mail = $mail->withCheckResults($this->checkRunner->run($mail));
+
+        // The backend does not wire data-bs-toggle="tab" on its own — Bootstrap's
+        // JavaScript is in the importmap but never loaded, so without this the
+        // tab buttons change state while their panes stay hidden.
+        //
+        // v14 renamed the module: "tabs.js" is only a deprecation shim there and
+        // logs a warning, while v13.4 has no "tab.js" at all.
+        $this->pageRenderer->loadJavaScriptModule(
+            (new Typo3Version())->getMajorVersion() >= 14
+                ? '@typo3/backend/tab.js'
+                : '@typo3/backend/tabs.js'
+        );
 
         $moduleTemplate = $this->moduleTemplateFactory->create($this->request);
         $moduleTemplate->assignMultiple([
