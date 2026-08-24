@@ -32,7 +32,7 @@
 </ul>
 
 <div class="tab-content border border-top-0 p-3">
-    <div class="tab-pane fade show active" id="tab-checks" role="tabpanel">
+    <div class="tab-pane active" id="tab-checks" role="tabpanel">
         <f:if condition="{mail.checkResults}">
             <f:then>
                 <f:for each="{mail.checkResults}" as="result">
@@ -48,7 +48,7 @@
         </f:if>
     </div>
 
-    <div class="tab-pane fade" id="tab-html" role="tabpanel">
+    <div class="tab-pane" id="tab-html" role="tabpanel">
         <f:if condition="{mail.hasHtmlPart}">
             <f:then>
                 <p class="text-body-secondary small"><f:translate key="{ll}show.previewNote"/></p>
@@ -58,14 +58,14 @@
         </f:if>
     </div>
 
-    <div class="tab-pane fade" id="tab-text" role="tabpanel">
+    <div class="tab-pane" id="tab-text" role="tabpanel">
         <f:if condition="{mail.hasTextPart}">
             <f:then><pre style="white-space:pre-wrap">{mail.textBody}</pre></f:then>
             <f:else><p class="text-body-secondary"><f:translate key="{ll}show.noTextPart"/></p></f:else>
         </f:if>
     </div>
 
-    <div class="tab-pane fade" id="tab-headers" role="tabpanel">
+    <div class="tab-pane" id="tab-headers" role="tabpanel">
         <div class="table-fit">
             <table class="table table-sm">
                 <tbody>
@@ -80,11 +80,11 @@
         </div>
     </div>
 
-    <div class="tab-pane fade" id="tab-source" role="tabpanel">
+    <div class="tab-pane" id="tab-source" role="tabpanel">
         <pre style="white-space:pre-wrap;max-height:32rem;overflow:auto">{mail.rawSource}</pre>
     </div>
 
-    <div class="tab-pane fade" id="tab-attachments" role="tabpanel">
+    <div class="tab-pane" id="tab-attachments" role="tabpanel">
         <f:if condition="{mail.attachments}">
             <f:then>
                 <table class="table table-sm">
