@@ -21,7 +21,8 @@ final class CheckResult
         public readonly string $identifier,
         public readonly Severity $severity,
         public readonly array $arguments = [],
-    ) {}
+    ) {
+    }
 
     public function getMessageLabelKey(): string
     {

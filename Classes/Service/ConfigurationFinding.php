@@ -23,7 +23,8 @@ final class ConfigurationFinding
     public function __construct(
         public readonly string $identifier,
         public readonly Severity $severity,
-    ) {}
+    ) {
+    }
 
     public function getMessageLabelKey(): string
     {

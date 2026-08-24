@@ -16,7 +16,8 @@ final class MailcatcherStatusProvider implements StatusProviderInterface
     public function __construct(
         private readonly LabelProvider $labelProvider,
         private readonly ConfigurationValidator $configurationValidator,
-    ) {}
+    ) {
+    }
 
     /**
      * @return Status[]

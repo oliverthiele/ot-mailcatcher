@@ -36,7 +36,8 @@ class MailcatcherModuleController extends ActionController
         private readonly LabelProvider $labelProvider,
         private readonly PageRenderer $pageRenderer,
         private readonly ConfigurationValidator $configurationValidator,
-    ) {}
+    ) {
+    }
 
     public function indexAction(): ResponseInterface
     {

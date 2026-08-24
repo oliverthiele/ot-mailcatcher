@@ -19,7 +19,8 @@ final class SystemInformationListener
     public function __construct(
         private readonly LabelProvider $labelProvider,
         private readonly ConfigurationValidator $configurationValidator,
-    ) {}
+    ) {
+    }
 
     #[AsEventListener('ot-mailcatcher/system-information')]
     public function __invoke(SystemInformationToolbarCollectorEvent $event): void

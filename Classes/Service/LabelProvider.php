@@ -19,7 +19,8 @@ final class LabelProvider
 
     public function __construct(
         private readonly LanguageServiceFactory $languageServiceFactory,
-    ) {}
+    ) {
+    }
 
     public function get(string $key): string
     {

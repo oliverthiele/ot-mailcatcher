@@ -22,7 +22,8 @@ final class BackendBannerListener
     public function __construct(
         private readonly LabelProvider $labelProvider,
         private readonly ConfigurationValidator $configurationValidator,
-    ) {}
+    ) {
+    }
 
     #[AsEventListener('ot-mailcatcher/backend-banner')]
     public function __invoke(AfterBackendPageRenderEvent $event): void
