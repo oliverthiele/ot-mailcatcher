@@ -18,6 +18,7 @@ final class CapturedMail
      * @param string[] $bcc
      * @param string[] $replyTo
      * @param CapturedAttachment[] $attachments
+     * @param array<int, array{name: string, value: string}> $headers
      * @param CheckResult[] $checkResults
      */
     public function __construct(
@@ -37,6 +38,7 @@ final class CapturedMail
         public readonly string $htmlBody = '',
         public readonly string $rawSource = '',
         public readonly array $attachments = [],
+        public readonly array $headers = [],
         public readonly array $checkResults = [],
     ) {}
 
@@ -67,6 +69,7 @@ final class CapturedMail
             $this->htmlBody,
             $this->rawSource,
             $this->attachments,
+            $this->headers,
             $checkResults,
         );
     }

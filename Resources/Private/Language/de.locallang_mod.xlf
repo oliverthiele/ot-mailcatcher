@@ -237,6 +237,10 @@
         <source>Text</source>
         <target>Text</target>
       </trans-unit>
+      <trans-unit id="show.tab.headers" resname="show.tab.headers" approved="yes">
+        <source>Headers</source>
+        <target>Header</target>
+      </trans-unit>
       <trans-unit id="show.tab.source" resname="show.tab.source" approved="yes">
         <source>Source</source>
         <target>Quelltext</target>

@@ -181,6 +181,9 @@
       <trans-unit id="show.tab.text" resname="show.tab.text">
         <source>Text</source>
       </trans-unit>
+      <trans-unit id="show.tab.headers" resname="show.tab.headers">
+        <source>Headers</source>
+      </trans-unit>
       <trans-unit id="show.tab.source" resname="show.tab.source">
         <source>Source</source>
       </trans-unit>

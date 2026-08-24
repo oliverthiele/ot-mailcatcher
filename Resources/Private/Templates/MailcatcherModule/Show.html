@@ -26,6 +26,7 @@
     <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-checks" type="button" role="tab"><f:translate key="{ll}show.tab.checks"/> <span class="badge bg-secondary">{mail.checkResults -> f:count()}</span></button></li>
     <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-html" type="button" role="tab"><f:translate key="{ll}show.tab.html"/></button></li>
     <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-text" type="button" role="tab"><f:translate key="{ll}show.tab.text"/></button></li>
+    <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-headers" type="button" role="tab"><f:translate key="{ll}show.tab.headers"/></button></li>
     <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-source" type="button" role="tab"><f:translate key="{ll}show.tab.source"/></button></li>
     <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-attachments" type="button" role="tab"><f:translate key="{ll}show.tab.attachments"/> <span class="badge bg-secondary">{mail.attachments -> f:count()}</span></button></li>
 </ul>
@@ -62,6 +63,21 @@
             <f:then><pre style="white-space:pre-wrap">{mail.textBody}</pre></f:then>
             <f:else><p class="text-body-secondary"><f:translate key="{ll}show.noTextPart"/></p></f:else>
         </f:if>
+    </div>
+
+    <div class="tab-pane fade" id="tab-headers" role="tabpanel">
+        <div class="table-fit">
+            <table class="table table-sm">
+                <tbody>
+                <f:for each="{mail.headers}" as="header">
+                    <tr>
+                        <th style="width:16rem;white-space:nowrap">{header.name}</th>
+                        <td style="word-break:break-all">{header.value}</td>
+                    </tr>
+                </f:for>
+                </tbody>
+            </table>
+        </div>
     </div>
 
     <div class="tab-pane fade" id="tab-source" role="tabpanel">

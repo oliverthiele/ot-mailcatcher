@@ -126,6 +126,7 @@ final class MailcatcherApiMiddleware implements MiddlewareInterface
         if ($withBody) {
             $data['text'] = $mail->textBody;
             $data['html'] = $mail->htmlBody;
+            $data['headers'] = $mail->headers;
             $data['attachments'] = array_map(
                 static fn ($attachment): array => [
                     'fileName' => $attachment->fileName,
