@@ -5,6 +5,29 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] — 2026-08-25
+
+### Fixed
+
+- The module's status box was barely readable in the backend's dark theme. It
+  used Bootstrap's `bg-*-subtle` utilities, which carry their dark values under
+  `[data-bs-theme=dark]` — a selector the v14 backend never sets, because it
+  themes through `color-scheme` and `light-dark()`. The box therefore kept its
+  light background while every text colour followed the dark theme. It is now
+  rendered as a backend `callout`, whose `.callout-*` variants set background
+  and text colour from the same `light-dark()` tokens.
+- The API token length check no longer fires in development contexts. A
+  throwaway token is the norm on a developer machine and nothing reaches it from
+  outside; a warning that stands permanently during normal work is one people
+  learn to look past, including the ones next to it that do matter.
+
+### Changed
+
+- `configuration.productionUnlocked.hint` no longer reads as if every occurrence
+  were a live system. Staging commonly runs in a `Production` context, where
+  `MAILCATCHER_ALLOWED=1` is intended — the hint now says where the variable
+  belongs and where it does not, instead of guessing from the context name.
+
 ## [0.2.0] — 2026-08-25
 
 ### Added

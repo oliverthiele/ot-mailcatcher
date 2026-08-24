@@ -53,7 +53,8 @@ final class ConfigurationValidator
     public function getEnvironmentFindings(): array
     {
         $findings = [];
-        $isProduction = Environment::getContext()->isProduction();
+        $context = Environment::getContext();
+        $isProduction = $context->isProduction();
 
         $allowValue = MailcatcherState::readEnvironmentVariable(MailcatcherState::ALLOW_ENVIRONMENT_VARIABLE);
         if ($isProduction && $allowValue === '1') {
@@ -74,7 +75,11 @@ final class ConfigurationValidator
             if ($isProduction) {
                 $findings[] = new ConfigurationFinding('apiTokenInProduction', Severity::WARNING);
             }
-            if (strlen($apiToken) < self::MINIMUM_TOKEN_LENGTH) {
+            // Not on a developer machine: a throwaway token is the norm there and
+            // nothing reaches it from outside. A warning that stands permanently
+            // during normal work is one people learn to look past — including the
+            // ones next to it that do matter.
+            if (!$context->isDevelopment() && strlen($apiToken) < self::MINIMUM_TOKEN_LENGTH) {
                 $findings[] = new ConfigurationFinding('apiTokenTooShort', Severity::WARNING);
             }
         }

@@ -160,8 +160,8 @@
         <target>MAILCATCHER_ALLOWED=1 ist im Kontext „Production“ gesetzt.</target>
       </trans-unit>
       <trans-unit id="configuration.productionUnlocked.hint" resname="configuration.productionUnlocked.hint" approved="yes">
-        <source>The catcher can be switched on here, and would then stop all outgoing mail on a live system. The variable belongs in the .env of development and staging environments only.</source>
-        <target>Der Mailcatcher lässt sich hier einschalten und würde dann auf einem Live-System den gesamten Mailversand stoppen. Die Variable gehört ausschließlich in die .env von Entwicklungs- und Staging-Umgebungen.</target>
+        <source>The catcher can be switched on in this context and then stops all outgoing mail. On a staging system that is usually intended; on the live system the variable belongs removed. Development contexts do not need it at all — the catcher is unlocked there anyway.</source>
+        <target>Der Mailcatcher lässt sich in diesem Kontext einschalten und stoppt dann den gesamten Mailversand. Auf einem Staging-System ist das meist gewollt, auf dem Live-System gehört die Variable entfernt. In Entwicklungskontexten wird sie gar nicht gebraucht — dort ist der Mailcatcher ohnehin freigeschaltet.</target>
       </trans-unit>
       <trans-unit id="configuration.allowValueIgnored.message" resname="configuration.allowValueIgnored.message" approved="yes">
         <source>MAILCATCHER_ALLOWED is set to a value other than 1 and is therefore ignored.</source>
@@ -184,8 +184,8 @@
         <target>MAILCATCHER_API_TOKEN ist kürzer als 32 Zeichen.</target>
       </trans-unit>
       <trans-unit id="configuration.apiTokenTooShort.hint" resname="configuration.apiTokenTooShort.hint" approved="yes">
-        <source>A short token can be guessed, and the API hands out the full content of every captured mail. Generate a new one with: openssl rand -hex 32</source>
-        <target>Ein kurzes Token lässt sich raten, und die API gibt den vollständigen Inhalt jeder abgefangenen Mail heraus. Ein neues erzeugen mit: openssl rand -hex 32</target>
+        <source>A short token can be guessed, and the API hands out the full content of every captured mail. Generate a new one with: openssl rand -hex 32 — this is not checked in development contexts.</source>
+        <target>Ein kurzes Token lässt sich raten, und die API gibt den vollständigen Inhalt jeder abgefangenen Mail heraus. Ein neues erzeugen mit: openssl rand -hex 32 — in Entwicklungskontexten wird das nicht geprüft.</target>
       </trans-unit>
 
       <!-- Module user interface -->
