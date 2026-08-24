@@ -129,6 +129,15 @@
       <trans-unit id="status.enabledSince" resname="status.enabledSince">
         <source>Switched on since %1$s</source>
       </trans-unit>
+      <trans-unit id="action.resend" resname="action.resend">
+        <source>Send</source>
+      </trans-unit>
+      <trans-unit id="flash.resent.message" resname="flash.resent.message">
+        <source>The mail was sent to its original recipients.</source>
+      </trans-unit>
+      <trans-unit id="flash.resendStopped.message" resname="flash.resendStopped.message">
+        <source>Stopped after three failures in a row — the rest is untouched. A host that refuses one mail usually refuses the next, and retrying in bulk risks the account being throttled.</source>
+      </trans-unit>
       <trans-unit id="action.resendAll" resname="action.resendAll">
         <source>Send remaining</source>
       </trans-unit>

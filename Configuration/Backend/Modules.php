@@ -21,6 +21,7 @@ return [
                 'delete',
                 'confirm',
                 'deleteAll',
+                'resend',
                 'resendAll',
             ],
         ],

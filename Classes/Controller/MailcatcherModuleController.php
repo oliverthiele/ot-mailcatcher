@@ -246,6 +246,33 @@ class MailcatcherModuleController extends ActionController
         return $this->redirect('index');
     }
 
+    public function initializeResendAction(): void
+    {
+        $this->assertAllowedHttpMethod($this->request, 'POST');
+    }
+
+    public function resendAction(string $identifier): ResponseInterface
+    {
+        try {
+            $error = $this->resendService->resendOne($identifier);
+        } catch (\RuntimeException $exception) {
+            $this->addFlashMessage($exception->getMessage(), '', ContextualFeedbackSeverity::ERROR);
+            return $this->redirect('index');
+        }
+
+        if ($error === null) {
+            $this->addFlashMessage(
+                $this->labelProvider->get('flash.resent.message'),
+                '',
+                ContextualFeedbackSeverity::OK
+            );
+        } else {
+            $this->addFlashMessage($error, '', ContextualFeedbackSeverity::ERROR);
+        }
+
+        return $this->redirect('index');
+    }
+
     public function initializeResendAllAction(): void
     {
         $this->assertAllowedHttpMethod($this->request, 'POST');
@@ -273,12 +300,14 @@ class MailcatcherModuleController extends ActionController
         }
 
         if ($result['failed'] > 0) {
-            $this->addFlashMessage(
-                sprintf($this->labelProvider->get('flash.resendFailed.message'), $result['failed'])
-                    . ' ' . implode(' | ', array_slice($result['errors'], 0, 5)),
-                '',
-                ContextualFeedbackSeverity::ERROR
-            );
+            $message = sprintf($this->labelProvider->get('flash.resendFailed.message'), $result['failed'])
+                . ' ' . implode(' | ', array_slice($result['errors'], 0, 5));
+
+            if ($result['stoppedEarly']) {
+                $message .= ' ' . $this->labelProvider->get('flash.resendStopped.message');
+            }
+
+            $this->addFlashMessage($message, '', ContextualFeedbackSeverity::ERROR);
         }
 
         return $this->redirect('index');

@@ -164,7 +164,12 @@ lost. Getting the mail out again afterwards:
 1. **Switch the catcher off** — normal delivery resumes.
 2. **Delete the test and debug mails** individually.
 3. **Send remaining** — delivers everything still captured to its original
-   recipients, after a confirmation naming the count.
+   recipients, after a confirmation naming the count. Individual mails can be
+   sent one at a time with **Send** in their row, which is the better route when
+   the list is long or the host limits how much may leave at once.
+
+A bulk run stops after three failures in a row rather than working through the
+whole list against a relay that is refusing.
 
 Sending is refused while the catcher is still on; the mails would go straight
 back into it. Delivered mails move to `var/mailcatcher/sent/` rather than being

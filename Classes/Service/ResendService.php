@@ -26,6 +26,16 @@ final class ResendService
 {
     private const SENT_DIRECTORY_NAME = 'sent';
 
+    /**
+     * How many failures in a row end a bulk run.
+     *
+     * A mail relay that refuses the fourth message will refuse the fortieth too,
+     * and hammering it is how an account gets throttled or blocked. Stopping
+     * early leaves everything unsent still in place, to retry once the cause is
+     * known — individually, if the limit is per message.
+     */
+    private const MAXIMUM_CONSECUTIVE_FAILURES = 3;
+
     public function __construct(
         private readonly CapturedMailRepository $capturedMailRepository,
         private readonly Mailer $mailer,
@@ -37,7 +47,7 @@ final class ResendService
      * "sent" subdirectory — moved rather than deleted, so a delivery can still
      * be traced afterwards, and so a failure never destroys the only copy.
      *
-     * @return array{sent: int, failed: int, errors: string[]}
+     * @return array{sent: int, failed: int, errors: string[], stoppedEarly: bool}
      */
     public function resendAll(): array
     {
@@ -49,54 +59,83 @@ final class ResendService
             );
         }
 
-        $sentDirectory = MailcatcherState::getStorageDirectory() . '/' . self::SENT_DIRECTORY_NAME;
         $sent = 0;
         $failed = 0;
         $errors = [];
+        $consecutiveFailures = 0;
+        $stoppedEarly = false;
 
         foreach ($this->capturedMailRepository->findAll() as $mail) {
-            $fullMail = $this->capturedMailRepository->findByIdentifier($mail->identifier);
-            if ($fullMail === null || $fullMail->rawSource === '') {
-                $failed++;
-                $errors[] = sprintf('%s: could not be read', $mail->identifier);
-                continue;
+            if ($consecutiveFailures >= self::MAXIMUM_CONSECUTIVE_FAILURES) {
+                $stoppedEarly = true;
+                break;
             }
 
-            $recipients = $this->toAddresses(array_merge($fullMail->to, $fullMail->cc, $fullMail->bcc));
-            $sender = $this->toAddresses([$fullMail->from])[0] ?? null;
-
-            if ($sender === null || $recipients === []) {
-                $failed++;
-                $errors[] = sprintf('%s: no usable sender or recipient', $mail->identifier);
-                continue;
-            }
-
-            try {
-                // The raw source is sent unchanged, so the message keeps its
-                // original headers — including Date, which therefore shows when
-                // the mail was captured rather than when it was delivered.
-                $this->mailer->send(
-                    new RawMessage($fullMail->rawSource),
-                    new Envelope($sender, $recipients)
-                );
-            } catch (\Throwable $exception) {
-                $failed++;
-                $errors[] = sprintf('%s: %s', $mail->identifier, $exception->getMessage());
-                continue;
-            }
-
-            if ($this->moveToSent($mail->identifier, $sentDirectory)) {
+            $error = $this->resendOne($mail->identifier);
+            if ($error === null) {
                 $sent++;
-            } else {
-                // Delivered, but the file stayed put. Reported as a failure on
-                // purpose: a second run would deliver it twice, and that is worth
-                // knowing about.
-                $failed++;
-                $errors[] = sprintf('%s: delivered, but could not be moved out of the way', $mail->identifier);
+                $consecutiveFailures = 0;
+                continue;
             }
+
+            $failed++;
+            $consecutiveFailures++;
+            $errors[] = $error;
         }
 
-        return ['sent' => $sent, 'failed' => $failed, 'errors' => $errors];
+        return [
+            'sent' => $sent,
+            'failed' => $failed,
+            'errors' => $errors,
+            'stoppedEarly' => $stoppedEarly,
+        ];
+    }
+
+    /**
+     * Sends one captured mail. Returns null on success, or the reason it failed.
+     *
+     * Public because the module offers this per mail as well: with a long list
+     * and a host that limits how much may go out at once, sending everything in
+     * one run is the wrong tool.
+     */
+    public function resendOne(string $identifier): ?string
+    {
+        if (MailcatcherState::isEnabled()) {
+            throw new \RuntimeException(
+                'Refusing to resend while the mail catcher is switched on — the mail would be captured again. '
+                . 'Switch it off first.',
+                1756080002
+            );
+        }
+
+        $mail = $this->capturedMailRepository->findByIdentifier($identifier);
+        if ($mail === null || $mail->rawSource === '') {
+            return sprintf('%s: could not be read', $identifier);
+        }
+
+        $recipients = $this->toAddresses(array_merge($mail->to, $mail->cc, $mail->bcc));
+        $sender = $this->toAddresses([$mail->from])[0] ?? null;
+
+        if ($sender === null || $recipients === []) {
+            return sprintf('%s: no usable sender or recipient', $identifier);
+        }
+
+        try {
+            // The raw source is sent unchanged, so the message keeps its original
+            // headers — including Date, which therefore shows when the mail was
+            // captured rather than when it was delivered.
+            $this->mailer->send(new RawMessage($mail->rawSource), new Envelope($sender, $recipients));
+        } catch (\Throwable $exception) {
+            return sprintf('%s: %s', $identifier, $exception->getMessage());
+        }
+
+        if (!$this->moveToSent($identifier, MailcatcherState::getStorageDirectory() . '/' . self::SENT_DIRECTORY_NAME)) {
+            // Delivered, but the file stayed put. Reported as a failure on
+            // purpose: a second run would deliver it twice.
+            return sprintf('%s: delivered, but could not be moved out of the way', $identifier);
+        }
+
+        return null;
     }
 
     /**

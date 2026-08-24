@@ -167,6 +167,18 @@
         <source>Switched on since %1$s</source>
         <target>Eingeschaltet seit %1$s</target>
       </trans-unit>
+      <trans-unit id="action.resend" resname="action.resend" approved="yes">
+        <source>Send</source>
+        <target>Versenden</target>
+      </trans-unit>
+      <trans-unit id="flash.resent.message" resname="flash.resent.message" approved="yes">
+        <source>The mail was sent to its original recipients.</source>
+        <target>Die Mail wurde an ihre ursprünglichen Empfänger versendet.</target>
+      </trans-unit>
+      <trans-unit id="flash.resendStopped.message" resname="flash.resendStopped.message" approved="yes">
+        <source>Stopped after three failures in a row — the rest is untouched. A host that refuses one mail usually refuses the next, and retrying in bulk risks the account being throttled.</source>
+        <target>Nach drei Fehlschlägen hintereinander abgebrochen — der Rest liegt unberührt. Wer eine Mail ablehnt, lehnt meist auch die nächste ab, und ein erneuter Massenversuch riskiert eine Sperre des Kontos.</target>
+      </trans-unit>
       <trans-unit id="action.resendAll" resname="action.resendAll" approved="yes">
         <source>Send remaining</source>
         <target>Verbleibende versenden</target>
