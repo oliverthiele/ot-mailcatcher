@@ -79,6 +79,15 @@ Both are validated. The backend module and the Reports module report an
 unlocked Production context, a `MAILCATCHER_ALLOWED` value that is silently
 ignored, an API token on a Production system, and a token short enough to guess.
 
+**The command line does not inherit the web server's context.** Where a web
+server sets `TYPO3_CONTEXT=Development` through `fastcgi_param`, `SetEnv` or
+similar, CLI runs still default to `Production` — and there the catcher stays
+locked unless `MAILCATCHER_ALLOWED=1` is set in the `.env` loaded for that
+context. Mail from a console command or a scheduler task is then delivered for
+real while the backend reports that nothing is being sent. If console runs should
+be captured too, set the variable; the extension reports the gap as
+`allowedMissing` either way.
+
 Switch the catcher on and off in **System → Mailcatcher**. The state lives in
 `var/mailcatcher/state.json`, not in `settings.php`, which is version-controlled in
 most projects and rewritten by TYPO3 on its own.

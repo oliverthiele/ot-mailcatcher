@@ -57,6 +57,13 @@
         <source>The catcher is switched off, yet FileTransport is the configured mail transport, so no mail is delivered. This usually means the assignment was made without the MailcatcherState::isActive() guard around it, or was left behind in settings.php after a debugging session.</source>
       </trans-unit>
 
+      <trans-unit id="report.locked.value" resname="report.locked.value">
+        <source>Switched on, but locked in this environment</source>
+      </trans-unit>
+      <trans-unit id="report.locked.message" resname="report.locked.message">
+        <source>The state file says the catcher is on, but MAILCATCHER_ALLOWED is not 1 and the context is a Production one, so it stays locked and every mail is delivered. Either set MAILCATCHER_ALLOWED=1 in the .env loaded for this context, or switch the catcher off so its state stops claiming otherwise.</source>
+      </trans-unit>
+
       <!-- Check findings -->
       <trans-unit id="check.senderIsWebsiteVisitor.message" resname="check.senderIsWebsiteVisitor.message">
         <source>The mail is sent as %1$s, but this site sends as %2$s. Mail servers reject that (SPF/DMARC), so the mail is filed as spam or silently dropped.</source>
@@ -126,6 +133,12 @@
       <trans-unit id="configuration.productionUnlocked.hint" resname="configuration.productionUnlocked.hint">
         <source>The catcher can be switched on in this context and then stops all outgoing mail. On a staging system that is usually intended; on the live system the variable belongs removed. Development contexts do not need it at all — the catcher is unlocked there anyway.</source>
       </trans-unit>
+      <trans-unit id="configuration.allowedMissing.message" resname="configuration.allowedMissing.message">
+        <source>MAILCATCHER_ALLOWED is not set — the catcher is unlocked by context alone.</source>
+      </trans-unit>
+      <trans-unit id="configuration.allowedMissing.hint" resname="configuration.allowedMissing.hint">
+        <source>Any process running in a Production context then captures nothing and sends for real. The command line defaults to that context even where the web server sets a development one, so a bulk send from a console command or a scheduler task reaches real recipients while the backend reports that no mail is being sent. Set MAILCATCHER_ALLOWED=1 in the .env that is loaded for the Production context.</source>
+      </trans-unit>
       <trans-unit id="configuration.allowValueIgnored.message" resname="configuration.allowValueIgnored.message">
         <source>MAILCATCHER_ALLOWED is set to a value other than 1 and is therefore ignored.</source>
       </trans-unit>
@@ -178,6 +191,12 @@
       </trans-unit>
       <trans-unit id="status.strayTransport.hint" resname="status.strayTransport.hint">
         <source>The mail transport is set to the catcher although it is switched off, so no mail is delivered. Most likely a fixed assignment in the configuration — see the Reports module for details.</source>
+      </trans-unit>
+      <trans-unit id="status.locked" resname="status.locked">
+        <source>Switched on, but locked in this environment — mails are being sent</source>
+      </trans-unit>
+      <trans-unit id="status.locked.hint" resname="status.locked.hint">
+        <source>The switch is on, but the catcher must not run in this context, so nothing is captured and every mail is delivered normally. See the Reports module for how to unlock it.</source>
       </trans-unit>
       <trans-unit id="status.notAllowed" resname="status.notAllowed">
         <source>Locked in this environment. Set MAILCATCHER_ALLOWED=1 to unlock it.</source>
