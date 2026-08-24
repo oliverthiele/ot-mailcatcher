@@ -72,6 +72,15 @@
         <target>Der Mailcatcher ist ausgeschaltet, als Mail-Transport ist aber FileTransport konfiguriert — es wird also nichts zugestellt. Meist wurde die Zuweisung ohne den umgebenden Wächter MailcatcherState::isActive() gesetzt oder ist nach einer Debugging-Sitzung in settings.php liegengeblieben.</target>
       </trans-unit>
 
+      <trans-unit id="report.locked.value" resname="report.locked.value" approved="yes">
+        <source>Switched on, but locked in this environment</source>
+        <target>Eingeschaltet, aber in dieser Umgebung gesperrt</target>
+      </trans-unit>
+      <trans-unit id="report.locked.message" resname="report.locked.message" approved="yes">
+        <source>The state file says the catcher is on, but MAILCATCHER_ALLOWED is not 1 and the context is a Production one, so it stays locked and every mail is delivered. Either set MAILCATCHER_ALLOWED=1 in the .env loaded for this context, or switch the catcher off so its state stops claiming otherwise.</source>
+        <target>Laut Zustandsdatei ist der Mailcatcher eingeschaltet, MAILCATCHER_ALLOWED steht aber nicht auf 1 und der Kontext ist ein Production-Kontext — er bleibt gesperrt und jede Mail wird zugestellt. Entweder MAILCATCHER_ALLOWED=1 in der für diesen Kontext geladenen .env setzen oder den Mailcatcher ausschalten, damit sein Zustand nichts anderes behauptet.</target>
+      </trans-unit>
+
       <!-- Check findings -->
       <trans-unit id="check.senderIsWebsiteVisitor.message" resname="check.senderIsWebsiteVisitor.message" approved="yes">
         <source>The mail is sent as %1$s, but this site sends as %2$s. Mail servers reject that (SPF/DMARC), so the mail is filed as spam or silently dropped.</source>
@@ -163,6 +172,14 @@
         <source>The catcher can be switched on in this context and then stops all outgoing mail. On a staging system that is usually intended; on the live system the variable belongs removed. Development contexts do not need it at all — the catcher is unlocked there anyway.</source>
         <target>Der Mailcatcher lässt sich in diesem Kontext einschalten und stoppt dann den gesamten Mailversand. Auf einem Staging-System ist das meist gewollt, auf dem Live-System gehört die Variable entfernt. In Entwicklungskontexten wird sie gar nicht gebraucht — dort ist der Mailcatcher ohnehin freigeschaltet.</target>
       </trans-unit>
+      <trans-unit id="configuration.allowedMissing.message" resname="configuration.allowedMissing.message" approved="yes">
+        <source>MAILCATCHER_ALLOWED is not set — the catcher is unlocked by context alone.</source>
+        <target>MAILCATCHER_ALLOWED ist nicht gesetzt — der Mailcatcher ist hier allein über den Kontext freigeschaltet.</target>
+      </trans-unit>
+      <trans-unit id="configuration.allowedMissing.hint" resname="configuration.allowedMissing.hint" approved="yes">
+        <source>Any process running in a Production context then captures nothing and sends for real. The command line defaults to that context even where the web server sets a development one, so a bulk send from a console command or a scheduler task reaches real recipients while the backend reports that no mail is being sent. Set MAILCATCHER_ALLOWED=1 in the .env that is loaded for the Production context.</source>
+        <target>Prozesse in einem Production-Kontext fangen dann nichts ab und versenden reell. Die Kommandozeile nutzt diesen Kontext standardmäßig — auch dort, wo der Webserver einen Entwicklungskontext setzt. Ein Massenversand über ein Konsolen-Kommando oder den Scheduler ginge damit an echte Empfänger, während das Backend meldet, es werde keine Mail versendet. MAILCATCHER_ALLOWED=1 in der .env eintragen, die für den Production-Kontext geladen wird.</target>
+      </trans-unit>
       <trans-unit id="configuration.allowValueIgnored.message" resname="configuration.allowValueIgnored.message" approved="yes">
         <source>MAILCATCHER_ALLOWED is set to a value other than 1 and is therefore ignored.</source>
         <target>MAILCATCHER_ALLOWED ist auf einen anderen Wert als 1 gesetzt und wird deshalb ignoriert.</target>
@@ -232,6 +249,14 @@
       <trans-unit id="status.strayTransport.hint" resname="status.strayTransport.hint" approved="yes">
         <source>The mail transport is set to the catcher although it is switched off, so no mail is delivered. Most likely a fixed assignment in the configuration — see the Reports module for details.</source>
         <target>Der Mail-Transport ist auf den Mailcatcher gesetzt, obwohl dieser ausgeschaltet ist — es wird nichts zugestellt. Vermutlich eine feste Zuweisung in der Konfiguration; Details im Modul „Berichte“.</target>
+      </trans-unit>
+      <trans-unit id="status.locked" resname="status.locked" approved="yes">
+        <source>Switched on, but locked in this environment — mails are being sent</source>
+        <target>Eingeschaltet, aber in dieser Umgebung gesperrt — Mails werden versendet</target>
+      </trans-unit>
+      <trans-unit id="status.locked.hint" resname="status.locked.hint" approved="yes">
+        <source>The switch is on, but the catcher must not run in this context, so nothing is captured and every mail is delivered normally. See the Reports module for how to unlock it.</source>
+        <target>Der Schalter steht auf an, der Mailcatcher darf in diesem Kontext aber nicht laufen — es wird nichts abgefangen und jede Mail ganz normal zugestellt. Wie sich das freischalten lässt, steht im Modul „Berichte“.</target>
       </trans-unit>
       <trans-unit id="status.notAllowed" resname="status.notAllowed" approved="yes">
         <source>Locked in this environment. Set MAILCATCHER_ALLOWED=1 to unlock it.</source>

@@ -32,6 +32,13 @@ final class ConfigurationValidator
 
     public function getStatus(): MailcatcherStatus
     {
+        // Checked first: the switch is on, so reporting "inactive" here would
+        // hide that somebody expects mail to be captured. It is not, and mail is
+        // going out.
+        if (MailcatcherState::isEnabled() && !MailcatcherState::isAllowed()) {
+            return MailcatcherStatus::LOCKED;
+        }
+
         if (MailcatcherState::isActive()) {
             return MailcatcherState::isWired()
                 ? MailcatcherStatus::ACTIVE
@@ -66,6 +73,15 @@ final class ConfigurationValidator
         // against the literal '1'.
         if ($allowValue !== '' && $allowValue !== '1' && $allowValue !== '0') {
             $findings[] = new ConfigurationFinding('allowValueIgnored', Severity::HINT);
+        }
+
+        // Unlocked by context alone. Every process running in a Production
+        // context then sends for real — and the command line defaults to
+        // Production even where the web server sets a development context, so a
+        // bulk send from a scheduler task reaches real recipients while the
+        // backend reports that nothing is being sent.
+        if (MailcatcherState::isEnabled() && !$isProduction && $allowValue !== '1') {
+            $findings[] = new ConfigurationFinding('allowedMissing', Severity::WARNING);
         }
 
         $apiToken = MailcatcherState::readEnvironmentVariable(

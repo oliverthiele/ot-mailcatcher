@@ -30,6 +30,9 @@ enum MailcatcherStatus: string
     /** Switched off, yet the transport points at the catcher — mails are not sent. */
     case STRAY_TRANSPORT = 'strayTransport';
 
+    /** Switched on, but not permitted in this environment — mails are sent. */
+    case LOCKED = 'locked';
+
     /** Switched off and not wired up — normal operation. */
     case INACTIVE = 'inactive';
 
@@ -38,7 +41,9 @@ enum MailcatcherStatus: string
      */
     public function isMailBeingSent(): bool
     {
-        return $this === self::NOT_TAKING_EFFECT || $this === self::INACTIVE;
+        return $this === self::NOT_TAKING_EFFECT
+            || $this === self::LOCKED
+            || $this === self::INACTIVE;
     }
 
     /**
@@ -64,7 +69,7 @@ enum MailcatcherStatus: string
     public function getHintLabelKey(): ?string
     {
         return match ($this) {
-            self::NOT_TAKING_EFFECT, self::STRAY_TRANSPORT => 'status.' . $this->value . '.hint',
+            self::NOT_TAKING_EFFECT, self::STRAY_TRANSPORT, self::LOCKED => 'status.' . $this->value . '.hint',
             self::ACTIVE, self::INACTIVE => null,
         };
     }
@@ -93,7 +98,7 @@ enum MailcatcherStatus: string
     {
         return match ($this) {
             self::NOT_TAKING_EFFECT => ContextualFeedbackSeverity::ERROR,
-            self::ACTIVE => ContextualFeedbackSeverity::WARNING,
+            self::ACTIVE, self::LOCKED => ContextualFeedbackSeverity::WARNING,
             self::STRAY_TRANSPORT => ContextualFeedbackSeverity::INFO,
             self::INACTIVE => ContextualFeedbackSeverity::OK,
         };
@@ -111,7 +116,7 @@ enum MailcatcherStatus: string
     {
         return match ($this) {
             self::NOT_TAKING_EFFECT => 'danger',
-            self::ACTIVE => 'warning',
+            self::ACTIVE, self::LOCKED => 'warning',
             self::STRAY_TRANSPORT => 'info',
             self::INACTIVE => 'secondary',
         };
