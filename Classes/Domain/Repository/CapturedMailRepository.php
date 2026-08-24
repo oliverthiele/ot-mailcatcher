@@ -160,6 +160,13 @@ class CapturedMailRepository
         $htmlBody = (string)$message->getHtmlContent();
         $textBody = (string)$message->getTextContent();
 
+        $headers = [];
+        if ($full) {
+            foreach ($message->getAllHeaders() as $header) {
+                $headers[] = ['name' => $header->getName(), 'value' => $header->getValue() ?? ''];
+            }
+        }
+
         $attachments = [];
         if ($full) {
             foreach ($message->getAllAttachmentParts() as $index => $part) {
@@ -189,6 +196,7 @@ class CapturedMailRepository
             htmlBody: $htmlBody,
             rawSource: $full ? (string)file_get_contents($filePath) : '',
             attachments: $attachments,
+            headers: $headers,
         );
     }
 
