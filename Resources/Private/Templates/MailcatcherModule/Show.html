@@ -52,7 +52,11 @@
         <f:if condition="{mail.hasHtmlPart}">
             <f:then>
                 <p class="text-body-secondary small"><f:translate key="{ll}show.previewNote"/></p>
-                <iframe src="{bodyUri}" sandbox="" title="HTML" style="width:100%;height:32rem;border:1px solid #ccc;background:#fff"></iframe>
+                <!-- allow-same-origin without allow-scripts: a fully empty sandbox left the
+                     document blank, and the origin it grants is inert while no script
+                     may run. Scripts, forms and popups stay denied, and the response
+                     carries its own Content-Security-Policy on top. -->
+                <iframe src="{bodyUri}" sandbox="allow-same-origin" title="HTML" style="width:100%;height:32rem;border:1px solid #ccc;background:#fff"></iframe>
             </f:then>
             <f:else><p class="text-body-secondary"><f:translate key="{ll}show.noHtmlPart"/></p></f:else>
         </f:if>
