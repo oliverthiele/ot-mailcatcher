@@ -102,9 +102,18 @@
                         <td><f:if condition="{row.mail.date}"><f:format.date format="d.m.Y H:i:s">{row.mail.date}</f:format.date></f:if></td>
                         <td><f:format.bytes decimals="1">{row.mail.size}</f:format.bytes></td>
                         <td class="text-end">
-                            <f:form action="delete" method="post" arguments="{identifier: row.mail.identifier}">
-                                <button type="submit" class="btn btn-default btn-sm"><f:translate key="{ll}action.delete"/></button>
-                            </f:form>
+                            <div class="d-flex gap-1 justify-content-end">
+                                <f:if condition="{isEnabled}">
+                                    <f:else>
+                                        <f:form action="resend" method="post" arguments="{identifier: row.mail.identifier}">
+                                            <button type="submit" class="btn btn-default btn-sm"><f:translate key="{ll}action.resend"/></button>
+                                        </f:form>
+                                    </f:else>
+                                </f:if>
+                                <f:form action="delete" method="post" arguments="{identifier: row.mail.identifier}">
+                                    <button type="submit" class="btn btn-default btn-sm"><f:translate key="{ll}action.delete"/></button>
+                                </f:form>
+                            </div>
                         </td>
                     </tr>
                 </f:for>
