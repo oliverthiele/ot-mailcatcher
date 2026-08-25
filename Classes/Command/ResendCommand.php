@@ -75,6 +75,11 @@ final class ResendCommand extends Command
         $inputOutput->listing([
             sprintf('%d mail(s)', $pending['mails']),
             sprintf('%d recipient(s), %d of them outside this site', $pending['recipients'], $pending['external']),
+            sprintf(
+                '%d different external address%s',
+                $pending['externalDistinct'],
+                $pending['externalDistinct'] === 1 ? '' : 'es'
+            ),
         ]);
 
         // The addresses matter more than the count: a staging system cloned from

@@ -105,13 +105,14 @@ final class ResendService
      * and delivering to them is the mistake this reports before it happens.
      *
      * @param int|null $limit
-     * @return array{mails: int, recipients: int, external: int, externalAddresses: string[]}
+     * @return array{mails: int, recipients: int, external: int, externalDistinct: int, externalAddresses: string[]}
      */
     public function describePending(?int $limit = null): array
     {
         $ownDomain = MailAddressHelper::getDefaultSenderDomain();
         $mails = 0;
         $recipients = 0;
+        $externalOccurrences = 0;
         $externalAddresses = [];
 
         foreach ($this->capturedMailRepository->findAll() as $mail) {
@@ -129,6 +130,12 @@ final class ResendService
                 $recipients++;
                 $bare = MailAddressHelper::extractAddress($address);
                 if ($ownDomain === '' || MailAddressHelper::extractDomain($address) !== $ownDomain) {
+                    // Counted twice on purpose: how many deliveries leave the
+                    // site, and how many different people receive them. Reporting
+                    // only the distinct addresses against the total recipients
+                    // compares two different things, and reads as if the rest
+                    // stayed internal.
+                    $externalOccurrences++;
                     $externalAddresses[$bare] = $bare;
                 }
             }
@@ -137,7 +144,8 @@ final class ResendService
         return [
             'mails' => $mails,
             'recipients' => $recipients,
-            'external' => count($externalAddresses),
+            'external' => $externalOccurrences,
+            'externalDistinct' => count($externalAddresses),
             'externalAddresses' => array_values($externalAddresses),
         ];
     }
