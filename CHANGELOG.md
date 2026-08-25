@@ -5,6 +5,22 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] — 2026-08-25
+
+### Changed
+
+- `leftoverPlaceholder` now looks for Fluid-style `{variable}` in the HTML body
+  as well, not only in the plain text. The restriction was justified in the code
+  by inline CSS producing false findings — measured, that does not hold: the
+  pattern requires a lowercase letter directly after the brace and nothing but
+  word characters and dots before the closing one, so neither `{ color: #fff }`
+  nor `{margin:0}` matches. What does match in an HTML body is an unrendered
+  placeholder the recipient can see.
+
+  **This can newly report mails that passed before**, including in a test suite
+  asserting that a mail has no findings. That is the point of the change, but it
+  is why this is a minor release rather than a patch.
+
 ## [0.5.3] — 2026-08-25
 
 ### Fixed
