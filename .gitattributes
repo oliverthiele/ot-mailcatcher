@@ -1,0 +1,7 @@
+# Kept out of the distributed archive: useful in the repository, dead weight in
+# every project's vendor directory.
+/Tests            export-ignore
+/.gitattributes   export-ignore
+/.gitignore       export-ignore
+/.editorconfig    export-ignore
+/phpstan.neon.dist export-ignore
