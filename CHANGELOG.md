@@ -5,6 +5,17 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.2] — 2026-08-25
+
+### Added
+
+- Test hooks in the backend module: `data-testid` on the status box, its label,
+  the toggle, the mail table, the empty state and the per-row buttons, plus
+  `data-status` carrying the machine-readable state and `data-identifier` on each
+  row. An end-to-end test can now assert on the state rather than on a translated
+  sentence that gets reworded — testability is part of the product, not something
+  a clever selector should have to work around.
+
 ## [0.5.1] — 2026-08-25
 
 ### Fixed
