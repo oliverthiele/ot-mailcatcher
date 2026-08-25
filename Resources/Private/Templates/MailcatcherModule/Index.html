@@ -37,18 +37,9 @@
                 </f:form>
             </f:if>
             <f:if condition="{mails}">
-                <f:link.action action="confirm" arguments="{operation: 'deleteAll'}" class="btn btn-default">
+                <f:link.action action="confirmDeleteAll" class="btn btn-default">
                     <f:translate key="{ll}action.deleteAll"/>
                 </f:link.action>
-            </f:if>
-            <f:if condition="{mails}">
-                <f:if condition="{isEnabled}">
-                    <f:else>
-                        <f:link.action action="confirm" arguments="{operation: 'resendAll'}" class="btn btn-warning">
-                            <f:translate key="{ll}action.resendAll"/>
-                        </f:link.action>
-                    </f:else>
-                </f:if>
             </f:if>
         </div>
     </div>

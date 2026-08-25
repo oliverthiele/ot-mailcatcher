@@ -135,18 +135,6 @@
       <trans-unit id="flash.resent.message" resname="flash.resent.message">
         <source>The mail was sent to its original recipients.</source>
       </trans-unit>
-      <trans-unit id="flash.resendStopped.message" resname="flash.resendStopped.message">
-        <source>Stopped after three failures in a row — the rest is untouched. A host that refuses one mail usually refuses the next, and retrying in bulk risks the account being throttled.</source>
-      </trans-unit>
-      <trans-unit id="action.resendAll" resname="action.resendAll">
-        <source>Send remaining</source>
-      </trans-unit>
-      <trans-unit id="flash.resentAll.message" resname="flash.resentAll.message">
-        <source>Sent %1$s captured mails.</source>
-      </trans-unit>
-      <trans-unit id="flash.resendFailed.message" resname="flash.resendFailed.message">
-        <source>%1$s mails could not be sent and are still here.</source>
-      </trans-unit>
       <trans-unit id="confirm.cancel" resname="confirm.cancel">
         <source>Cancel</source>
       </trans-unit>
@@ -158,15 +146,6 @@
       </trans-unit>
       <trans-unit id="confirm.deleteAll.submit" resname="confirm.deleteAll.submit">
         <source>Yes, delete all</source>
-      </trans-unit>
-      <trans-unit id="confirm.resendAll.title" resname="confirm.resendAll.title">
-        <source>Send the remaining mails?</source>
-      </trans-unit>
-      <trans-unit id="confirm.resendAll.body" resname="confirm.resendAll.body">
-        <source>This delivers %1$s mails to their original recipients. Delete the test and debug mails first — everything still here will go out. Each mail keeps its original headers, so the date the recipient sees is the date it was captured.</source>
-      </trans-unit>
-      <trans-unit id="confirm.resendAll.submit" resname="confirm.resendAll.submit">
-        <source>Yes, send them</source>
       </trans-unit>
       <trans-unit id="confirm.productionNote" resname="confirm.productionNote">
         <source>This is a Production system. What is captured here may be real customer communication.</source>

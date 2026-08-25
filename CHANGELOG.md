@@ -5,6 +5,34 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] — 2026-08-25
+
+### Removed
+
+- **"Send remaining" is gone from the backend module.** One click for an
+  unbounded, irreversible send is the wrong shape for the decision it carries: in
+  a real incident the mails deserve to be judged one at a time — a three-day-old
+  password reset belongs in the bin, the order confirmation next to it belongs in
+  the recipient's inbox. The module keeps per-mail sending; bulk delivery moved to
+  the command line, where it is deliberate, scriptable and throttleable.
+
+### Added
+
+- `mailcatcher:resend`, with `--limit`, `--dry-run` and `--force`.
+- The run reports how many recipients lie **outside the site's own domain**, and
+  names them. This is the number that matters before anything leaves: a staging
+  system cloned from live holds real customer addresses, and nobody intends to
+  write to them. Context alone cannot tell that apart — staging identifies as
+  Production — so the addresses are shown instead of guessed at.
+- Outside a development context the confirmation is that external recipient count,
+  passed as `--force=N`. A number that has to be read off a dry run cannot be
+  supplied by reflex, and it changes when the list does.
+
+### Changed
+
+- `confirmAction(string $operation)` became `confirmDeleteAllAction()`. With bulk
+  sending gone there was one operation left and the parameter was dead weight.
+
 ## [0.4.0] — 2026-08-25
 
 ### Added

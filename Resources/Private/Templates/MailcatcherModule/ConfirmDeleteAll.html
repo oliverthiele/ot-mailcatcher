@@ -6,10 +6,10 @@
 
 <f:variable name="ll" value="LLL:EXT:ot_mailcatcher/Resources/Private/Language/locallang_mod.xlf:"/>
 
-<div class="callout callout-{variant}">
+<div class="callout callout-danger">
     <div class="callout-content">
-        <h2 class="callout-title"><f:translate key="{ll}confirm.{operation}.title"/></h2>
-        <p><f:translate key="{ll}confirm.{operation}.body" arguments="{0: count}"/></p>
+        <h2 class="callout-title"><f:translate key="{ll}confirm.deleteAll.title"/></h2>
+        <p><f:translate key="{ll}confirm.deleteAll.body" arguments="{0: count}"/></p>
         <f:if condition="{isProduction}">
             <p class="fw-bold"><f:translate key="{ll}confirm.productionNote"/></p>
         </f:if>
@@ -17,9 +17,9 @@
 </div>
 
 <div class="d-flex gap-2">
-    <f:form action="{operation}" method="post">
-        <button type="submit" class="btn btn-{variant}">
-            <f:translate key="{ll}confirm.{operation}.submit"/>
+    <f:form action="deleteAll" method="post">
+        <button type="submit" class="btn btn-danger">
+            <f:translate key="{ll}confirm.deleteAll.submit"/>
         </button>
     </f:form>
     <f:link.action action="index" class="btn btn-default"><f:translate key="{ll}confirm.cancel"/></f:link.action>

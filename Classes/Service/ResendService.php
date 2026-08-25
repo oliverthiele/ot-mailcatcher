@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OliverThiele\OtMailcatcher\Service;
 
+use OliverThiele\OtMailcatcher\Check\MailAddressHelper;
 use OliverThiele\OtMailcatcher\Domain\Repository\CapturedMailRepository;
 use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mime\Address;
@@ -47,9 +48,10 @@ final class ResendService
      * "sent" subdirectory — moved rather than deleted, so a delivery can still
      * be traced afterwards, and so a failure never destroys the only copy.
      *
+     * @param int|null $limit Stop after this many mails. Null sends everything.
      * @return array{sent: int, failed: int, errors: string[], stoppedEarly: bool}
      */
-    public function resendAll(): array
+    public function resendAll(?int $limit = null): array
     {
         if (MailcatcherState::isEnabled()) {
             throw new \RuntimeException(
@@ -71,6 +73,10 @@ final class ResendService
                 break;
             }
 
+            if ($limit !== null && ($sent + $failed) >= $limit) {
+                break;
+            }
+
             $error = $this->resendOne($mail->identifier);
             if ($error === null) {
                 $sent++;
@@ -88,6 +94,51 @@ final class ResendService
             'failed' => $failed,
             'errors' => $errors,
             'stoppedEarly' => $stoppedEarly,
+        ];
+    }
+
+    /**
+     * What a run would do, without doing it.
+     *
+     * The external recipient count is the number that matters before pressing
+     * anything: a staging system cloned from live holds real customer addresses,
+     * and delivering to them is the mistake this reports before it happens.
+     *
+     * @param int|null $limit
+     * @return array{mails: int, recipients: int, external: int, externalAddresses: string[]}
+     */
+    public function describePending(?int $limit = null): array
+    {
+        $ownDomain = MailAddressHelper::getDefaultSenderDomain();
+        $mails = 0;
+        $recipients = 0;
+        $externalAddresses = [];
+
+        foreach ($this->capturedMailRepository->findAll() as $mail) {
+            if ($limit !== null && $mails >= $limit) {
+                break;
+            }
+            $mails++;
+
+            $full = $this->capturedMailRepository->findByIdentifier($mail->identifier);
+            if ($full === null) {
+                continue;
+            }
+
+            foreach (array_merge($full->to, $full->cc, $full->bcc) as $address) {
+                $recipients++;
+                $bare = MailAddressHelper::extractAddress($address);
+                if ($ownDomain === '' || MailAddressHelper::extractDomain($address) !== $ownDomain) {
+                    $externalAddresses[$bare] = $bare;
+                }
+            }
+        }
+
+        return [
+            'mails' => $mails,
+            'recipients' => $recipients,
+            'external' => count($externalAddresses),
+            'externalAddresses' => array_values($externalAddresses),
         ];
     }
 

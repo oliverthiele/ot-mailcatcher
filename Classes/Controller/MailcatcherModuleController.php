@@ -208,31 +208,22 @@ class MailcatcherModuleController extends ActionController
     }
 
     /**
-     * Asks before anything irreversible happens.
+     * Asks before the captured mails are destroyed.
      *
      * A rendered step rather than a JavaScript dialog: it works regardless of
      * what the backend loads, it survives a reload, and the friction is the
-     * point — on a live system these two actions decide whether real customer
-     * mail is destroyed or delivered.
+     * point — on a live system this decides whether real customer mail that
+     * nobody has received yet is destroyed.
      */
-    public function confirmAction(string $operation): ResponseInterface
+    public function confirmDeleteAllAction(): ResponseInterface
     {
-        if (!in_array($operation, ['deleteAll', 'resendAll'], true)) {
-            return $this->redirect('index');
-        }
-
         $moduleTemplate = $this->createModuleTemplate();
         $moduleTemplate->assignMultiple([
-            'operation' => $operation,
             'count' => $this->capturedMailRepository->countAll(),
             'isProduction' => Environment::getContext()->isProduction(),
-            // Assembled here rather than inline in Fluid: an inline f:if needs
-            // quotes nested inside quotes, which is exactly how the status box
-            // broke once already.
-            'variant' => $operation === 'deleteAll' ? 'danger' : 'warning',
         ]);
 
-        return $moduleTemplate->renderResponse('MailcatcherModule/Confirm');
+        return $moduleTemplate->renderResponse('MailcatcherModule/ConfirmDeleteAll');
     }
 
     public function deleteAllAction(): ResponseInterface
@@ -268,46 +259,6 @@ class MailcatcherModuleController extends ActionController
             );
         } else {
             $this->addFlashMessage($error, '', ContextualFeedbackSeverity::ERROR);
-        }
-
-        return $this->redirect('index');
-    }
-
-    public function initializeResendAllAction(): void
-    {
-        $this->assertAllowedHttpMethod($this->request, 'POST');
-    }
-
-    public function resendAllAction(): ResponseInterface
-    {
-        try {
-            $result = $this->resendService->resendAll();
-        } catch (\RuntimeException $exception) {
-            $this->addFlashMessage(
-                $exception->getMessage(),
-                '',
-                ContextualFeedbackSeverity::ERROR
-            );
-            return $this->redirect('index');
-        }
-
-        if ($result['sent'] > 0) {
-            $this->addFlashMessage(
-                sprintf($this->labelProvider->get('flash.resentAll.message'), $result['sent']),
-                '',
-                ContextualFeedbackSeverity::OK
-            );
-        }
-
-        if ($result['failed'] > 0) {
-            $message = sprintf($this->labelProvider->get('flash.resendFailed.message'), $result['failed'])
-                . ' ' . implode(' | ', array_slice($result['errors'], 0, 5));
-
-            if ($result['stoppedEarly']) {
-                $message .= ' ' . $this->labelProvider->get('flash.resendStopped.message');
-            }
-
-            $this->addFlashMessage($message, '', ContextualFeedbackSeverity::ERROR);
         }
 
         return $this->redirect('index');

@@ -21,6 +21,12 @@ services:
         command: 'mailcatcher:testmail'
         description: 'Send a pair of test mails (receiver + sender) in a single run.'
 
+  OliverThiele\OtMailcatcher\Command\ResendCommand:
+    tags:
+      - name: console.command
+        command: 'mailcatcher:resend'
+        description: 'Deliver captured mails to their original recipients.'
+
   OliverThiele\OtMailcatcher\Command\PruneCommand:
     tags:
       - name: console.command
