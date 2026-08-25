@@ -235,9 +235,6 @@
       <trans-unit id="action.disable" resname="action.disable">
         <source>Switch off</source>
       </trans-unit>
-      <trans-unit id="action.show" resname="action.show">
-        <source>Show</source>
-      </trans-unit>
       <trans-unit id="action.delete" resname="action.delete">
         <source>Delete</source>
       </trans-unit>

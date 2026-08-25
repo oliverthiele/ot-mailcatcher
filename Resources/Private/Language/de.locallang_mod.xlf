@@ -307,10 +307,6 @@
         <source>Switch off</source>
         <target>Ausschalten</target>
       </trans-unit>
-      <trans-unit id="action.show" resname="action.show" approved="yes">
-        <source>Show</source>
-        <target>Anzeigen</target>
-      </trans-unit>
       <trans-unit id="action.delete" resname="action.delete" approved="yes">
         <source>Delete</source>
         <target>Löschen</target>
