@@ -175,22 +175,6 @@
         <source>The mail was sent to its original recipients.</source>
         <target>Die Mail wurde an ihre ursprünglichen Empfänger versendet.</target>
       </trans-unit>
-      <trans-unit id="flash.resendStopped.message" resname="flash.resendStopped.message" approved="yes">
-        <source>Stopped after three failures in a row — the rest is untouched. A host that refuses one mail usually refuses the next, and retrying in bulk risks the account being throttled.</source>
-        <target>Nach drei Fehlschlägen hintereinander abgebrochen — der Rest liegt unberührt. Wer eine Mail ablehnt, lehnt meist auch die nächste ab, und ein erneuter Massenversuch riskiert eine Sperre des Kontos.</target>
-      </trans-unit>
-      <trans-unit id="action.resendAll" resname="action.resendAll" approved="yes">
-        <source>Send remaining</source>
-        <target>Verbleibende versenden</target>
-      </trans-unit>
-      <trans-unit id="flash.resentAll.message" resname="flash.resentAll.message" approved="yes">
-        <source>Sent %1$s captured mails.</source>
-        <target>%1$s abgefangene Mails versendet.</target>
-      </trans-unit>
-      <trans-unit id="flash.resendFailed.message" resname="flash.resendFailed.message" approved="yes">
-        <source>%1$s mails could not be sent and are still here.</source>
-        <target>%1$s Mails konnten nicht versendet werden und liegen weiterhin hier.</target>
-      </trans-unit>
       <trans-unit id="confirm.cancel" resname="confirm.cancel" approved="yes">
         <source>Cancel</source>
         <target>Abbrechen</target>
@@ -206,18 +190,6 @@
       <trans-unit id="confirm.deleteAll.submit" resname="confirm.deleteAll.submit" approved="yes">
         <source>Yes, delete all</source>
         <target>Ja, alle löschen</target>
-      </trans-unit>
-      <trans-unit id="confirm.resendAll.title" resname="confirm.resendAll.title" approved="yes">
-        <source>Send the remaining mails?</source>
-        <target>Verbleibende Mails versenden?</target>
-      </trans-unit>
-      <trans-unit id="confirm.resendAll.body" resname="confirm.resendAll.body" approved="yes">
-        <source>This delivers %1$s mails to their original recipients. Delete the test and debug mails first — everything still here will go out. Each mail keeps its original headers, so the date the recipient sees is the date it was captured.</source>
-        <target>Damit werden %1$s Mails an ihre ursprünglichen Empfänger zugestellt. Vorher die Test- und Debug-Mails löschen — alles, was noch hier liegt, geht raus. Jede Mail behält ihre ursprünglichen Header, das Datum beim Empfänger ist also das des Abfangens.</target>
-      </trans-unit>
-      <trans-unit id="confirm.resendAll.submit" resname="confirm.resendAll.submit" approved="yes">
-        <source>Yes, send them</source>
-        <target>Ja, versenden</target>
       </trans-unit>
       <trans-unit id="confirm.productionNote" resname="confirm.productionNote" approved="yes">
         <source>This is a Production system. What is captured here may be real customer communication.</source>

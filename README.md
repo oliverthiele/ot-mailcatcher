@@ -163,13 +163,27 @@ lost. Getting the mail out again afterwards:
 
 1. **Switch the catcher off** — normal delivery resumes.
 2. **Delete the test and debug mails** individually.
-3. **Send remaining** — delivers everything still captured to its original
-   recipients, after a confirmation naming the count. Individual mails can be
-   sent one at a time with **Send** in their row, which is the better route when
-   the list is long or the host limits how much may leave at once.
+3. **Send** in a mail's row — delivers that one mail to its original recipients.
 
-A bulk run stops after three failures in a row rather than working through the
-whole list against a relay that is refusing.
+Per mail on purpose: what is captured during an incident is a mixture, and the
+mails deserve to be judged separately. A three-day-old password reset belongs in
+the bin; the order confirmation next to it belongs in the recipient's inbox.
+
+For a list too long to click through, use the command line:
+
+```bash
+typo3 mailcatcher:resend --dry-run          # what would go, and to whom
+typo3 mailcatcher:resend --limit=20 --force=7
+```
+
+The run reports how many recipients lie outside the site's own domain and names
+them — the number that matters on a staging system cloned from live, where the
+captured mail carries real customer addresses. Outside a development context that
+count is also the confirmation: `--force=7` only works while seven external
+recipients are pending, so it cannot be typed from memory.
+
+A run stops after three failures in a row rather than working through the whole
+list against a relay that is refusing; everything unsent stays in place.
 
 Sending is refused while the catcher is still on; the mails would go straight
 back into it. Delivered mails move to `var/mailcatcher/sent/` rather than being
