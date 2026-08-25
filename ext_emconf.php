@@ -1,6 +1,6 @@
 <?php
 
-$EM_CONF[$_EXTKEY] = [
+$EM_CONF['ot_mailcatcher'] = [
     'title' => 'Mailcatcher',
     'description' => 'Capture outgoing mails as files instead of sending them, review them in the backend and check them for the usual configuration mistakes.',
     'category' => 'module',
