@@ -5,6 +5,28 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.1] — 2026-08-25
+
+### Changed
+
+- `state` raised from `alpha` to `beta`. The label is a claim about how much of
+  this is pinned down, and it now rests on something: 76 unit tests and a
+  Playwright smoke test for the backend module, each of the load-bearing ones
+  verified by breaking the code on purpose and watching the right test fail.
+
+  Covered are the parts where a mistake reaches outside the machine — the API
+  token gate, the identifier guard that keeps a path from arriving over HTTP, the
+  ten rules the README advertises, the captured-mail parsing everything else
+  stands on, and the resend, where a delivered mail has to leave the store and a
+  failed one has to stay.
+
+  Not covered, and the reason this is not 1.0: the two console commands, the
+  event listeners behind the banner and the Reports entry, and the state matrix
+  in `ConfigurationValidator`.
+
+- `Tests/` and the tooling configuration are no longer part of the distributed
+  archive.
+
 ## [0.6.0] — 2026-08-25
 
 ### Changed
