@@ -6,10 +6,10 @@
 
 <f:variable name="ll" value="LLL:EXT:ot_mailcatcher/Resources/Private/Language/locallang_mod.xlf:"/>
 
-<div class="callout callout-{status.cssClass}">
+<div class="callout callout-{status.cssClass}" data-testid="mailcatcher-status" data-status="{status.value}">
     <div class="callout-content d-flex align-items-center justify-content-between flex-wrap gap-3">
         <div>
-            <strong><f:translate key="{ll}{status.statusLabelKey}"/></strong>
+            <strong data-testid="mailcatcher-status-label"><f:translate key="{ll}{status.statusLabelKey}"/></strong>
             <f:if condition="{enabledSince}">
                 <div class="mt-1"><f:translate key="{ll}status.enabledSince" arguments="{0: enabledSince}"/></div>
             </f:if>
@@ -28,7 +28,7 @@
         <div class="d-flex gap-2">
             <f:if condition="{isAllowed}">
                 <f:form action="toggle" method="post">
-                    <button type="submit" class="btn {f:if(condition: isEnabled, then: 'btn-primary', else: 'btn-warning')}">
+                    <button type="submit" data-testid="mailcatcher-toggle" class="btn {f:if(condition: isEnabled, then: 'btn-primary', else: 'btn-warning')}">
                         <f:if condition="{isEnabled}">
                             <f:then><f:translate key="{ll}action.disable"/></f:then>
                             <f:else><f:translate key="{ll}action.enable"/></f:else>
@@ -55,7 +55,7 @@
 <f:if condition="{mails}">
     <f:then>
         <div class="table-fit">
-            <table class="table table-striped table-hover">
+            <table class="table table-striped table-hover" data-testid="mailcatcher-list">
                 <thead>
                 <tr>
                     <th><f:translate key="{ll}list.findings"/></th>
@@ -69,7 +69,7 @@
                 </thead>
                 <tbody>
                 <f:for each="{mails}" as="row">
-                    <tr>
+                    <tr data-testid="mailcatcher-row" data-identifier="{row.mail.identifier}">
                         <td>
                             <f:if condition="{row.mail.checkResults}">
                                 <f:then>
@@ -97,12 +97,12 @@
                                 <f:if condition="{isEnabled}">
                                     <f:else>
                                         <f:form action="resend" method="post" arguments="{identifier: row.mail.identifier}">
-                                            <button type="submit" class="btn btn-default btn-sm"><f:translate key="{ll}action.resend"/></button>
+                                            <button type="submit" data-testid="mailcatcher-resend" class="btn btn-default btn-sm"><f:translate key="{ll}action.resend"/></button>
                                         </f:form>
                                     </f:else>
                                 </f:if>
                                 <f:form action="delete" method="post" arguments="{identifier: row.mail.identifier}">
-                                    <button type="submit" class="btn btn-default btn-sm"><f:translate key="{ll}action.delete"/></button>
+                                    <button type="submit" data-testid="mailcatcher-delete" class="btn btn-default btn-sm"><f:translate key="{ll}action.delete"/></button>
                                 </f:form>
                             </div>
                         </td>
@@ -113,7 +113,7 @@
         </div>
     </f:then>
     <f:else>
-        <p class="text-body-secondary"><f:translate key="{ll}list.empty"/></p>
+        <p class="text-body-secondary" data-testid="mailcatcher-empty"><f:translate key="{ll}list.empty"/></p>
     </f:else>
 </f:if>
 </f:section>
