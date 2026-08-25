@@ -12,13 +12,9 @@ use TYPO3\TestingFramework\Core\Unit\UnitTestCase;
 /**
  * A placeholder that survived rendering is visible to the recipient.
  *
- * Note the asymmetry between the two body parts: `###MARKER###` is looked for in
- * both, a Fluid-style `{variable}` only in the plain text part. The tests below
- * pin that as it currently stands — but measured against the pattern, inline CSS
- * (`{ color: #fff }`, `{margin:0}`) does not match it, while `{user.firstName}`
- * in an HTML body does and would be a real finding. The restriction therefore
- * hides something rather than protecting against noise; see the note in the
- * README backlog.
+ * Both patterns are checked in both body parts. The negative case below is what
+ * makes that safe: inline CSS does not match the Fluid pattern, so searching the
+ * HTML body reports unrendered placeholders without reporting styled mails.
  */
 final class LeftoverPlaceholderCheckTest extends UnitTestCase
 {
@@ -77,14 +73,16 @@ final class LeftoverPlaceholderCheckTest extends UnitTestCase
     }
 
     #[Test]
-    public function aFluidVariableInTheHtmlPartIsCurrentlyNotReported(): void
+    public function aFluidVariableInTheHtmlPartIsReported(): void
     {
-        // Pins the current behaviour, not a desirable one: this is an unrendered
-        // placeholder the recipient would see, and the rule stays quiet because
-        // it only searches the text part. Changing it is a product decision.
-        self::assertSame([], $this->subject->check(CapturedMailFactory::create([
+        // The text part is rendered correctly here — only the HTML carries the
+        // placeholder, and that is the half most recipients actually see.
+        $results = $this->subject->check(CapturedMailFactory::create([
             'htmlBody' => '<p>Dear {user.firstName},</p>',
             'textBody' => 'Dear customer,',
-        ])));
+        ]));
+
+        self::assertCount(1, $results);
+        self::assertSame('leftoverPlaceholder', $results[0]->identifier);
     }
 }
