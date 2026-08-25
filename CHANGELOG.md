@@ -5,6 +5,17 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.1] — 2026-08-25
+
+### Fixed
+
+- The pre-send report undercounted external recipients, and did so in the
+  reassuring direction. It compared the total number of recipients against the
+  number of *distinct* external addresses, so fifty mails to one customer read as
+  "50 recipients, 1 of them outside this site" — as if forty-nine stayed inside.
+  Deliveries leaving the site and the number of different people receiving them
+  are now reported separately.
+
 ## [0.5.0] — 2026-08-25
 
 ### Removed
