@@ -26,6 +26,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Playwright `beforeEach` that skips rather than fails — a test that cannot run
   safely has not found a defect.
 
+### Changed
+
+- Name the extension key in `ext_emconf.php` instead of relying on `$_EXTKEY`.
+  The variable is only defined when the extension manager includes the file, so
+  static analysis reported it as possibly undefined. Note that `ext_emconf.php`
+  itself is deprecated as of TYPO3 14.2 (changelog 108345) and the metadata
+  belongs in `composer.json`; this keeps the file correct until that move.
+
 ## [0.6.1] — 2026-08-25
 
 ### Changed
