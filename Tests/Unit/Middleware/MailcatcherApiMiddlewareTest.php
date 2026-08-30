@@ -6,7 +6,9 @@ namespace OliverThiele\OtMailcatcher\Tests\Unit\Middleware;
 
 use OliverThiele\OtMailcatcher\Check\CheckRunner;
 use OliverThiele\OtMailcatcher\Domain\Repository\CapturedMailRepository;
+use OliverThiele\OtMailcatcher\Mail\FileTransport;
 use OliverThiele\OtMailcatcher\Middleware\MailcatcherApiMiddleware;
+use OliverThiele\OtMailcatcher\Service\ConfigurationValidator;
 use OliverThiele\OtMailcatcher\Tests\Unit\AbstractStorageTestCase;
 use OliverThiele\OtMailcatcher\Tests\Unit\Check\CapturedMailFactory;
 use PHPUnit\Framework\Attributes\Test;
@@ -30,6 +32,7 @@ final class MailcatcherApiMiddlewareTest extends AbstractStorageTestCase
 {
     private const TOKEN = 'a-token-long-enough-to-be-realistic';
     private const PATH = '/_mailcatcher/api/messages';
+    private const STATUS_PATH = '/_mailcatcher/api/status';
 
     private MailcatcherApiMiddleware $subject;
 
@@ -41,7 +44,11 @@ final class MailcatcherApiMiddlewareTest extends AbstractStorageTestCase
         $repository->method('findAll')->willReturn([CapturedMailFactory::create()]);
         $repository->method('findByIdentifier')->willReturn(CapturedMailFactory::create());
 
-        $this->subject = new MailcatcherApiMiddleware($repository, new CheckRunner([]));
+        $this->subject = new MailcatcherApiMiddleware(
+            $repository,
+            new CheckRunner([]),
+            new ConfigurationValidator(),
+        );
 
         $this->switchCatcher(true);
         $this->setToken(self::TOKEN);
@@ -50,6 +57,7 @@ final class MailcatcherApiMiddlewareTest extends AbstractStorageTestCase
     protected function tearDown(): void
     {
         $this->setToken('');
+        unset($GLOBALS['TYPO3_CONF_VARS']['MAIL']['transport']);
         parent::tearDown();
     }
 
@@ -143,6 +151,102 @@ final class MailcatcherApiMiddlewareTest extends AbstractStorageTestCase
     public function anUnsupportedMethodIsRejected(): void
     {
         $request = $this->request()->withMethod('PUT');
+
+        self::assertSame(405, $this->statusOf($request));
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    private function statusPayload(): array
+    {
+        $response = $this->subject->process($this->request(self::STATUS_PATH), $this->handler());
+
+        self::assertSame(200, $response->getStatusCode());
+
+        $payload = json_decode((string)$response->getBody(), true, 512, JSON_THROW_ON_ERROR);
+        self::assertIsArray($payload);
+
+        return $payload;
+    }
+
+    private function wireTransport(bool $wired): void
+    {
+        if ($wired) {
+            $GLOBALS['TYPO3_CONF_VARS']['MAIL']['transport'] = FileTransport::class;
+            return;
+        }
+
+        unset($GLOBALS['TYPO3_CONF_VARS']['MAIL']['transport']);
+    }
+
+    #[Test]
+    public function theStatusRouteAnswersWhileTheCatcherIsOff(): void
+    {
+        // The property the whole route exists for. A caller asks precisely
+        // because it does not know, and "off" is the answer it most needs — the
+        // messages route answers 404 in this situation and cannot say it.
+        $this->switchCatcher(false);
+        $this->wireTransport(false);
+
+        $payload = $this->statusPayload();
+
+        self::assertSame('inactive', $payload['status']);
+        self::assertTrue($payload['mailIsBeingSent']);
+        self::assertFalse($payload['enabled']);
+    }
+
+    #[Test]
+    public function theStatusRouteReportsCaptureWhenTheCatcherIsOnAndWiredUp(): void
+    {
+        $this->switchCatcher(true);
+        $this->wireTransport(true);
+
+        $payload = $this->statusPayload();
+
+        self::assertSame('active', $payload['status']);
+        self::assertFalse($payload['mailIsBeingSent'], 'nothing leaves the machine in this state');
+        self::assertTrue($payload['wired']);
+    }
+
+    #[Test]
+    public function theStatusRouteReportsMailGoingOutWhenTheTransportWasNeverWiredUp(): void
+    {
+        // The dangerous one, and the reason a caller cannot settle for "is the
+        // switch on": the backend reports a running catcher while every mail is
+        // delivered as usual. isActive() alone would say yes here.
+        $this->switchCatcher(true);
+        $this->wireTransport(false);
+
+        $payload = $this->statusPayload();
+
+        self::assertSame('notTakingEffect', $payload['status']);
+        self::assertTrue($payload['mailIsBeingSent']);
+        self::assertTrue($payload['enabled']);
+        self::assertFalse($payload['wired']);
+    }
+
+    #[Test]
+    public function theStatusRouteNeedsATokenAsWell(): void
+    {
+        // It describes the configuration, so it is not for anonymous eyes —
+        // even though it never exposes a mail.
+        self::assertSame(404, $this->statusOf($this->request(self::STATUS_PATH, token: null)));
+    }
+
+    #[Test]
+    public function theStatusRouteRefusesAWrongToken(): void
+    {
+        self::assertSame(
+            404,
+            $this->statusOf($this->request(self::STATUS_PATH, token: 'not-the-token')),
+        );
+    }
+
+    #[Test]
+    public function theStatusRouteRejectsAnUnsupportedMethod(): void
+    {
+        $request = $this->request(self::STATUS_PATH)->withMethod('DELETE');
 
         self::assertSame(405, $this->statusOf($request));
     }
