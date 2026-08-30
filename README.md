@@ -27,6 +27,10 @@ editor can act on.
   sentence stating the problem and one stating what correct looks like.
 - **The same rules in CI.** A token-protected HTTP API returns the findings as
   stable identifiers, so an end-to-end test can assert on them.
+- **A test can ask before it sends.** The API answers what the catcher's state
+  actually is — including "switched on but not capturing" — so a test that
+  triggers a mail can skip instead of delivering to real recipients. This is the
+  answer no catcher that merely intercepts can give.
 - **Impossible to forget.** While the catcher is active it says so in the system
   information toolbar, in the Reports module, and in a banner on every backend page.
 - **It never claims more than it can deliver.** The switch in the backend module and
@@ -146,18 +150,79 @@ through the `ot_mailcatcher.check` service tag, no change to this package needed
 
 ### Test API
 
-Requires `MAILCATCHER_API_TOKEN` and an active catcher. Every request carries the
-token in the `X-Mailcatcher-Token` header.
+Requires `MAILCATCHER_API_TOKEN`; every request carries it in the
+`X-Mailcatcher-Token` header. Without a configured token the routes answer 404
+rather than 403 — an endpoint that does not exist reveals nothing about what it
+would have guarded.
 
 | Endpoint | Purpose |
 |---|---|
+| `GET /_mailcatcher/api/status` | The catcher's own state, answered whether it is on or off |
 | `GET /_mailcatcher/api/messages` | List, optionally filtered by `to` and `subject` |
 | `GET /_mailcatcher/api/messages/{identifier}` | One mail including text, HTML and attachment metadata |
 | `DELETE /_mailcatcher/api/messages` | Remove all captured mails |
 
+The message routes additionally require an active catcher. `status` deliberately
+does not: a route that only answers while the catcher is on could never report
+the two states a caller most needs to hear — that it is off, or that it is on
+but not wired up.
+
 ```bash
 curl -H "X-Mailcatcher-Token: $MAILCATCHER_API_TOKEN" \
      https://example.ddev.site/_mailcatcher/api/messages
+```
+
+### Guarding a test that sends
+
+A test that submits a form sends real mail whenever the catcher is not
+capturing. On a staging system cloned from live those recipients are real
+customers, so the question has to be asked *before* submitting:
+
+```json
+{
+  "status": "notTakingEffect",
+  "mailIsBeingSent": true,
+  "enabled": true,
+  "allowed": true,
+  "wired": false,
+  "enabledSince": "2026-08-30T18:04:12+02:00"
+}
+```
+
+**`mailIsBeingSent` is the field to branch on.** The individual flags are there
+so a failure message can say *why*; recombining them in the caller duplicates
+logic that belongs in one place.
+
+| `status` | Meaning | Safe for a test that sends |
+|---|---|---|
+| `active` | On and wired up | yes — the mail is captured |
+| `notTakingEffect` | On, but the transport was never wired up | **no** — mail goes out while the backend claims otherwise |
+| `locked` | On, but not permitted in this environment | **no** |
+| `strayTransport` | Off, yet the transport points at the catcher | nothing is sent, but nothing is captured either |
+| `inactive` | Off and not wired up | **no** — normal delivery |
+
+Skipping is the right outcome rather than failing: a test that cannot run safely
+has not found a defect.
+
+```typescript
+async function mailIsCaptured(request: APIRequestContext): Promise<boolean> {
+    const response = await request.get('/_mailcatcher/api/status', {
+        headers: { 'X-Mailcatcher-Token': process.env.MAILCATCHER_API_TOKEN ?? '' },
+    });
+
+    // 404 means no token configured or the wrong one — either way, do not send.
+    if (!response.ok()) {
+        return false;
+    }
+
+    const status = (await response.json()) as { mailIsBeingSent: boolean };
+
+    return status.mailIsBeingSent === false;
+}
+
+test.beforeEach(async ({ request }) => {
+    test.skip(!(await mailIsCaptured(request)), 'Mailcatcher is not capturing — refusing to send');
+});
 ```
 
 ### After a live incident

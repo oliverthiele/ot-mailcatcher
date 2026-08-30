@@ -1,13 +1,13 @@
 <?php
 
-$EM_CONF[$_EXTKEY] = [
+$EM_CONF['ot_mailcatcher'] = [
     'title' => 'Mailcatcher',
     'description' => 'Capture outgoing mails as files instead of sending them, review them in the backend and check them for the usual configuration mistakes.',
     'category' => 'module',
     'author' => 'Oliver Thiele',
     'author_email' => 'mail@oliver-thiele.de',
     'state' => 'beta',
-    'version' => '0.6.1',
+    'version' => '0.7.0',
     'constraints' => [
         'depends' => [
             'typo3' => '13.4.0-14.3.99',

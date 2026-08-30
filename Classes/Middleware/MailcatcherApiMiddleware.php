@@ -7,6 +7,7 @@ namespace OliverThiele\OtMailcatcher\Middleware;
 use OliverThiele\OtMailcatcher\Check\CheckRunner;
 use OliverThiele\OtMailcatcher\Domain\Dto\CapturedMail;
 use OliverThiele\OtMailcatcher\Domain\Repository\CapturedMailRepository;
+use OliverThiele\OtMailcatcher\Service\ConfigurationValidator;
 use OliverThiele\OtMailcatcher\Service\MailcatcherState;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -30,18 +31,25 @@ use TYPO3\CMS\Core\Http\JsonResponse;
 final class MailcatcherApiMiddleware implements MiddlewareInterface
 {
     private const ROUTE_PREFIX = '/_mailcatcher/api/messages';
+    private const STATUS_ROUTE = '/_mailcatcher/api/status';
     private const TOKEN_HEADER = 'X-Mailcatcher-Token';
     public const TOKEN_ENVIRONMENT_VARIABLE = 'MAILCATCHER_API_TOKEN';
 
     public function __construct(
         private readonly CapturedMailRepository $capturedMailRepository,
         private readonly CheckRunner $checkRunner,
+        private readonly ConfigurationValidator $configurationValidator,
     ) {
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         $path = $request->getUri()->getPath();
+
+        if ($path === self::STATUS_ROUTE) {
+            return $this->statusResponse($request);
+        }
+
         if (!str_starts_with($path, self::ROUTE_PREFIX)) {
             return $handler->handle($request);
         }
@@ -141,10 +149,57 @@ final class MailcatcherApiMiddleware implements MiddlewareInterface
         return $data;
     }
 
+    /**
+     * The catcher's own state, for a caller that has to decide whether sending
+     * is safe before it triggers a mail.
+     *
+     * Deliberately **not** behind isAvailable(). That requires an active
+     * catcher, and a status route which only answers while the catcher is on can
+     * never report the two states a caller most needs to hear: that it is off,
+     * or that it is on but not wired up and mail is going out regardless. The
+     * token stays mandatory — this describes the configuration, so it is not for
+     * anonymous eyes.
+     *
+     * `mailIsBeingSent` is the field to branch on. The individual flags are
+     * there to make a failure message say *why*, not to be recombined by the
+     * caller — that logic lives in ConfigurationValidator and should stay in one
+     * place.
+     */
+    private function statusResponse(ServerRequestInterface $request): ResponseInterface
+    {
+        if (!$this->hasValidToken($request)) {
+            return new JsonResponse(['error' => 'Not found'], 404);
+        }
+
+        if ($request->getMethod() !== 'GET') {
+            return new JsonResponse(['error' => 'Method not allowed'], 405);
+        }
+
+        $status = $this->configurationValidator->getStatus();
+
+        return new JsonResponse([
+            'status' => $status->value,
+            'mailIsBeingSent' => $status->isMailBeingSent(),
+            'enabled' => MailcatcherState::isEnabled(),
+            'allowed' => MailcatcherState::isAllowed(),
+            'wired' => MailcatcherState::isWired(),
+            'enabledSince' => MailcatcherState::getEnabledSince()?->format(\DateTimeInterface::ATOM),
+        ]);
+    }
+
     private function isAvailable(ServerRequestInterface $request): bool
     {
+        if (!MailcatcherState::isActive()) {
+            return false;
+        }
+
+        return $this->hasValidToken($request);
+    }
+
+    private function hasValidToken(ServerRequestInterface $request): bool
+    {
         $configuredToken = $this->readToken();
-        if ($configuredToken === '' || !MailcatcherState::isActive()) {
+        if ($configuredToken === '') {
             return false;
         }
 

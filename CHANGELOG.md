@@ -5,6 +5,35 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.0] — 2026-08-30
+
+### Added
+
+- Add `GET /_mailcatcher/api/status`, so a test can establish whether sending is
+  safe before it triggers a mail. It returns the effective state
+  (`ConfigurationValidator::getStatus()`) together with `mailIsBeingSent`, the
+  single field a caller should branch on, and the individual `enabled`,
+  `allowed` and `wired` flags so a failure message can say why.
+
+  Unlike the message routes it answers while the catcher is **off**. That is the
+  point: a route gated on an active catcher can never report the two states a
+  caller most needs to hear — that it is off, or that it is on while the
+  transport was never wired up and mail goes out regardless. `isActive()` alone
+  says yes in the second case. The token stays mandatory, since the response
+  describes the configuration.
+
+- Document guarding a sending test in the README, with the state table and a
+  Playwright `beforeEach` that skips rather than fails — a test that cannot run
+  safely has not found a defect.
+
+### Changed
+
+- Name the extension key in `ext_emconf.php` instead of relying on `$_EXTKEY`.
+  The variable is only defined when the extension manager includes the file, so
+  static analysis reported it as possibly undefined. Note that `ext_emconf.php`
+  itself is deprecated as of TYPO3 14.2 (changelog 108345) and the metadata
+  belongs in `composer.json`; this keeps the file correct until that move.
+
 ## [0.6.1] — 2026-08-25
 
 ### Changed
