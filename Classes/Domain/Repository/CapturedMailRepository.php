@@ -97,7 +97,7 @@ class CapturedMailRepository
 
         return [
             'fileName' => $part->getFilename() ?? ('attachment-' . $partIndex),
-            'mimeType' => $part->getContentType() ?? 'application/octet-stream',
+            'mimeType' => (string)$part->getContentType(),
             'content' => (string)$part->getContent(),
         ];
     }
@@ -173,7 +173,7 @@ class CapturedMailRepository
                 $attachments[] = new CapturedAttachment(
                     (int)$index,
                     $part->getFilename() ?? ('attachment-' . $index),
-                    $part->getContentType() ?? 'application/octet-stream',
+                    (string)$part->getContentType(),
                     strlen((string)$part->getContent()),
                 );
             }

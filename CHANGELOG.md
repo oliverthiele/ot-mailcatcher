@@ -5,6 +5,22 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.7.1] — 2026-10-01
+
+### Added
+
+- Cover attachment listing and download with a unit test.
+
+### Changed
+
+- Allow `zbateson/mail-mime-parser` `^4.0.3` alongside `^3.0`. The 3.x line
+  requires `guzzlehttp/psr7` `^2`, while Guzzle 8 requires `guzzlehttp/psr7`
+  `^3` — a project that needs Guzzle 8 could not install this extension. 4.0.3
+  is the first release that accepts both `psr7` majors.
+- Read the attachment content type without a `null` fallback. Both parser lines
+  always return a string (`text/plain` when the header is missing), so the
+  fallback was never reached; 4.x also declares the return type as `string`.
+
 ## [0.7.0] — 2026-08-30
 
 ### Added

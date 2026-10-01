@@ -156,6 +156,41 @@ final class CapturedMailRepositoryTest extends AbstractStorageTestCase
     }
 
     #[Test]
+    public function anAttachmentIsListedAndCanBeDownloaded(): void
+    {
+        $this->placeCapturedMail('2026-08-25_100400-attachment.eml', implode("\r\n", [
+            'Subject: Attachment',
+            'From: noreply@example.com',
+            'To: customer@elsewhere.test',
+            'Content-Type: multipart/mixed; boundary="BOUND"',
+            '',
+            '--BOUND',
+            'Content-Type: text/plain; charset=utf-8',
+            '',
+            'See the attached file.',
+            '--BOUND',
+            'Content-Type: text/csv; name="report.csv"',
+            'Content-Disposition: attachment; filename="report.csv"',
+            'Content-Transfer-Encoding: base64',
+            '',
+            base64_encode("id;name\n1;Example\n"),
+            '--BOUND--',
+        ]));
+
+        $mail = $this->subject->findByIdentifier('2026-08-25_100400-attachment.eml');
+        $attachment = $this->subject->getAttachment('2026-08-25_100400-attachment.eml', 0);
+
+        self::assertCount(1, $mail?->attachments ?? []);
+        self::assertSame('report.csv', $mail?->attachments[0]->fileName);
+        self::assertSame('text/csv', $mail?->attachments[0]->mimeType);
+        self::assertSame(18, $mail?->attachments[0]->size);
+        self::assertSame(
+            ['fileName' => 'report.csv', 'mimeType' => 'text/csv', 'content' => "id;name\n1;Example\n"],
+            $attachment,
+        );
+    }
+
+    #[Test]
     public function theListIsNewestFirst(): void
     {
         // The file name carries a sortable timestamp, so the order comes from the
