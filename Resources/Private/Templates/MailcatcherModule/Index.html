@@ -94,12 +94,10 @@
                         <td><f:format.bytes decimals="1">{row.mail.size}</f:format.bytes></td>
                         <td class="text-end">
                             <div class="d-flex gap-1 justify-content-end">
-                                <f:if condition="{isEnabled}">
-                                    <f:else>
-                                        <f:form action="resend" method="post" arguments="{identifier: row.mail.identifier}">
-                                            <button type="submit" data-testid="mailcatcher-resend" class="btn btn-default btn-sm"><f:translate key="{ll}action.resend"/></button>
-                                        </f:form>
-                                    </f:else>
+                                <f:if condition="{canResend}">
+                                    <f:form action="resend" method="post" arguments="{identifier: row.mail.identifier}">
+                                        <button type="submit" data-testid="mailcatcher-resend" class="btn btn-default btn-sm"><f:translate key="{ll}action.resend"/></button>
+                                    </f:form>
                                 </f:if>
                                 <f:form action="delete" method="post" arguments="{identifier: row.mail.identifier}">
                                     <button type="submit" data-testid="mailcatcher-delete" class="btn btn-default btn-sm"><f:translate key="{ll}action.delete"/></button>

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace OliverThiele\OtMailcatcher\Command;
 
+use OliverThiele\OtMailcatcher\Domain\Repository\CapturedMailRepository;
 use OliverThiele\OtMailcatcher\Service\MailcatcherState;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
@@ -46,11 +47,11 @@ final class PruneCommand extends Command
         $inputOutput = new SymfonyStyle($input, $output);
 
         $rawDays = $input->getOption('days');
-        $days = is_numeric($rawDays) ? (int)$rawDays : self::DEFAULT_RETENTION_DAYS;
-        if ($days < 1) {
-            $inputOutput->error('The retention period must be at least one day.');
+        if (!is_string($rawDays) || preg_match('/^\d+$/', $rawDays) !== 1 || (int)$rawDays < 1) {
+            $inputOutput->error('The retention period must be a whole number of at least one day.');
             return Command::INVALID;
         }
+        $days = (int)$rawDays;
 
         $isDryRun = $input->getOption('dry-run') === true;
 
@@ -70,10 +71,13 @@ final class PruneCommand extends Command
         }
         $threshold = time() - ($days * 86400);
 
-        $files = glob(MailcatcherState::getStorageDirectory() . '/*.eml');
-        if ($files === false) {
-            $files = [];
-        }
+        // Delivered mails in sent/ hold the same personal data as the captured
+        // ones and age out the same way.
+        $storageDirectory = MailcatcherState::getStorageDirectory();
+        $files = array_merge(
+            glob($storageDirectory . '/*.eml') ?: [],
+            glob($storageDirectory . '/sent/*.eml') ?: []
+        );
 
         $deleted = 0;
         foreach ($files as $file) {
@@ -82,7 +86,7 @@ final class PruneCommand extends Command
                 continue;
             }
 
-            if ($isDryRun || unlink($file)) {
+            if ($isDryRun || CapturedMailRepository::deleteMailFile($file)) {
                 $deleted++;
             }
         }

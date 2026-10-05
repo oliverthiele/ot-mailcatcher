@@ -156,6 +156,101 @@ final class MailcatcherApiMiddlewareTest extends AbstractStorageTestCase
     }
 
     /**
+     * @param list<string> $deletedIdentifiers receives every identifier passed to delete()
+     */
+    private function middlewareRecordingDeletes(array &$deletedIdentifiers, bool &$deletedAll): MailcatcherApiMiddleware
+    {
+        $repository = self::createStub(CapturedMailRepository::class);
+        $repository->method('delete')->willReturnCallback(static function (string $identifier) use (&$deletedIdentifiers): bool {
+            $deletedIdentifiers[] = $identifier;
+            return true;
+        });
+        $repository->method('deleteAll')->willReturnCallback(static function () use (&$deletedAll): int {
+            $deletedAll = true;
+            return 3;
+        });
+
+        return new MailcatcherApiMiddleware($repository, new CheckRunner([]), new ConfigurationValidator());
+    }
+
+    #[Test]
+    public function deletingOneMailDeletesOnlyThatMail(): void
+    {
+        $deletedIdentifiers = [];
+        $deletedAll = false;
+        $middleware = $this->middlewareRecordingDeletes($deletedIdentifiers, $deletedAll);
+
+        $response = $middleware->process($this->request(self::PATH . '/2026-08-25_100000-a.eml')->withMethod('DELETE'), $this->handler());
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame(['2026-08-25_100000-a.eml'], $deletedIdentifiers);
+        self::assertFalse($deletedAll);
+    }
+
+    #[Test]
+    public function deletingWithoutAnIdentifierDeletesAll(): void
+    {
+        $deletedIdentifiers = [];
+        $deletedAll = false;
+        $middleware = $this->middlewareRecordingDeletes($deletedIdentifiers, $deletedAll);
+
+        $middleware->process($this->request()->withMethod('DELETE'), $this->handler());
+
+        self::assertTrue($deletedAll);
+    }
+
+    #[Test]
+    public function deletingAllIsRefusedInProduction(): void
+    {
+        // Unlocked Production holds real mail nobody has received yet.
+        $this->switchApplicationContext('Production');
+        putenv('MAILCATCHER_ALLOWED=1');
+        $deletedIdentifiers = [];
+        $deletedAll = false;
+        $middleware = $this->middlewareRecordingDeletes($deletedIdentifiers, $deletedAll);
+
+        try {
+            $response = $middleware->process($this->request()->withMethod('DELETE'), $this->handler());
+        } finally {
+            putenv('MAILCATCHER_ALLOWED');
+        }
+
+        self::assertSame(403, $response->getStatusCode());
+        self::assertFalse($deletedAll);
+    }
+
+    #[Test]
+    public function deletingOneMailIsPossibleInProduction(): void
+    {
+        // A form test after a go-live removes the mails it triggered itself.
+        $this->switchApplicationContext('Production');
+        putenv('MAILCATCHER_ALLOWED=1');
+        $deletedIdentifiers = [];
+        $deletedAll = false;
+        $middleware = $this->middlewareRecordingDeletes($deletedIdentifiers, $deletedAll);
+
+        try {
+            $response = $middleware->process($this->request(self::PATH . '/2026-08-25_100000-a.eml')->withMethod('DELETE'), $this->handler());
+        } finally {
+            putenv('MAILCATCHER_ALLOWED');
+        }
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame(['2026-08-25_100000-a.eml'], $deletedIdentifiers);
+        self::assertFalse($deletedAll);
+    }
+
+    #[Test]
+    public function noAnswerMayBeCached(): void
+    {
+        // A cache in front of staging must not keep mail for the next caller.
+        foreach ([$this->request(), $this->request(token: null), $this->request(self::STATUS_PATH)] as $request) {
+            $response = $this->subject->process($request, $this->handler());
+            self::assertStringContainsString('no-store', $response->getHeaderLine('Cache-Control'));
+        }
+    }
+
+    /**
      * @return array<string, mixed>
      */
     private function statusPayload(): array

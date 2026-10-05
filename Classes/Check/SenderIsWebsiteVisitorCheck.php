@@ -18,7 +18,7 @@ final class SenderIsWebsiteVisitorCheck implements MailCheckInterface
         $ownDomain = MailAddressHelper::getDefaultSenderDomain();
         $senderDomain = MailAddressHelper::extractDomain($mail->from);
 
-        if ($ownDomain === '' || $senderDomain === '' || $senderDomain === $ownDomain) {
+        if ($ownDomain === '' || $senderDomain === '' || MailAddressHelper::belongsToDomain($senderDomain, $ownDomain)) {
             return [];
         }
 

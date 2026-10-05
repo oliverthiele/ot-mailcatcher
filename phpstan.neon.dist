@@ -15,5 +15,7 @@ parameters:
     # would make $mailSettings land on the event dispatcher parameter.
     -
       identifier: constructor.unusedParameter
-      path: Classes/Mail/RefusingTransport.php
+      paths:
+        - Classes/Mail/FileTransport.php
+        - Classes/Mail/RefusingTransport.php
   checkUninitializedProperties: true

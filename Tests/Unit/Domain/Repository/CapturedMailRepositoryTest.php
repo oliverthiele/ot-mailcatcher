@@ -66,7 +66,7 @@ final class CapturedMailRepositoryTest extends AbstractStorageTestCase
         $this->placeCapturedMail('2026-08-25_100000-plain.eml', implode("\r\n", [
             'Date: Tue, 25 Aug 2026 10:00:00 +0200',
             'Subject: Order confirmation',
-            'From: WINKEL GmbH <noreply@example.com>',
+            'From: ACME GmbH <noreply@example.com>',
             'To: customer@elsewhere.test',
             'Content-Type: text/plain; charset=utf-8',
             '',
@@ -77,7 +77,7 @@ final class CapturedMailRepositoryTest extends AbstractStorageTestCase
 
         self::assertNotNull($mail);
         self::assertSame('Order confirmation', $mail->subject);
-        self::assertSame('WINKEL GmbH <noreply@example.com>', $mail->from);
+        self::assertSame('ACME GmbH <noreply@example.com>', $mail->from);
         self::assertSame(['customer@elsewhere.test'], $mail->to);
         self::assertTrue($mail->hasTextPart);
         self::assertFalse($mail->hasHtmlPart);

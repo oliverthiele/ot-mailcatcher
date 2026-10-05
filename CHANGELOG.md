@@ -5,6 +5,72 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Capture mail also where `MAIL.dsn` or `transport_spool_type` is configured.
+  TYPO3's `TransportFactory` uses a DSN before it looks at the transport class,
+  so with a DSN set every mail was delivered for real while the backend reported
+  the catcher as active. The wiring now clears both, and `isWired()` no longer
+  reports a transport-only block as wired.
+- Keep Bcc recipients. Symfony removes the `Bcc` header before a message is
+  serialised, so a resend never reached them. The envelope is now stored next to
+  each mail (`.envelope.json`), shown in the module, and used for delivery —
+  together with the envelope sender.
+- Never overwrite a mail captured in the same second: file names carry a random
+  part, and mail and envelope are written atomically.
+- Treat an unreadable or corrupt `state.json` as "on" instead of "off", and write
+  it atomically — a half-written state file no longer lets mail out.
+- Refuse a resend while the transport still points at the catcher; the mails
+  would have gone straight back into it.
+- Remove the `X-Mailcatcher-Context` header before a mail is resent.
+- Decode encoded headers (RFC 2047) for display and checks, and report the real
+  attachment size instead of the encoded one.
+- Count a subdomain of the site's own domain as the site's own address in
+  `senderIsWebsiteVisitor` and in the external-recipient count of
+  `mailcatcher:resend`.
+- Reject a non-numeric or zero `--limit` and `--days` instead of reading them as
+  `0`.
+- `mailcatcher:prune` also removes delivered mails in `sent/`, together with
+  their envelope files.
+- Report a failed delete in the backend module instead of staying silent.
+- Sanitise the attachment file name and content type in the download response.
+
+### Changed
+
+- Block remote images in the HTML preview by default. A captured mail is often
+  real customer mail; its tracking pixels would report the opening, and
+  same-origin URLs would be fetched with the backend session. A link loads them
+  for one mail on request. The preview also denies `form-action` and `base-uri`.
+- `DELETE /_mailcatcher/api/messages/{identifier}` deletes one mail;
+  `DELETE /_mailcatcher/api/messages` still deletes all, but is refused in a
+  Production context — a test teardown must not be the shortcut around the
+  module's confirmation. Deleting single mails stays possible there.
+- API responses carry `Cache-Control: no-store, private`.
+- The `to` filter of the API matches To, Cc and Bcc.
+- Replace the `additional.php` block with `MailcatcherState::wireMailTransport()`.
+  The old block that only assigned the transport is reported as outdated.
+- Convert the language files to XLIFF 2.0.
+- Require `zbateson/mail-mime-parser` `^4.0.3`.
+- Document the intended use on a live system: emergency debugging, or automated
+  form tests after a go-live while the maintenance mode is on — not permanent
+  operation.
+
+### Removed
+
+- Support for TYPO3 13.4. The extension requires TYPO3 14.3.
+- `ext_emconf.php` (deprecated in TYPO3 14, #108345). Version and package
+  metadata live in `composer.json`.
+- The `transport_file_directory` setting. Captured mail is always stored in
+  `var/mailcatcher/`, the directory the module, the API and the commands read.
+
+### Added
+
+- Unit tests for the transport wiring against the real `TransportFactory`, the
+  envelope round trip, the state file, header removal, command option
+  validation and the API delete routes.
+
 ## [0.7.1] — 2026-10-01
 
 ### Added
@@ -417,3 +483,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - TYPO3 13.4 LTS or 14.3 LTS, PHP 8.2 or newer.
 - Requires `typo3/cms-reports` for the Reports status entry.
+
+[Unreleased]: https://github.com/oliverthiele/ot-mailcatcher/compare/v0.7.1...HEAD
+[0.7.1]: https://github.com/oliverthiele/ot-mailcatcher/compare/v0.7.0...v0.7.1
+[0.7.0]: https://github.com/oliverthiele/ot-mailcatcher/compare/v0.6.1...v0.7.0
+[0.6.1]: https://github.com/oliverthiele/ot-mailcatcher/compare/v0.6.0...v0.6.1
+[0.6.0]: https://github.com/oliverthiele/ot-mailcatcher/compare/v0.5.3...v0.6.0
+[0.5.3]: https://github.com/oliverthiele/ot-mailcatcher/compare/v0.5.2...v0.5.3
+[0.5.2]: https://github.com/oliverthiele/ot-mailcatcher/compare/v0.5.1...v0.5.2
+[0.5.1]: https://github.com/oliverthiele/ot-mailcatcher/compare/v0.5.0...v0.5.1
+[0.5.0]: https://github.com/oliverthiele/ot-mailcatcher/compare/v0.4.0...v0.5.0
+[0.4.0]: https://github.com/oliverthiele/ot-mailcatcher/compare/v0.3.2...v0.4.0
+[0.3.2]: https://github.com/oliverthiele/ot-mailcatcher/compare/v0.3.1...v0.3.2
+[0.3.1]: https://github.com/oliverthiele/ot-mailcatcher/compare/v0.3.0...v0.3.1
+[0.3.0]: https://github.com/oliverthiele/ot-mailcatcher/compare/v0.2.3...v0.3.0
+[0.2.3]: https://github.com/oliverthiele/ot-mailcatcher/compare/v0.2.2...v0.2.3
+[0.2.2]: https://github.com/oliverthiele/ot-mailcatcher/compare/v0.2.1...v0.2.2
+[0.2.1]: https://github.com/oliverthiele/ot-mailcatcher/compare/v0.2.0...v0.2.1
+[0.2.0]: https://github.com/oliverthiele/ot-mailcatcher/compare/v0.1.5...v0.2.0
+[0.1.5]: https://github.com/oliverthiele/ot-mailcatcher/compare/v0.1.4...v0.1.5
+[0.1.4]: https://github.com/oliverthiele/ot-mailcatcher/compare/v0.1.3...v0.1.4
+[0.1.3]: https://github.com/oliverthiele/ot-mailcatcher/compare/v0.1.2...v0.1.3
+[0.1.2]: https://github.com/oliverthiele/ot-mailcatcher/compare/v0.1.1...v0.1.2
+[0.1.1]: https://github.com/oliverthiele/ot-mailcatcher/compare/v0.1.0...v0.1.1
+[0.1.0]: https://github.com/oliverthiele/ot-mailcatcher/releases/tag/v0.1.0

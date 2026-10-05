@@ -20,6 +20,12 @@ final class CapturedMail
      * @param CapturedAttachment[] $attachments
      * @param array<int, array{name: string, value: string}> $headers
      * @param CheckResult[] $checkResults
+     * @param string $envelopeSender The address the mail is delivered from — the
+     *        stored envelope, or for mails captured without one Sender, Return-Path
+     *        or From, in the order Symfony uses.
+     * @param string[] $envelopeRecipients Every address the mail is delivered to,
+     *        Bcc included — the stored envelope, or To, Cc and Bcc for mails
+     *        captured without one.
      */
     public function __construct(
         public readonly string $identifier,
@@ -40,7 +46,28 @@ final class CapturedMail
         public readonly array $attachments = [],
         public readonly array $headers = [],
         public readonly array $checkResults = [],
+        public readonly string $envelopeSender = '',
+        public readonly array $envelopeRecipients = [],
     ) {
+    }
+
+    /**
+     * Every address the mail is delivered to: the envelope, or To, Cc and Bcc
+     * where no envelope is known.
+     *
+     * @return string[]
+     */
+    public function getDeliveryRecipients(): array
+    {
+        return $this->envelopeRecipients !== [] ? $this->envelopeRecipients : array_merge($this->to, $this->cc, $this->bcc);
+    }
+
+    /**
+     * The address the mail is delivered from: the envelope sender, or From.
+     */
+    public function getDeliverySender(): string
+    {
+        return $this->envelopeSender !== '' ? $this->envelopeSender : $this->from;
     }
 
     public function getToAsString(): string
@@ -72,6 +99,8 @@ final class CapturedMail
             $this->attachments,
             $this->headers,
             $checkResults,
+            $this->envelopeSender,
+            $this->envelopeRecipients,
         );
     }
 }

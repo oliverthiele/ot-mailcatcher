@@ -52,6 +52,14 @@
         <f:if condition="{mail.hasHtmlPart}">
             <f:then>
                 <p class="text-body-secondary small"><f:translate key="{ll}show.previewNote"/></p>
+                <f:if condition="{remoteImages}">
+                    <f:else>
+                        <p class="small">
+                            <f:translate key="{ll}show.remoteImagesBlocked"/>
+                            <f:link.action action="show" arguments="{identifier: mail.identifier, remoteImages: '1'}" class="btn btn-default btn-sm ms-2" data="{testid: 'mailcatcher-load-images'}"><f:translate key="{ll}show.loadRemoteImages"/></f:link.action>
+                        </p>
+                    </f:else>
+                </f:if>
                 <!-- allow-same-origin without allow-scripts: a fully empty sandbox left the
                      document blank, and the origin it grants is inert while no script
                      may run. Scripts, forms and popups stay denied, and the response

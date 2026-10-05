@@ -45,9 +45,9 @@ final class RecipientEqualsSenderCheckTest extends UnitTestCase
     #[Test]
     public function aDisplayNameDoesNotHideTheMatch(): void
     {
-        // "WINKEL GmbH <noreply@…>" and "noreply@…" are the same mailbox.
+        // "ACME GmbH <noreply@…>" and "noreply@…" are the same mailbox.
         $results = $this->subject->check(CapturedMailFactory::create([
-            'from' => 'WINKEL GmbH <noreply@example.com>',
+            'from' => 'ACME GmbH <noreply@example.com>',
             'to' => ['noreply@example.com'],
         ]));
 
