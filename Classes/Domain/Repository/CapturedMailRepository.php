@@ -48,6 +48,38 @@ class CapturedMailRepository
         return $mails;
     }
 
+    /**
+     * Identifiers of all captured mails, newest first, without opening a file.
+     * The module pages through these and parses only what it shows.
+     *
+     * @return list<string>
+     */
+    public function findIdentifiers(): array
+    {
+        return array_values(array_map(basename(...), $this->listFiles()));
+    }
+
+    /**
+     * List view entries for the given identifiers, in the given order. A mail
+     * deleted in the meantime is skipped.
+     *
+     * @param iterable<mixed> $identifiers
+     * @return CapturedMail[]
+     */
+    public function findListEntries(iterable $identifiers): array
+    {
+        $mails = [];
+        foreach ($identifiers as $identifier) {
+            $filePath = is_string($identifier) ? $this->resolveFilePath($identifier) : null;
+            $mail = $filePath === null ? null : $this->buildFromFile($filePath, false);
+            if ($mail !== null) {
+                $mails[] = $mail;
+            }
+        }
+
+        return $mails;
+    }
+
     public function findByIdentifier(string $identifier): ?CapturedMail
     {
         $filePath = $this->resolveFilePath($identifier);

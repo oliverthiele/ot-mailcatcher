@@ -18,6 +18,8 @@ use TYPO3\CMS\Core\Http\AllowedMethodsTrait;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Http\Response;
 use TYPO3\CMS\Core\Page\PageRenderer;
+use TYPO3\CMS\Core\Pagination\ArrayPaginator;
+use TYPO3\CMS\Core\Pagination\SimplePagination;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 
@@ -30,6 +32,13 @@ use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
 class MailcatcherModuleController extends ActionController
 {
     use AllowedMethodsTrait;
+
+    /**
+     * Every listed mail is parsed and run through all rules, so the page size
+     * bounds the cost of opening the module — after an incident on a live
+     * system the catcher can hold thousands.
+     */
+    private const MAILS_PER_PAGE = 50;
 
     public function __construct(
         private readonly ModuleTemplateFactory $moduleTemplateFactory,
@@ -58,10 +67,16 @@ class MailcatcherModuleController extends ActionController
             ->setFlashMessageQueue($this->getFlashMessageQueue());
     }
 
-    public function indexAction(): ResponseInterface
+    public function indexAction(int $currentPage = 1): ResponseInterface
     {
+        // Paginated by identifier: the file names alone give the order, so only
+        // the mails on the current page are opened. A page beyond the last one
+        // is moved back to it by the paginator.
+        $identifiers = $this->capturedMailRepository->findIdentifiers();
+        $paginator = new ArrayPaginator($identifiers, max(1, $currentPage), self::MAILS_PER_PAGE);
+
         $mails = [];
-        foreach ($this->capturedMailRepository->findAll() as $mail) {
+        foreach ($this->capturedMailRepository->findListEntries($paginator->getPaginatedItems()) as $mail) {
             $results = $this->checkRunner->run($mail);
             $mails[] = [
                 'mail' => $mail->withCheckResults($results),
@@ -72,6 +87,9 @@ class MailcatcherModuleController extends ActionController
         $moduleTemplate = $this->createModuleTemplate();
         $moduleTemplate->assignMultiple([
             'mails' => $mails,
+            'totalCount' => count($identifiers),
+            'currentPage' => $paginator->getCurrentPageNumber(),
+            'pagination' => new SimplePagination($paginator),
             'isEnabled' => MailcatcherState::isEnabled(),
             // Resending is refused in both cases, so the button is not offered.
             'canResend' => !MailcatcherState::isEnabled() && !MailcatcherState::isWired(),
@@ -85,7 +103,7 @@ class MailcatcherModuleController extends ActionController
         return $moduleTemplate->renderResponse('MailcatcherModule/Index');
     }
 
-    public function showAction(string $identifier, string $remoteImages = '0'): ResponseInterface
+    public function showAction(string $identifier, string $remoteImages = '0', int $currentPage = 1): ResponseInterface
     {
         $mail = $this->capturedMailRepository->findByIdentifier($identifier);
         if ($mail === null) {
@@ -109,6 +127,7 @@ class MailcatcherModuleController extends ActionController
         $moduleTemplate->assignMultiple([
             'mail' => $mail,
             'remoteImages' => $loadRemoteImages,
+            'currentPage' => max(1, $currentPage),
             'bodyUri' => $this->uriBuilder->reset()->uriFor('body', ['identifier' => $identifier, 'remoteImages' => $loadRemoteImages ? '1' : '0']),
         ]);
 
@@ -209,7 +228,7 @@ class MailcatcherModuleController extends ActionController
         $this->assertAllowedHttpMethod($this->request, 'POST');
     }
 
-    public function deleteAction(string $identifier): ResponseInterface
+    public function deleteAction(string $identifier, int $currentPage = 1): ResponseInterface
     {
         if (!$this->capturedMailRepository->delete($identifier)) {
             $this->addFlashMessage(
@@ -219,7 +238,9 @@ class MailcatcherModuleController extends ActionController
             );
         }
 
-        return $this->redirect('index');
+        // Back to the page the mail was on, so working through a long list does
+        // not restart at the top after every click.
+        return $this->redirect('index', null, null, ['currentPage' => $currentPage]);
     }
 
     public function initializeDeleteAllAction(): void
@@ -262,13 +283,13 @@ class MailcatcherModuleController extends ActionController
         $this->assertAllowedHttpMethod($this->request, 'POST');
     }
 
-    public function resendAction(string $identifier): ResponseInterface
+    public function resendAction(string $identifier, int $currentPage = 1): ResponseInterface
     {
         try {
             $error = $this->resendService->resendOne($identifier);
         } catch (\RuntimeException $exception) {
             $this->addFlashMessage($exception->getMessage(), '', ContextualFeedbackSeverity::ERROR);
-            return $this->redirect('index');
+            return $this->redirect('index', null, null, ['currentPage' => $currentPage]);
         }
 
         if ($error === null) {
@@ -281,6 +302,6 @@ class MailcatcherModuleController extends ActionController
             $this->addFlashMessage($error, '', ContextualFeedbackSeverity::ERROR);
         }
 
-        return $this->redirect('index');
+        return $this->redirect('index', null, null, ['currentPage' => $currentPage]);
     }
 }
