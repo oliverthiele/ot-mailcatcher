@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OliverThiele\OtMailcatcher\Service;
 
 use OliverThiele\OtMailcatcher\Mail\FileTransport;
+use OliverThiele\OtMailcatcher\Mail\RefusingTransport;
 use TYPO3\CMS\Core\Core\Environment;
 
 /**
@@ -73,6 +74,11 @@ final class MailcatcherState
     }
 
     /**
+     * A state file that exists but cannot be read counts as switched on. The
+     * other reading would deliver mail for real while somebody believes it is
+     * captured; this one at worst captures or refuses a mail that could have
+     * gone out.
+     *
      * @return array<string, mixed>
      */
     private static function readState(): array
@@ -82,14 +88,13 @@ final class MailcatcherState
             return [];
         }
 
-        $rawState = file_get_contents($stateFilePath);
-        if ($rawState === false) {
-            return [];
+        $rawState = @file_get_contents($stateFilePath);
+        $decodedState = is_string($rawState) ? json_decode($rawState, true) : null;
+        if (!is_array($decodedState) || !is_bool($decodedState['enabled'] ?? null)) {
+            return ['enabled' => true];
         }
 
-        $decodedState = json_decode($rawState, true);
-
-        return is_array($decodedState) ? $decodedState : [];
+        return $decodedState;
     }
 
     /**
@@ -131,7 +136,52 @@ final class MailcatcherState
             return false;
         }
 
-        return ($mailConfiguration['transport'] ?? null) === FileTransport::class;
+        // TransportFactory ignores the transport class as soon as a DSN or a
+        // spool type is set — see wireMailTransport(). Only all three together
+        // mean that a mail actually reaches the catcher.
+        return ($mailConfiguration['transport'] ?? null) === FileTransport::class
+            && empty($mailConfiguration['dsn'])
+            && empty($mailConfiguration['transport_spool_type']);
+    }
+
+    /**
+     * Points the mail configuration at the catcher, or at RefusingTransport
+     * where the catcher is switched on but not permitted. Leaves it alone while
+     * the catcher is off.
+     *
+     * Called from ext_localconf.php and from the block the README asks for in
+     * config/system/additional.php, so both layers do exactly the same.
+     *
+     * Setting `transport` alone is not enough. TransportFactory::get() resolves
+     * a non-empty `transport_spool_type` to a spool before it looks at the
+     * transport, and its switch contains `case !empty($mailSettings['dsn'])`:
+     * PHP compares loosely, every class name equals true, so a configured DSN
+     * wins over any class name and the mail is sent for real. Both are cleared.
+     */
+    public static function wireMailTransport(): void
+    {
+        if (self::isActive()) {
+            self::assignTransport(FileTransport::class);
+        } elseif (self::isEnabled()) {
+            // Switched on, but not permitted in this context — refuse rather than
+            // deliver. See RefusingTransport for why this is the safe direction.
+            self::assignTransport(RefusingTransport::class);
+        }
+    }
+
+    private static function assignTransport(string $transportClass): void
+    {
+        $configurationVariables = $GLOBALS['TYPO3_CONF_VARS'] ?? [];
+        $configurationVariables = is_array($configurationVariables) ? $configurationVariables : [];
+        $mailConfiguration = $configurationVariables['MAIL'] ?? [];
+        $mailConfiguration = is_array($mailConfiguration) ? $mailConfiguration : [];
+
+        $mailConfiguration['transport'] = $transportClass;
+        $mailConfiguration['dsn'] = '';
+        $mailConfiguration['transport_spool_type'] = '';
+
+        $configurationVariables['MAIL'] = $mailConfiguration;
+        $GLOBALS['TYPO3_CONF_VARS'] = $configurationVariables;
     }
 
     /**
@@ -160,11 +210,17 @@ final class MailcatcherState
         }
     }
 
+    /**
+     * Written to a temporary file and renamed into place, so a request reading
+     * the state at the same moment sees the old or the new file, never a
+     * truncated one. Failures throw instead of leaving the switch where it was
+     * while the module reports it changed.
+     */
     public static function setEnabled(bool $enabled): void
     {
         $storageDirectory = self::getStorageDirectory();
-        if (!is_dir($storageDirectory)) {
-            mkdir($storageDirectory, 0775, true);
+        if (!is_dir($storageDirectory) && !@mkdir($storageDirectory, 0775, true) && !is_dir($storageDirectory)) {
+            throw new \RuntimeException(sprintf('Could not create the mailcatcher directory "%s".', $storageDirectory), 1790900001);
         }
 
         $state = [
@@ -172,10 +228,15 @@ final class MailcatcherState
             'changedAt' => date(\DATE_ATOM),
         ];
 
-        file_put_contents(
-            self::getStateFilePath(),
+        $temporaryPath = self::getStateFilePath() . '.' . bin2hex(random_bytes(6)) . '.tmp';
+        $written = @file_put_contents(
+            $temporaryPath,
             json_encode($state, JSON_PRETTY_PRINT | JSON_THROW_ON_ERROR) . "\n"
         );
+        if ($written === false || !@rename($temporaryPath, self::getStateFilePath())) {
+            @unlink($temporaryPath);
+            throw new \RuntimeException(sprintf('Could not write the mailcatcher state to "%s".', self::getStateFilePath()), 1790900002);
+        }
     }
 
     /**

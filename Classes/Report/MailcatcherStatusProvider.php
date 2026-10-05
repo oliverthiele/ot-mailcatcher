@@ -6,11 +6,9 @@ namespace OliverThiele\OtMailcatcher\Report;
 
 use OliverThiele\OtMailcatcher\Service\ConfigurationValidator;
 use OliverThiele\OtMailcatcher\Service\LabelProvider;
-use Symfony\Component\DependencyInjection\Attribute\AutoconfigureTag;
 use TYPO3\CMS\Reports\Status;
 use TYPO3\CMS\Reports\StatusProviderInterface;
 
-#[AutoconfigureTag('reports.status')]
 final class MailcatcherStatusProvider implements StatusProviderInterface
 {
     public function __construct(

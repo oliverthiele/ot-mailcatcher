@@ -17,7 +17,6 @@ use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Http\AllowedMethodsTrait;
 use TYPO3\CMS\Core\Http\HtmlResponse;
 use TYPO3\CMS\Core\Http\Response;
-use TYPO3\CMS\Core\Information\Typo3Version;
 use TYPO3\CMS\Core\Page\PageRenderer;
 use TYPO3\CMS\Core\Type\ContextualFeedbackSeverity;
 use TYPO3\CMS\Extbase\Mvc\Controller\ActionController;
@@ -74,6 +73,8 @@ class MailcatcherModuleController extends ActionController
         $moduleTemplate->assignMultiple([
             'mails' => $mails,
             'isEnabled' => MailcatcherState::isEnabled(),
+            // Resending is refused in both cases, so the button is not offered.
+            'canResend' => !MailcatcherState::isEnabled() && !MailcatcherState::isWired(),
             'isAllowed' => MailcatcherState::isAllowed(),
             'status' => $this->configurationValidator->getStatus(),
             'enabledSince' => MailcatcherState::getEnabledSince()?->format('d.m.Y H:i'),
@@ -84,7 +85,7 @@ class MailcatcherModuleController extends ActionController
         return $moduleTemplate->renderResponse('MailcatcherModule/Index');
     }
 
-    public function showAction(string $identifier): ResponseInterface
+    public function showAction(string $identifier, string $remoteImages = '0'): ResponseInterface
     {
         $mail = $this->capturedMailRepository->findByIdentifier($identifier);
         if ($mail === null) {
@@ -101,19 +102,14 @@ class MailcatcherModuleController extends ActionController
         // The backend does not wire data-bs-toggle="tab" on its own — Bootstrap's
         // JavaScript is in the importmap but never loaded, so without this the
         // tab buttons change state while their panes stay hidden.
-        //
-        // v14 renamed the module: "tabs.js" is only a deprecation shim there and
-        // logs a warning, while v13.4 has no "tab.js" at all.
-        $this->pageRenderer->loadJavaScriptModule(
-            (new Typo3Version())->getMajorVersion() >= 14
-                ? '@typo3/backend/tab.js'
-                : '@typo3/backend/tabs.js'
-        );
+        $this->pageRenderer->loadJavaScriptModule('@typo3/backend/tab.js');
 
+        $loadRemoteImages = $remoteImages === '1';
         $moduleTemplate = $this->createModuleTemplate();
         $moduleTemplate->assignMultiple([
             'mail' => $mail,
-            'bodyUri' => $this->uriBuilder->reset()->uriFor('body', ['identifier' => $identifier]),
+            'remoteImages' => $loadRemoteImages,
+            'bodyUri' => $this->uriBuilder->reset()->uriFor('body', ['identifier' => $identifier, 'remoteImages' => $loadRemoteImages ? '1' : '0']),
         ]);
 
         return $moduleTemplate->renderResponse('MailcatcherModule/Show');
@@ -124,24 +120,32 @@ class MailcatcherModuleController extends ActionController
      * iframe. Never rendered into the module template: the content is foreign
      * and must not share the backend document.
      */
-    public function bodyAction(string $identifier): ResponseInterface
+    public function bodyAction(string $identifier, string $remoteImages = '0'): ResponseInterface
     {
         $mail = $this->capturedMailRepository->findByIdentifier($identifier);
         if ($mail === null) {
             return new HtmlResponse('', 404);
         }
 
-        // Own CSP for this one response. The backend policy allows img-src 'self'
-        // only, which blocks every logo and every remote image a real mail uses —
-        // exactly what an editor opens the preview to look at. TYPO3's CSP
-        // middleware leaves a response alone once it carries its own header
-        // (ContentSecurityPolicyHeaders::process()), so this stays scoped to the
-        // preview and does not relax the backend. Scripts and frames stay denied
-        // through `default-src 'none'` on top of the iframe's sandbox attribute.
-        return (new HtmlResponse($mail->htmlBody))->withHeader(
-            'Content-Security-Policy',
-            "default-src 'none'; img-src * data:; style-src * 'unsafe-inline'; font-src * data:"
-        );
+        // Own CSP for this one response. TYPO3's CSP middleware leaves a response
+        // alone once it carries its own header (ContentSecurityPolicyHeaders::process()),
+        // so this stays scoped to the preview and does not relax the backend.
+        // Scripts and frames stay denied through `default-src 'none'` on top of
+        // the iframe's sandbox attribute; form-action, base-uri and
+        // frame-ancestors do not fall back to default-src and are set on their own.
+        //
+        // Remote images only on request: a captured mail is often real customer
+        // mail, and its images include tracking pixels that report who opened it
+        // and when — and would fetch same-origin URLs with the backend cookie.
+        $imageSources = $remoteImages === '1' ? '* data:' : 'data:';
+
+        return (new HtmlResponse($mail->htmlBody))
+            ->withHeader(
+                'Content-Security-Policy',
+                "default-src 'none'; img-src " . $imageSources . "; style-src * 'unsafe-inline'; font-src * data:; "
+                . "form-action 'none'; base-uri 'none'; frame-ancestors 'self'"
+            )
+            ->withHeader('X-Content-Type-Options', 'nosniff');
     }
 
     public function attachmentAction(string $identifier, int $part): ResponseInterface
@@ -154,11 +158,21 @@ class MailcatcherModuleController extends ActionController
         $response = new Response();
         $response->getBody()->write($attachment['content']);
 
+        // The file name comes from the mail. Control characters would make the
+        // header invalid; a plain ASCII fallback plus the RFC 5987 form keeps
+        // umlauts intact in every browser.
+        $fileName = (string)preg_replace('/[\x00-\x1F\x7F"\\\\]/', '', $attachment['fileName']);
+        $asciiFileName = (string)preg_replace('/[^\x20-\x7E]/', '_', $fileName);
+        $contentType = preg_match('/^[\w.+-]+\/[\w.+-]+$/', $attachment['mimeType']) === 1
+            ? $attachment['mimeType']
+            : 'application/octet-stream';
+
         return $response
-            ->withHeader('Content-Type', $attachment['mimeType'])
+            ->withHeader('Content-Type', $contentType)
+            ->withHeader('X-Content-Type-Options', 'nosniff')
             ->withHeader(
                 'Content-Disposition',
-                'attachment; filename="' . str_replace('"', '', $attachment['fileName']) . '"'
+                'attachment; filename="' . $asciiFileName . '"; filename*=UTF-8\'\'' . rawurlencode($fileName)
             );
     }
 
@@ -197,7 +211,13 @@ class MailcatcherModuleController extends ActionController
 
     public function deleteAction(string $identifier): ResponseInterface
     {
-        $this->capturedMailRepository->delete($identifier);
+        if (!$this->capturedMailRepository->delete($identifier)) {
+            $this->addFlashMessage(
+                $this->labelProvider->get('flash.deleteFailed.message'),
+                '',
+                ContextualFeedbackSeverity::ERROR
+            );
+        }
 
         return $this->redirect('index');
     }

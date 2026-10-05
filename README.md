@@ -4,7 +4,7 @@ Captures every outgoing mail as a file instead of sending it, shows the result i
 a backend module, and reports the usual mail configuration mistakes in wording an
 editor can act on.
 
-[![TYPO3](https://img.shields.io/badge/TYPO3-13.4%20%7C%2014.3-orange.svg)](https://typo3.org/)
+[![TYPO3](https://img.shields.io/badge/TYPO3-14.3-orange.svg)](https://typo3.org/)
 [![Packagist Version](https://img.shields.io/packagist/v/oliverthiele/ot-mailcatcher.svg)](https://packagist.org/packages/oliverthiele/ot-mailcatcher)
 [![PHP](https://img.shields.io/packagist/dependency-v/oliverthiele/ot-mailcatcher/php.svg)](https://php.net/)
 [![License](https://img.shields.io/packagist/l/oliverthiele/ot-mailcatcher.svg)](LICENSE)
@@ -13,11 +13,12 @@ editor can act on.
 ## Features
 
 - **Nothing leaves the machine while it is on.** Mails are written to
-  `var/mailcatcher/` as `.eml` files instead of being sent. A process that cannot
-  capture refuses to send rather than falling back to real delivery.
+  `var/mailcatcher/` as `.eml` files instead of being sent — also where
+  `MAIL.dsn` or a spool is configured. A process that cannot capture refuses to
+  send rather than falling back to real delivery.
 - **And they are not lost.** Once the catcher is off, captured mails can be
-  delivered to their original recipients — one at a time in the module, or in bulk
-  from the command line.
+  delivered to their original recipients, Bcc included — one at a time in the
+  module, or in bulk from the command line.
 - **One file per mail.** TYPO3's own `mbox` transport appends every message to a
   single file without a separator line, which leaves no reliable boundary to split
   them again — two mails sent within the same request then cannot be told apart.
@@ -39,17 +40,17 @@ editor can act on.
   reporting that no mail is being sent.
 - **Locked out of Production** unless explicitly allowed, so an administrator
   cannot silence a live site by accident.
-- **Nothing escapes while it is on.** A process that may not capture refuses to
-  send rather than falling back to real delivery.
-- **Captured mail can still be delivered.** Delete the test and debug mails, then
-  send what is left to the original recipients.
+
+---
 
 ## Requirements
 
-| | |
-|---|---|
-| TYPO3 | 13.4 LTS, 14.3 LTS |
-| PHP | 8.2 or newer |
+| Requirement | Version |
+|-------------|---------|
+| TYPO3       | ^14.3   |
+| PHP         | ^8.2    |
+
+---
 
 ## Installation
 
@@ -61,11 +62,10 @@ Then add the transport switch at the **end** of `config/system/additional.php` �
 after any block that rewrites the `MAIL` array:
 
 ```php
-use OliverThiele\OtMailcatcher\Mail\FileTransport;
 use OliverThiele\OtMailcatcher\Service\MailcatcherState;
 
-if (class_exists(MailcatcherState::class) && MailcatcherState::isActive()) {
-    $GLOBALS['TYPO3_CONF_VARS']['MAIL']['transport'] = FileTransport::class;
+if (class_exists(MailcatcherState::class)) {
+    MailcatcherState::wireMailTransport();
 }
 ```
 
@@ -83,17 +83,32 @@ The install tool's mail test under **Environment** calls
 `ext_localconf.php` never runs there and the mail would be delivered for real.
 `config/system/additional.php` is read by every bootstrap and closes that gap.
 
-If the block is missing, the backend says so: normal mail is still captured
-through the extension's own wiring, and the module reports that reduced
-bootstraps are not covered.
+`wireMailTransport()` does more than set the transport. TYPO3's
+`TransportFactory` uses a configured `MAIL.dsn` and a `transport_spool_type`
+before it looks at the transport class, so both are cleared too — a block that
+only assigns the transport lets mail out for real wherever a DSN is configured.
+Where the catcher is switched on but not permitted, it assigns the refusing
+transport instead.
 
-While the catcher is switched on, **no mail leaves the system, on any process**.
+If the block is missing, or is still the older version that only assigned the
+transport, the backend says so: normal mail is still captured through the
+extension's own wiring, and the module reports that reduced bootstraps are not
+covered.
+
+While the catcher is switched on, **no mail sent through TYPO3's mail API leaves
+the system, on any process**.
 Where a process may not run the catcher — a Production context without
 `MAILCATCHER_ALLOWED=1`, which the command line resolves even when the web server
 sets a development context — mail is **refused with an exception** rather than
 delivered. Loud beats silently wrong: the alternative is a scheduler task
 delivering a bulk send to real recipients while the backend reports that nothing
 is being sent.
+
+Code that builds its own Symfony mailer transport instead of going through
+TYPO3's `Mailer` is out of reach, and a long-running process — a queue worker,
+a daemon — keeps the transport it built at its start until it is restarted.
+
+---
 
 ## Configuration
 
@@ -112,23 +127,34 @@ ignored, an API token on a Production system, and a token short enough to guess.
 server sets `TYPO3_CONTEXT=Development` through `fastcgi_param`, `SetEnv` or
 similar, CLI runs still default to `Production` — and there the catcher stays
 locked unless `MAILCATCHER_ALLOWED=1` is set in the `.env` loaded for that
-context. Mail from a console command or a scheduler task is then delivered for
-real while the backend reports that nothing is being sent. If console runs should
-be captured too, set the variable; the extension reports the gap as
-`allowedMissing` either way.
+context. Mail from a console command or a scheduler task is then refused with an
+exception instead of being captured. If console runs should be captured too, set
+the variable there.
 
 Switch the catcher on and off in **System → Mailcatcher**. The state lives in
 `var/mailcatcher/state.json`, not in `settings.php`, which is version-controlled in
 most projects and rewritten by TYPO3 on its own.
 
+---
+
 ## Usage
+
+### On a live system
+
+The catcher is a tool for development and staging. On a live system it is meant
+for the exception: debugging an incident, or testing the forms automatically
+right after a go-live while the maintenance mode is still on. It is not meant to
+stay on there — every mail a visitor triggers waits on disk instead of reaching
+its recipient.
 
 ### Backend module
 
 **System → Mailcatcher** lists the captured mails with a finding count, and shows
 headers, findings, HTML, plain text, source and attachments per mail. The HTML part
 is served through its own route into a sandboxed iframe, so foreign mail content
-never shares the backend document.
+never shares the backend document. Remote images stay blocked until you load
+them for the one mail: a captured mail is often real customer mail, and its
+images include tracking pixels that report who opened it, and when.
 
 ### Rules
 
@@ -158,9 +184,16 @@ would have guarded.
 | Endpoint | Purpose |
 |---|---|
 | `GET /_mailcatcher/api/status` | The catcher's own state, answered whether it is on or off |
-| `GET /_mailcatcher/api/messages` | List, optionally filtered by `to` and `subject` |
+| `GET /_mailcatcher/api/messages` | List, optionally filtered by `to` (any recipient: To, Cc or Bcc) and `subject` |
 | `GET /_mailcatcher/api/messages/{identifier}` | One mail including text, HTML and attachment metadata |
+| `DELETE /_mailcatcher/api/messages/{identifier}` | Remove one captured mail |
 | `DELETE /_mailcatcher/api/messages` | Remove all captured mails |
+
+Deleting **all** mails is refused in a Production context: what the catcher
+holds there may be real mail nobody has received yet. Deleting one mail stays
+possible, so a form test after a go-live can remove exactly the mails it found
+through the filters. Every answer carries `Cache-Control: no-store`,
+so a cache in front of the system never keeps captured mail for the next caller.
 
 The message routes additionally require an active catcher. `status` deliberately
 does not: a route that only answers while the catcher is on could never report
@@ -254,16 +287,21 @@ recipients are pending, so it cannot be typed from memory.
 A run stops after three failures in a row rather than working through the whole
 list against a relay that is refusing; everything unsent stays in place.
 
-Sending is refused while the catcher is still on; the mails would go straight
-back into it. Delivered mails move to `var/mailcatcher/sent/` rather than being
+Sending is refused while the catcher is still on, and while the mail transport
+still points at it; the mails would go straight back into it. Delivered mails move to `var/mailcatcher/sent/` rather than being
 deleted, so a delivery stays traceable and a failure never destroys the only copy.
 Each mail keeps its original headers, so the `Date` the recipient sees is the
-date it was captured.
+date it was captured; only the `X-Mailcatcher-Context` debugging header is
+removed. Mails go to the recipients they were captured for: the envelope is
+stored next to each mail, so Bcc recipients receive their copy too.
 
-`mailcatcher:prune` requires `--force` in a Production context: what it holds
-there may be real customer mail that nobody has received yet.
+`mailcatcher:prune` removes delivered mails in `sent/` along with captured ones.
+It requires `--force` in a Production context: what it holds there may be real
+customer mail that nobody has received yet.
 
-### Command line
+---
+
+## CLI
 
 ```bash
 typo3 mailcatcher:testmail address@example.org   # sends a receiver/sender pair in one run
@@ -275,13 +313,20 @@ typo3 mailcatcher:prune --days=30 --dry-run      # what the retention would remo
 typo3 mailcatcher:prune --days=30 --force        # --force is required in a Production context
 ```
 
+`--limit` and `--days` take whole numbers from 1 upwards; anything else is
+rejected instead of being read as 0.
+
 `mailcatcher:testmail` deliberately sends a **pair** of mails in a single run: that
 is the case a single-file catcher loses, so it doubles as the check that this one
 does not.
 
+---
+
 ## License
 
-GPL-2.0-or-later. See [LICENSE](LICENSE).
+GPL-2.0-or-later — see [LICENSE](LICENSE)
+
+---
 
 ## Author
 

@@ -2,8 +2,6 @@
 
 declare(strict_types=1);
 
-use OliverThiele\OtMailcatcher\Mail\FileTransport;
-use OliverThiele\OtMailcatcher\Mail\RefusingTransport;
 use OliverThiele\OtMailcatcher\Service\MailcatcherState;
 
 defined('TYPO3') or die();
@@ -29,10 +27,4 @@ if (MailcatcherState::isWired()) {
     MailcatcherState::markWiredByProjectConfiguration();
 }
 
-if (MailcatcherState::isActive()) {
-    $GLOBALS['TYPO3_CONF_VARS']['MAIL']['transport'] = FileTransport::class;
-} elseif (MailcatcherState::isEnabled()) {
-    // Switched on, but not permitted in this context — refuse rather than
-    // deliver. See RefusingTransport for why this is the safe direction.
-    $GLOBALS['TYPO3_CONF_VARS']['MAIL']['transport'] = RefusingTransport::class;
-}
+MailcatcherState::wireMailTransport();

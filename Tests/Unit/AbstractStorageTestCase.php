@@ -78,17 +78,26 @@ abstract class AbstractStorageTestCase extends UnitTestCase
         );
     }
 
+    /**
+     * Runs the rest of the test in another application context, e.g.
+     * 'Production'. tearDown() restores the original one.
+     */
+    protected function switchApplicationContext(string $context): void
+    {
+        $this->applyEnvironment($this->temporaryVarPath, new ApplicationContext($context));
+    }
+
     protected function placeCapturedMail(string $fileName, string $contents = "Subject: Test\r\n\r\nBody"): void
     {
         file_put_contents($this->storageDirectory . '/' . $fileName, $contents);
     }
 
-    private function applyEnvironment(string $varPath): void
+    private function applyEnvironment(string $varPath, ?ApplicationContext $context = null): void
     {
         Environment::initialize(
-            $this->environmentBackup['context'] instanceof ApplicationContext
+            $context ?? ($this->environmentBackup['context'] instanceof ApplicationContext
                 ? $this->environmentBackup['context']
-                : new ApplicationContext('Testing'),
+                : new ApplicationContext('Testing')),
             $this->environmentBackup['cli'],
             $this->environmentBackup['composerMode'],
             $this->environmentBackup['projectPath'],

@@ -13,6 +13,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
+use TYPO3\CMS\Core\Core\Environment;
 use TYPO3\CMS\Core\Http\JsonResponse;
 
 /**
@@ -47,26 +48,60 @@ final class MailcatcherApiMiddleware implements MiddlewareInterface
         $path = $request->getUri()->getPath();
 
         if ($path === self::STATUS_ROUTE) {
-            return $this->statusResponse($request);
+            return self::withoutCaching($this->statusResponse($request));
         }
 
         if (!str_starts_with($path, self::ROUTE_PREFIX)) {
             return $handler->handle($request);
         }
 
+        return self::withoutCaching($this->messagesResponse($request, $path));
+    }
+
+    /**
+     * Every answer of this API describes mail or configuration. A cache in front
+     * of a staging system — Varnish, a CDN — would otherwise store a 200 for a
+     * request that carries neither a cookie nor an Authorization header, and
+     * serve it to the next caller without the token.
+     */
+    private static function withoutCaching(ResponseInterface $response): ResponseInterface
+    {
+        return $response
+            ->withHeader('Cache-Control', 'no-store, private')
+            ->withHeader('Vary', self::TOKEN_HEADER);
+    }
+
+    private function messagesResponse(ServerRequestInterface $request, string $path): ResponseInterface
+    {
         if (!$this->isAvailable($request)) {
             return new JsonResponse(['error' => 'Not found'], 404);
         }
 
+        $identifier = trim(substr($path, strlen(self::ROUTE_PREFIX)), '/');
+
         if ($request->getMethod() === 'DELETE') {
-            return new JsonResponse(['deleted' => $this->capturedMailRepository->deleteAll()]);
+            if ($identifier === '') {
+                // Unlocked Production holds real mail that nobody has received
+                // yet. The module asks before deleting all of it and the prune
+                // command needs --force there; a test teardown must not be the
+                // shortcut around both. Deleting one mail stays possible: a
+                // form test after a go-live removes exactly the mails it found.
+                if (Environment::getContext()->isProduction()) {
+                    return new JsonResponse(['error' => 'Deleting all mails is not available in a Production context'], 403);
+                }
+
+                return new JsonResponse(['deleted' => $this->capturedMailRepository->deleteAll()]);
+            }
+
+            return $this->capturedMailRepository->delete($identifier)
+                ? new JsonResponse(['deleted' => 1])
+                : new JsonResponse(['error' => 'Not found'], 404);
         }
 
         if ($request->getMethod() !== 'GET') {
             return new JsonResponse(['error' => 'Method not allowed'], 405);
         }
 
-        $identifier = trim(substr($path, strlen(self::ROUTE_PREFIX)), '/');
         if ($identifier !== '') {
             $mail = $this->capturedMailRepository->findByIdentifier($identifier);
             if ($mail === null) {
@@ -90,7 +125,9 @@ final class MailcatcherApiMiddleware implements MiddlewareInterface
 
         $messages = [];
         foreach ($this->capturedMailRepository->findAll() as $mail) {
-            if ($recipientFilter !== '' && !str_contains(strtolower($mail->getToAsString()), strtolower($recipientFilter))) {
+            // Any recipient — To, Cc and Bcc — not only To: a form that sends a
+            // copy to the visitor in Cc must be findable by that address.
+            if ($recipientFilter !== '' && !str_contains(strtolower(implode(', ', [...$mail->to, ...$mail->cc, ...$mail->bcc])), strtolower($recipientFilter))) {
                 continue;
             }
             if ($subjectFilter !== '' && !str_contains(strtolower($mail->subject), strtolower($subjectFilter))) {

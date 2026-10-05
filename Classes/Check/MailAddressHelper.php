@@ -27,6 +27,23 @@ final class MailAddressHelper
     }
 
     /**
+     * Whether $domain is the installation's own domain or a subdomain of it, or
+     * the other way round. noreply@mail.example.com and office@example.com
+     * belong to the same site; an exact comparison reported one of them as a
+     * visitor's address.
+     */
+    public static function belongsToDomain(string $domain, string $ownDomain): bool
+    {
+        if ($domain === '' || $ownDomain === '') {
+            return false;
+        }
+
+        return $domain === $ownDomain
+            || str_ends_with($domain, '.' . $ownDomain)
+            || str_ends_with($ownDomain, '.' . $domain);
+    }
+
+    /**
      * The domain the installation sends as, taken from the global mail defaults.
      * Used as the reference for "is this our own address or the visitor's?".
      */

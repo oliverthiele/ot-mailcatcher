@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace OliverThiele\OtMailcatcher\Tests\Unit\Service;
 
 use OliverThiele\OtMailcatcher\Domain\Repository\CapturedMailRepository;
+use OliverThiele\OtMailcatcher\Mail\FileTransport;
 use OliverThiele\OtMailcatcher\Service\ResendService;
 use OliverThiele\OtMailcatcher\Tests\Unit\AbstractStorageTestCase;
 use PHPUnit\Framework\Attributes\Test;
@@ -27,7 +28,7 @@ use TYPO3\CMS\Core\Mail\Mailer;
 final class ResendServiceStorageTest extends AbstractStorageTestCase
 {
     private const MAIL = "Subject: Order confirmation\r\n"
-        . "From: WINKEL GmbH <noreply@example.com>\r\n"
+        . "From: ACME GmbH <noreply@example.com>\r\n"
         . "To: customer@elsewhere.test\r\n"
         . "Cc: office@example.com\r\n"
         . "\r\n"
@@ -114,6 +115,45 @@ final class ResendServiceStorageTest extends AbstractStorageTestCase
             ['customer@elsewhere.test', 'office@example.com'],
             array_map(static fn($address) => $address->getAddress(), $envelopes[0]->getRecipients())
         );
+    }
+
+    #[Test]
+    public function theStoredEnvelopeIsUsedIncludingBlindCopyRecipients(): void
+    {
+        // The .eml never carries Bcc; only the envelope FileTransport stored
+        // next to it knows that archive@example.com was a recipient too.
+        $this->placeCapturedMail('2026-08-25_100000-a.eml', self::MAIL);
+        file_put_contents(
+            $this->storageDirectory . '/2026-08-25_100000-a.eml' . FileTransport::ENVELOPE_SUFFIX,
+            json_encode(['sender' => 'bounce@example.com', 'recipients' => ['customer@elsewhere.test', 'archive@example.com']], JSON_THROW_ON_ERROR)
+        );
+        $envelopes = [];
+
+        $this->service(recordedEnvelopes: $envelopes)->resendOne('2026-08-25_100000-a.eml');
+
+        self::assertSame('bounce@example.com', $envelopes[0]->getSender()->getAddress());
+        self::assertSame(
+            ['customer@elsewhere.test', 'archive@example.com'],
+            array_map(static fn($address) => $address->getAddress(), $envelopes[0]->getRecipients())
+        );
+        self::assertFileExists($this->sentDirectory() . '/2026-08-25_100000-a.eml' . FileTransport::ENVELOPE_SUFFIX);
+    }
+
+    #[Test]
+    public function sendingIsRefusedWhileTheTransportStillPointsAtTheCatcher(): void
+    {
+        // Switched off, but additional.php still assigns the transport: the
+        // mail would be captured again and reported as sent.
+        $backup = $GLOBALS['TYPO3_CONF_VARS']['MAIL'] ?? null;
+        $GLOBALS['TYPO3_CONF_VARS']['MAIL'] = ['transport' => FileTransport::class];
+        $this->placeCapturedMail('2026-08-25_100000-a.eml', self::MAIL);
+
+        try {
+            $this->expectExceptionCode(1790900003);
+            $this->service()->resendOne('2026-08-25_100000-a.eml');
+        } finally {
+            $GLOBALS['TYPO3_CONF_VARS']['MAIL'] = $backup;
+        }
     }
 
     #[Test]

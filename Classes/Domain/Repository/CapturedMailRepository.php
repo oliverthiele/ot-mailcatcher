@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace OliverThiele\OtMailcatcher\Domain\Repository;
 
+use OliverThiele\OtMailcatcher\Check\MailAddressHelper;
 use OliverThiele\OtMailcatcher\Domain\Dto\CapturedAttachment;
 use OliverThiele\OtMailcatcher\Domain\Dto\CapturedMail;
+use OliverThiele\OtMailcatcher\Mail\FileTransport;
 use OliverThiele\OtMailcatcher\Service\MailcatcherState;
 use ZBateson\MailMimeParser\Header\AddressHeader;
 use ZBateson\MailMimeParser\Header\HeaderConsts;
@@ -62,19 +64,32 @@ class CapturedMailRepository
     {
         $filePath = $this->resolveFilePath($identifier);
 
-        return $filePath !== null && unlink($filePath);
+        return $filePath !== null && self::deleteMailFile($filePath);
     }
 
     public function deleteAll(): int
     {
         $deleted = 0;
         foreach ($this->listFiles() as $filePath) {
-            if (unlink($filePath)) {
+            if (self::deleteMailFile($filePath)) {
                 $deleted++;
             }
         }
 
         return $deleted;
+    }
+
+    /**
+     * Removes a captured mail together with its envelope file.
+     */
+    public static function deleteMailFile(string $filePath): bool
+    {
+        if (!@unlink($filePath)) {
+            return false;
+        }
+        @unlink($filePath . FileTransport::ENVELOPE_SUFFIX);
+
+        return true;
     }
 
     /**
@@ -163,29 +178,55 @@ class CapturedMailRepository
         $headers = [];
         if ($full) {
             foreach ($message->getAllHeaders() as $header) {
-                $headers[] = ['name' => $header->getName(), 'value' => $header->getValue() ?? ''];
+                // getValue() returns the first part only — one recipient of three,
+                // a Content-Type without its parameters.
+                $headers[] = ['name' => $header->getName(), 'value' => $header->getDecodedValue()];
             }
         }
 
         $attachments = [];
         if ($full) {
             foreach ($message->getAllAttachmentParts() as $index => $part) {
+                // The size from the stream, so listing an attachment does not
+                // decode it into memory.
+                $size = $part->getBinaryContentStream()?->getSize();
                 $attachments[] = new CapturedAttachment(
                     (int)$index,
                     $part->getFilename() ?? ('attachment-' . $index),
                     (string)$part->getContentType(),
-                    strlen((string)$part->getContent()),
+                    $size ?? strlen((string)$part->getContent()),
                 );
             }
+        }
+
+        $to = $this->addresses($message, HeaderConsts::TO);
+        $cc = $this->addresses($message, HeaderConsts::CC);
+        $envelope = $this->readEnvelope($filePath);
+        if ($envelope !== null) {
+            $envelopeSender = $envelope['sender'];
+            $envelopeRecipients = $envelope['recipients'];
+            // The .eml never carries Bcc — Symfony strips it before serialising.
+            // Whoever is in the envelope but in neither To nor Cc was Bcc.
+            $visible = array_map(MailAddressHelper::extractAddress(...), array_merge($to, $cc));
+            $bcc = array_values(array_filter(
+                $envelopeRecipients,
+                static fn(string $address): bool => !in_array(MailAddressHelper::extractAddress($address), $visible, true)
+            ));
+        } else {
+            $bcc = $this->addresses($message, HeaderConsts::BCC);
+            $envelopeSender = $this->firstAddress($message, HeaderConsts::SENDER)
+                ?: $this->firstAddress($message, HeaderConsts::RETURN_PATH)
+                ?: $this->firstAddress($message, HeaderConsts::FROM);
+            $envelopeRecipients = array_merge($to, $cc, $bcc);
         }
 
         return new CapturedMail(
             identifier: basename($filePath),
             subject: (string)$message->getHeaderValue(HeaderConsts::SUBJECT),
             from: $this->firstAddress($message, HeaderConsts::FROM),
-            to: $this->addresses($message, HeaderConsts::TO),
-            cc: $this->addresses($message, HeaderConsts::CC),
-            bcc: $this->addresses($message, HeaderConsts::BCC),
+            to: $to,
+            cc: $cc,
+            bcc: $bcc,
             replyTo: $this->addresses($message, HeaderConsts::REPLY_TO),
             date: $this->parseDate($message),
             size: (int)filesize($filePath),
@@ -197,7 +238,33 @@ class CapturedMailRepository
             rawSource: $full ? (string)file_get_contents($filePath) : '',
             attachments: $attachments,
             headers: $headers,
+            envelopeSender: $envelopeSender,
+            envelopeRecipients: $envelopeRecipients,
         );
+    }
+
+    /**
+     * The envelope FileTransport stored next to the mail, or null for a mail
+     * captured without one (before 0.8.0) or a file placed there by hand.
+     *
+     * @return array{sender: string, recipients: list<string>}|null
+     */
+    private function readEnvelope(string $filePath): ?array
+    {
+        $envelopeFile = $filePath . FileTransport::ENVELOPE_SUFFIX;
+        if (!is_file($envelopeFile)) {
+            return null;
+        }
+        $raw = @file_get_contents($envelopeFile);
+        $decoded = is_string($raw) ? json_decode($raw, true) : null;
+        if (!is_array($decoded) || !is_string($decoded['sender'] ?? null) || !is_array($decoded['recipients'] ?? null)) {
+            return null;
+        }
+
+        return [
+            'sender' => $decoded['sender'],
+            'recipients' => array_values(array_filter($decoded['recipients'], static fn(mixed $recipient): bool => is_string($recipient))),
+        ];
     }
 
     /**

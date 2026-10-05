@@ -2,21 +2,39 @@
 	"name": "oliverthiele/ot-mailcatcher",
 	"type": "typo3-cms-extension",
 	"description": "Mailcatcher - Capture outgoing mails as files instead of sending them, review them in the backend and check them for the usual configuration mistakes.",
-	"homepage": "https://www.oliver-thiele.de/",
+	"homepage": "https://github.com/oliverthiele/ot-mailcatcher",
 	"license": [
 		"GPL-2.0-or-later"
 	],
+	"authors": [
+		{
+			"name": "Oliver Thiele",
+			"email": "mail@oliver-thiele.de",
+			"homepage": "https://www.oliver-thiele.de",
+			"role": "Developer"
+		}
+	],
 	"keywords": [
 		"TYPO3 CMS",
+		"TYPO3 extension",
 		"mail",
-		"testing"
+		"mailcatcher",
+		"testing",
+		"forms"
 	],
+	"support": {
+		"issues": "https://github.com/oliverthiele/ot-mailcatcher/issues",
+		"source": "https://github.com/oliverthiele/ot-mailcatcher"
+	},
 	"require": {
 		"php": "^8.2",
-		"typo3/cms-core": "^13.4 || ^14.3",
-		"typo3/cms-backend": "^13.4 || ^14.3",
-		"typo3/cms-reports": "^13.4 || ^14.3",
-		"zbateson/mail-mime-parser": "^3.0 || ^4.0.3"
+		"typo3/cms-backend": "^14.3",
+		"typo3/cms-core": "^14.3",
+		"typo3/cms-extbase": "^14.3",
+		"typo3/cms-fluid": "^14.3",
+		"typo3/cms-frontend": "^14.3",
+		"typo3/cms-reports": "^14.3",
+		"zbateson/mail-mime-parser": "^4.0.3"
 	},
 	"autoload": {
 		"psr-4": {
@@ -25,7 +43,11 @@
 	},
 	"extra": {
 		"typo3/cms": {
-			"extension-key": "ot_mailcatcher"
+			"extension-key": "ot_mailcatcher",
+			"version": "0.8.0",
+			"Package": {
+				"providesPackages": {}
+			}
 		}
 	}
 }

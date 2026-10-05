@@ -34,7 +34,25 @@ final class SenderIsWebsiteVisitorCheckTest extends UnitTestCase
     public function sendingAsTheSitesOwnDomainPasses(): void
     {
         self::assertSame([], $this->subject->check(
-            CapturedMailFactory::create(['from' => 'WINKEL GmbH <noreply@example.com>'])
+            CapturedMailFactory::create(['from' => 'ACME GmbH <noreply@example.com>'])
+        ));
+    }
+
+    #[Test]
+    public function sendingAsASubdomainOfTheSitesDomainPasses(): void
+    {
+        // noreply@mail.example.com belongs to the site as much as example.com.
+        self::assertSame([], $this->subject->check(
+            CapturedMailFactory::create(['from' => 'noreply@mail.example.com'])
+        ));
+    }
+
+    #[Test]
+    public function aDomainThatMerelyEndsTheSameIsStillForeign(): void
+    {
+        // notexample.com is not a subdomain of example.com.
+        self::assertCount(1, $this->subject->check(
+            CapturedMailFactory::create(['from' => 'visitor@notexample.com'])
         ));
     }
 

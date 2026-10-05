@@ -1,416 +1,619 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
-  <file source-language="en" target-language="de" datatype="plaintext"
-        original="EXT:ot_mailcatcher/Resources/Private/Language/locallang_mod.xlf"
-        product-name="ot-mailcatcher">
-    <header/>
-    <body>
-      <trans-unit id="mlang_tabs_tab" resname="mlang_tabs_tab" approved="yes">
+<xliff version="2.0" xmlns="urn:oasis:names:tc:xliff:document:2.0" srcLang="en"
+       trgLang="de">
+  <file id="ot-mailcatcher-locallang-mod"
+        original="EXT:ot_mailcatcher/Resources/Private/Language/locallang_mod.xlf">
+    <unit id="mlang_tabs_tab">
+      <segment>
         <source>Mailcatcher</source>
         <target>Mailcatcher</target>
-      </trans-unit>
-      <trans-unit id="mlang_labels_tabdescr" resname="mlang_labels_tabdescr" approved="yes">
+      </segment>
+    </unit>
+    <unit id="mlang_labels_tabdescr">
+      <segment>
         <source>Review the mails captured instead of being sent, and check them for the usual configuration mistakes.</source>
         <target>Abgefangene statt versendete Mails ansehen und auf die üblichen Konfigurationsfehler prüfen.</target>
-      </trans-unit>
-
-      <!-- Warnings shown while the catcher is switched on -->
-      <trans-unit id="warning.active.toolbar" resname="warning.active.toolbar" approved="yes">
+      </segment>
+    </unit>
+    <unit id="mlang_labels_tablabel">
+      <segment>
+        <source>Captured outgoing mails and mail configuration checks</source>
+        <target>Abgefangene ausgehende Mails und Prüfung der Mail-Konfiguration</target>
+      </segment>
+    </unit>
+    <unit id="warning.active.toolbar">
+      <segment>
         <source>Mailcatcher is active — no mail is being sent</source>
         <target>Mailcatcher ist aktiv — es wird keine Mail versendet</target>
-      </trans-unit>
-      <trans-unit id="warning.active.banner" resname="warning.active.banner" approved="yes">
+      </segment>
+    </unit>
+    <unit id="warning.active.banner">
+      <segment>
         <source>Mailcatcher is active — no mail is being sent. Every mail only lands in the Mailcatcher module.</source>
         <target>Mailcatcher ist aktiv — es wird keine Mail versendet. Alle Mails landen nur im Modul „Mailcatcher“.</target>
-      </trans-unit>
-
-      <trans-unit id="warning.notTakingEffect.banner" resname="warning.notTakingEffect.banner" approved="yes">
+      </segment>
+    </unit>
+    <unit id="warning.notTakingEffect.banner">
+      <segment>
         <source>Mailcatcher is switched on but is not taking effect — mails are still being sent. Do not test with real addresses; please inform your administrator.</source>
         <target>Mailcatcher ist eingeschaltet, greift aber nicht — Mails werden trotzdem versendet. Bitte nicht mit echten Adressen testen und die Administration informieren.</target>
-      </trans-unit>
-      <trans-unit id="warning.notTakingEffect.toolbar" resname="warning.notTakingEffect.toolbar" approved="yes">
+      </segment>
+    </unit>
+    <unit id="warning.notTakingEffect.toolbar">
+      <segment>
         <source>Mailcatcher not taking effect — mails are being sent</source>
         <target>Mailcatcher greift nicht — Mails werden versendet</target>
-      </trans-unit>
-
-      <!-- Reports module -->
-      <trans-unit id="report.title" resname="report.title" approved="yes">
+      </segment>
+    </unit>
+    <unit id="report.title">
+      <segment>
         <source>Mailcatcher</source>
         <target>Mailcatcher</target>
-      </trans-unit>
-      <trans-unit id="report.active.value" resname="report.active.value" approved="yes">
+      </segment>
+    </unit>
+    <unit id="report.active.value">
+      <segment>
         <source>Active — no mail is sent</source>
         <target>Aktiv — es wird keine Mail versendet</target>
-      </trans-unit>
-      <trans-unit id="report.active.message" resname="report.active.message" approved="yes">
+      </segment>
+    </unit>
+    <unit id="report.active.message">
+      <segment>
         <source>All outgoing mails are written to files below var/mailcatcher/ instead of being delivered. Switch the catcher off in the Mailcatcher backend module to resume normal mail delivery.</source>
         <target>Alle ausgehenden Mails werden als Dateien unter var/mailcatcher/ abgelegt statt zugestellt. Im Backend-Modul „Mailcatcher“ abschalten, um den normalen Mailversand wieder aufzunehmen.</target>
-      </trans-unit>
-      <trans-unit id="report.inactive.value" resname="report.inactive.value" approved="yes">
+      </segment>
+    </unit>
+    <unit id="report.inactive.value">
+      <segment>
         <source>Inactive — mails are delivered normally</source>
         <target>Inaktiv — Mails werden normal zugestellt</target>
-      </trans-unit>
-      <trans-unit id="report.inactive.message" resname="report.inactive.message" approved="yes">
+      </segment>
+    </unit>
+    <unit id="report.inactive.message">
+      <segment>
         <source>Mails are handed to the configured mail transport as usual.</source>
         <target>Mails werden wie gewohnt an den konfigurierten Mail-Transport übergeben.</target>
-      </trans-unit>
-
-      <trans-unit id="report.notTakingEffect.value" resname="report.notTakingEffect.value" approved="yes">
+      </segment>
+    </unit>
+    <unit id="report.notTakingEffect.value">
+      <segment>
         <source>Switched on but ineffective — mails are being sent</source>
         <target>Eingeschaltet, aber wirkungslos — Mails werden versendet</target>
-      </trans-unit>
-      <trans-unit id="report.notTakingEffect.message" resname="report.notTakingEffect.message" approved="yes">
+      </segment>
+    </unit>
+    <unit id="report.notTakingEffect.message">
+      <segment>
         <source>The catcher is switched on, but the mail transport still points at regular delivery. The block that assigns FileTransport is missing from config/system/additional.php — see the Installation section of the extension README for the exact lines. Until it is there, the backend cannot capture a single mail.</source>
         <target>Der Mailcatcher ist eingeschaltet, der Mail-Transport zeigt aber weiterhin auf den regulären Versand. In config/system/additional.php fehlt der Block, der FileTransport zuweist — die genauen Zeilen stehen im Abschnitt „Installation“ der README. Solange er fehlt, kann keine einzige Mail abgefangen werden.</target>
-      </trans-unit>
-      <trans-unit id="report.strayTransport.value" resname="report.strayTransport.value" approved="yes">
+      </segment>
+    </unit>
+    <unit id="report.strayTransport.value">
+      <segment>
         <source>Switched off, but the transport points at the catcher</source>
         <target>Ausgeschaltet, aber der Transport zeigt auf den Mailcatcher</target>
-      </trans-unit>
-      <trans-unit id="report.strayTransport.message" resname="report.strayTransport.message" approved="yes">
+      </segment>
+    </unit>
+    <unit id="report.strayTransport.message">
+      <segment>
         <source>The catcher is switched off, yet FileTransport is the configured mail transport, so no mail is delivered. This usually means the assignment was made without the MailcatcherState::isActive() guard around it, or was left behind in settings.php after a debugging session.</source>
         <target>Der Mailcatcher ist ausgeschaltet, als Mail-Transport ist aber FileTransport konfiguriert — es wird also nichts zugestellt. Meist wurde die Zuweisung ohne den umgebenden Wächter MailcatcherState::isActive() gesetzt oder ist nach einer Debugging-Sitzung in settings.php liegengeblieben.</target>
-      </trans-unit>
-
-      <trans-unit id="report.locked.value" resname="report.locked.value" approved="yes">
+      </segment>
+    </unit>
+    <unit id="report.locked.value">
+      <segment>
         <source>Switched on, but locked in this environment</source>
         <target>Eingeschaltet, aber in dieser Umgebung gesperrt</target>
-      </trans-unit>
-      <trans-unit id="report.locked.message" resname="report.locked.message" approved="yes">
+      </segment>
+    </unit>
+    <unit id="report.locked.message">
+      <segment>
         <source>The state file says the catcher is on, but MAILCATCHER_ALLOWED is not 1 and the context is a Production one, so it stays locked and every mail is delivered. Either set MAILCATCHER_ALLOWED=1 in the .env loaded for this context, or switch the catcher off so its state stops claiming otherwise.</source>
         <target>Laut Zustandsdatei ist der Mailcatcher eingeschaltet, MAILCATCHER_ALLOWED steht aber nicht auf 1 und der Kontext ist ein Production-Kontext — er bleibt gesperrt und jede Mail wird zugestellt. Entweder MAILCATCHER_ALLOWED=1 in der für diesen Kontext geladenen .env setzen oder den Mailcatcher ausschalten, damit sein Zustand nichts anderes behauptet.</target>
-      </trans-unit>
-
-      <!-- Check findings -->
-      <trans-unit id="check.senderIsWebsiteVisitor.message" resname="check.senderIsWebsiteVisitor.message" approved="yes">
+      </segment>
+    </unit>
+    <unit id="check.senderIsWebsiteVisitor.message">
+      <segment>
         <source>The mail is sent as %1$s, but this site sends as %2$s. Mail servers reject that (SPF/DMARC), so the mail is filed as spam or silently dropped.</source>
         <target>Die Mail wird als %1$s versendet, diese Website versendet aber als %2$s. Mailserver lehnen das ab (SPF/DMARC) — die Mail landet im Spam oder verschwindet stillschweigend.</target>
-      </trans-unit>
-      <trans-unit id="check.senderIsWebsiteVisitor.hint" resname="check.senderIsWebsiteVisitor.hint" approved="yes">
+      </segment>
+    </unit>
+    <unit id="check.senderIsWebsiteVisitor.hint">
+      <segment>
         <source>Use your own address as the sender and put the visitor's address into the reply address instead.</source>
         <target>Als Absender die eigene Adresse verwenden und die Besucheradresse stattdessen als Antwortadresse eintragen.</target>
-      </trans-unit>
-      <trans-unit id="check.missingReplyTo.message" resname="check.missingReplyTo.message" approved="yes">
+      </segment>
+    </unit>
+    <unit id="check.missingReplyTo.message">
+      <segment>
         <source>No reply address is set.</source>
         <target>Es ist keine Antwortadresse gesetzt.</target>
-      </trans-unit>
-      <trans-unit id="check.missingReplyTo.hint" resname="check.missingReplyTo.hint" approved="yes">
+      </segment>
+    </unit>
+    <unit id="check.missingReplyTo.hint">
+      <segment>
         <source>Set the reply address to whoever should receive the answer, usually the visitor who filled in the form.</source>
         <target>Als Antwortadresse eintragen, wer die Antwort erhalten soll — in der Regel der Besucher, der das Formular ausgefüllt hat.</target>
-      </trans-unit>
-      <trans-unit id="check.unresolvedTypo3Link.message" resname="check.unresolvedTypo3Link.message" approved="yes">
+      </segment>
+    </unit>
+    <unit id="check.unresolvedTypo3Link.message">
+      <segment>
         <source>The mail contains an unresolved TYPO3 link (t3://). The recipient sees the raw reference instead of a working link.</source>
         <target>Die Mail enthält einen nicht aufgelösten TYPO3-Link (t3://). Der Empfänger sieht die rohe Referenz statt eines funktionierenden Links.</target>
-      </trans-unit>
-      <trans-unit id="check.unresolvedTypo3Link.hint" resname="check.unresolvedTypo3Link.hint" approved="yes">
+      </segment>
+    </unit>
+    <unit id="check.unresolvedTypo3Link.hint">
+      <segment>
         <source>Render links in mail templates with f:link.typolink or the absolute URL, so they are resolved before sending.</source>
         <target>Links in Mail-Templates über f:link.typolink oder die absolute URL ausgeben, damit sie vor dem Versand aufgelöst werden.</target>
-      </trans-unit>
-      <trans-unit id="check.leftoverPlaceholder.message" resname="check.leftoverPlaceholder.message" approved="yes">
+      </segment>
+    </unit>
+    <unit id="check.leftoverPlaceholder.message">
+      <segment>
         <source>A placeholder survived rendering and is visible in the mail.</source>
         <target>Ein Platzhalter hat das Rendern überlebt und ist in der Mail sichtbar.</target>
-      </trans-unit>
-      <trans-unit id="check.leftoverPlaceholder.hint" resname="check.leftoverPlaceholder.hint" approved="yes">
+      </segment>
+    </unit>
+    <unit id="check.leftoverPlaceholder.hint">
+      <segment>
         <source>Check the mail template for a typo in the placeholder, or for a variable that was never passed to it.</source>
         <target>Das Mail-Template auf einen Tippfehler im Platzhalter prüfen — oder auf eine Variable, die nie übergeben wurde.</target>
-      </trans-unit>
-      <trans-unit id="check.missingTextPart.message" resname="check.missingTextPart.message" approved="yes">
+      </segment>
+    </unit>
+    <unit id="check.missingTextPart.message">
+      <segment>
         <source>The mail has an HTML part but no plain text part.</source>
         <target>Die Mail hat einen HTML-Teil, aber keinen Textteil.</target>
-      </trans-unit>
-      <trans-unit id="check.missingTextPart.hint" resname="check.missingTextPart.hint" approved="yes">
+      </segment>
+    </unit>
+    <unit id="check.missingTextPart.hint">
+      <segment>
         <source>Add a plain text version. It noticeably improves the spam rating and is what some clients display.</source>
         <target>Eine Textfassung ergänzen. Sie verbessert die Spam-Bewertung spürbar und ist das, was manche Programme anzeigen.</target>
-      </trans-unit>
-      <trans-unit id="check.emptySubject.message" resname="check.emptySubject.message" approved="yes">
+      </segment>
+    </unit>
+    <unit id="check.emptySubject.message">
+      <segment>
         <source>The mail has no subject.</source>
         <target>Die Mail hat keinen Betreff.</target>
-      </trans-unit>
-      <trans-unit id="check.emptySubject.hint" resname="check.emptySubject.hint" approved="yes">
+      </segment>
+    </unit>
+    <unit id="check.emptySubject.hint">
+      <segment>
         <source>Set a subject in the finisher or the mail template.</source>
         <target>Im Finisher oder im Mail-Template einen Betreff setzen.</target>
-      </trans-unit>
-      <trans-unit id="check.recipientEqualsSender.message" resname="check.recipientEqualsSender.message" approved="yes">
+      </segment>
+    </unit>
+    <unit id="check.recipientEqualsSender.message">
+      <segment>
         <source>Sender and recipient are the same address.</source>
         <target>Absender und Empfänger sind dieselbe Adresse.</target>
-      </trans-unit>
-      <trans-unit id="check.recipientEqualsSender.hint" resname="check.recipientEqualsSender.hint" approved="yes">
+      </segment>
+    </unit>
+    <unit id="check.recipientEqualsSender.hint">
+      <segment>
         <source>Usually a finisher whose sender and recipient fields were filled with the same value — worth a look.</source>
         <target>Meist ein Finisher, bei dem Absender- und Empfängerfeld denselben Wert tragen — einen Blick wert.</target>
-      </trans-unit>
-      <trans-unit id="check.relativeLink.message" resname="check.relativeLink.message" approved="yes">
+      </segment>
+    </unit>
+    <unit id="check.relativeLink.message">
+      <segment>
         <source>The mail contains a relative link.</source>
         <target>Die Mail enthält einen relativen Link.</target>
-      </trans-unit>
-      <trans-unit id="check.relativeLink.hint" resname="check.relativeLink.hint" approved="yes">
+      </segment>
+    </unit>
+    <unit id="check.relativeLink.hint">
+      <segment>
         <source>A mail program has no base address, so relative links do not work. Always use absolute URLs in mails.</source>
         <target>Ein Mailprogramm hat keine Basisadresse, relative Links funktionieren dort nicht. In Mails immer absolute URLs verwenden.</target>
-      </trans-unit>
-      <trans-unit id="check.insecureLink.message" resname="check.insecureLink.message" approved="yes">
+      </segment>
+    </unit>
+    <unit id="check.insecureLink.message">
+      <segment>
         <source>The mail contains an http:// link.</source>
         <target>Die Mail enthält einen http://-Link.</target>
-      </trans-unit>
-      <trans-unit id="check.insecureLink.hint" resname="check.insecureLink.hint" approved="yes">
+      </segment>
+    </unit>
+    <unit id="check.insecureLink.hint">
+      <segment>
         <source>Use https://. Many mail clients flag or rewrite plain http links.</source>
         <target>https:// verwenden. Viele Mailprogramme markieren oder ersetzen einfache http-Links.</target>
-      </trans-unit>
-      <trans-unit id="check.brokenEncoding.message" resname="check.brokenEncoding.message" approved="yes">
+      </segment>
+    </unit>
+    <unit id="check.brokenEncoding.message">
+      <segment>
         <source>The decoded mail contains replacement characters, which means umlauts or special characters are broken.</source>
         <target>Die dekodierte Mail enthält Ersatzzeichen — Umlaute oder Sonderzeichen sind also kaputt.</target>
-      </trans-unit>
-      <trans-unit id="check.brokenEncoding.hint" resname="check.brokenEncoding.hint" approved="yes">
+      </segment>
+    </unit>
+    <unit id="check.brokenEncoding.hint">
+      <segment>
         <source>The mail was assembled with the wrong character set. Check the template and the data source for their encoding.</source>
         <target>Die Mail wurde mit dem falschen Zeichensatz zusammengebaut. Template und Datenquelle auf ihre Kodierung prüfen.</target>
-      </trans-unit>
-
-      <trans-unit id="status.enabledSince" resname="status.enabledSince" approved="yes">
+      </segment>
+    </unit>
+    <unit id="status.enabledSince">
+      <segment>
         <source>Switched on since %1$s</source>
         <target>Eingeschaltet seit %1$s</target>
-      </trans-unit>
-      <trans-unit id="action.resend" resname="action.resend" approved="yes">
+      </segment>
+    </unit>
+    <unit id="action.resend">
+      <segment>
         <source>Send</source>
         <target>Versenden</target>
-      </trans-unit>
-      <trans-unit id="flash.resent.message" resname="flash.resent.message" approved="yes">
+      </segment>
+    </unit>
+    <unit id="flash.resent.message">
+      <segment>
         <source>The mail was sent to its original recipients.</source>
         <target>Die Mail wurde an ihre ursprünglichen Empfänger versendet.</target>
-      </trans-unit>
-      <trans-unit id="confirm.cancel" resname="confirm.cancel" approved="yes">
+      </segment>
+    </unit>
+    <unit id="confirm.cancel">
+      <segment>
         <source>Cancel</source>
         <target>Abbrechen</target>
-      </trans-unit>
-      <trans-unit id="confirm.deleteAll.title" resname="confirm.deleteAll.title" approved="yes">
+      </segment>
+    </unit>
+    <unit id="confirm.deleteAll.title">
+      <segment>
         <source>Delete all captured mails?</source>
         <target>Alle abgefangenen Mails löschen?</target>
-      </trans-unit>
-      <trans-unit id="confirm.deleteAll.body" resname="confirm.deleteAll.body" approved="yes">
+      </segment>
+    </unit>
+    <unit id="confirm.deleteAll.body">
+      <segment>
         <source>This permanently deletes %1$s mails. Mails that were captured instead of delivered are gone for good — nobody ever received them, and there is no second copy.</source>
         <target>Damit werden %1$s Mails endgültig gelöscht. Abgefangene Mails wurden nie zugestellt — es gibt keine zweite Kopie, und niemand hat sie je erhalten.</target>
-      </trans-unit>
-      <trans-unit id="confirm.deleteAll.submit" resname="confirm.deleteAll.submit" approved="yes">
+      </segment>
+    </unit>
+    <unit id="confirm.deleteAll.submit">
+      <segment>
         <source>Yes, delete all</source>
         <target>Ja, alle löschen</target>
-      </trans-unit>
-      <trans-unit id="confirm.productionNote" resname="confirm.productionNote" approved="yes">
+      </segment>
+    </unit>
+    <unit id="confirm.productionNote">
+      <segment>
         <source>This is a Production system. What is captured here may be real customer communication.</source>
         <target>Dies ist ein Produktivsystem. Was hier liegt, kann echte Kundenkommunikation sein.</target>
-      </trans-unit>
-
-      <!-- Configuration findings -->
-      <trans-unit id="configuration.projectBlockMissing.message" resname="configuration.projectBlockMissing.message" approved="yes">
-        <source>The transport switch is missing from config/system/additional.php.</source>
-        <target>In config/system/additional.php fehlt die Transport-Weiche.</target>
-      </trans-unit>
-      <trans-unit id="configuration.projectBlockMissing.hint" resname="configuration.projectBlockMissing.hint" approved="yes">
-        <source>Normal requests are captured through the extension’s own ext_localconf.php, so most mail is safe. But reduced bootstraps skip extension configuration — the install tool’s mail test under Environment builds its container without it and would deliver its mail for real. See the Installation section of the extension README for the block to add.</source>
-        <target>Normale Requests werden über die eigene ext_localconf.php der Extension abgefangen, der Großteil der Mails ist also sicher. Reduzierte Bootstraps laden aber keine Extension-Konfiguration — die Testmail im Modul „Umgebung“ baut ihren Container ohne sie und würde echt versenden. Der einzutragende Block steht im Abschnitt „Installation“ der README.</target>
-      </trans-unit>
-      <trans-unit id="configuration.productionUnlocked.message" resname="configuration.productionUnlocked.message" approved="yes">
+      </segment>
+    </unit>
+    <unit id="configuration.projectBlockMissing.message">
+      <segment>
+        <source>The transport switch in config/system/additional.php is missing or outdated.</source>
+        <target>Die Transport-Weiche in config/system/additional.php fehlt oder ist veraltet.</target>
+      </segment>
+    </unit>
+    <unit id="configuration.projectBlockMissing.hint">
+      <segment>
+        <source>Normal requests are captured through the extension’s own ext_localconf.php, so most mail is safe. But reduced bootstraps skip extension configuration — the install tool’s mail test under Environment builds its container without it and would deliver its mail for real. A block that only sets the transport is outdated: with MAIL.dsn or a spool configured, the mail is sent anyway. See the Installation section of the extension README for the current block.</source>
+        <target>Normale Requests werden über die eigene ext_localconf.php der Extension abgefangen, der Großteil der Mails ist also sicher. Reduzierte Bootstraps laden aber keine Extension-Konfiguration — die Testmail im Modul „Umgebung“ baut ihren Container ohne sie und würde echt versenden. Ein Block, der nur den Transport setzt, ist veraltet: Mit MAIL.dsn oder einem Spool wird die Mail trotzdem versendet. Der aktuelle Block steht im Abschnitt „Installation“ der README.</target>
+      </segment>
+    </unit>
+    <unit id="configuration.productionUnlocked.message">
+      <segment>
         <source>MAILCATCHER_ALLOWED=1 is set in the Production context.</source>
         <target>MAILCATCHER_ALLOWED=1 ist im Kontext „Production“ gesetzt.</target>
-      </trans-unit>
-      <trans-unit id="configuration.productionUnlocked.hint" resname="configuration.productionUnlocked.hint" approved="yes">
+      </segment>
+    </unit>
+    <unit id="configuration.productionUnlocked.hint">
+      <segment>
         <source>The catcher can be switched on in this context and then stops all outgoing mail. On a staging system that is usually intended; on the live system the variable belongs removed. Development contexts do not need it at all — the catcher is unlocked there anyway.</source>
         <target>Der Mailcatcher lässt sich in diesem Kontext einschalten und stoppt dann den gesamten Mailversand. Auf einem Staging-System ist das meist gewollt, auf dem Live-System gehört die Variable entfernt. In Entwicklungskontexten wird sie gar nicht gebraucht — dort ist der Mailcatcher ohnehin freigeschaltet.</target>
-      </trans-unit>
-      <trans-unit id="configuration.allowValueIgnored.message" resname="configuration.allowValueIgnored.message" approved="yes">
+      </segment>
+    </unit>
+    <unit id="configuration.allowValueIgnored.message">
+      <segment>
         <source>MAILCATCHER_ALLOWED is set to a value other than 1 and is therefore ignored.</source>
         <target>MAILCATCHER_ALLOWED ist auf einen anderen Wert als 1 gesetzt und wird deshalb ignoriert.</target>
-      </trans-unit>
-      <trans-unit id="configuration.allowValueIgnored.hint" resname="configuration.allowValueIgnored.hint" approved="yes">
+      </segment>
+    </unit>
+    <unit id="configuration.allowValueIgnored.hint">
+      <segment>
         <source>Only the exact value 1 unlocks the catcher. Spellings such as true, yes or on have no effect — remove the variable, or set it to 1.</source>
         <target>Nur der exakte Wert 1 schaltet frei. Schreibweisen wie true, yes oder on wirken nicht — die Variable entfernen oder auf 1 setzen.</target>
-      </trans-unit>
-      <trans-unit id="configuration.apiTokenInProduction.message" resname="configuration.apiTokenInProduction.message" approved="yes">
+      </segment>
+    </unit>
+    <unit id="configuration.apiTokenInProduction.message">
+      <segment>
         <source>MAILCATCHER_API_TOKEN is set in the Production context.</source>
         <target>MAILCATCHER_API_TOKEN ist im Kontext „Production“ gesetzt.</target>
-      </trans-unit>
-      <trans-unit id="configuration.apiTokenInProduction.hint" resname="configuration.apiTokenInProduction.hint" approved="yes">
+      </segment>
+    </unit>
+    <unit id="configuration.apiTokenInProduction.hint">
+      <segment>
         <source>The test API is meant for end-to-end tests, not for a live system. Leave the variable empty there; the route then answers 404 and stays closed.</source>
         <target>Die Test-API ist für End-to-End-Tests gedacht, nicht für ein Live-System. Dort die Variable leer lassen — die Route antwortet dann mit 404 und bleibt geschlossen.</target>
-      </trans-unit>
-      <trans-unit id="configuration.apiTokenTooShort.message" resname="configuration.apiTokenTooShort.message" approved="yes">
+      </segment>
+    </unit>
+    <unit id="configuration.apiTokenTooShort.message">
+      <segment>
         <source>MAILCATCHER_API_TOKEN is shorter than 32 characters.</source>
         <target>MAILCATCHER_API_TOKEN ist kürzer als 32 Zeichen.</target>
-      </trans-unit>
-      <trans-unit id="configuration.apiTokenTooShort.hint" resname="configuration.apiTokenTooShort.hint" approved="yes">
+      </segment>
+    </unit>
+    <unit id="configuration.apiTokenTooShort.hint">
+      <segment>
         <source>A short token can be guessed, and the API hands out the full content of every captured mail. Generate a new one with: openssl rand -hex 32 — this is not checked in development contexts.</source>
         <target>Ein kurzes Token lässt sich raten, und die API gibt den vollständigen Inhalt jeder abgefangenen Mail heraus. Ein neues erzeugen mit: openssl rand -hex 32 — in Entwicklungskontexten wird das nicht geprüft.</target>
-      </trans-unit>
-
-      <!-- Module user interface -->
-      <trans-unit id="flash.notFound.message" resname="flash.notFound.message" approved="yes">
+      </segment>
+    </unit>
+    <unit id="flash.notFound.message">
+      <segment>
         <source>The requested mail no longer exists.</source>
         <target>Die angeforderte Mail existiert nicht mehr.</target>
-      </trans-unit>
-      <trans-unit id="flash.notAllowed.message" resname="flash.notAllowed.message" approved="yes">
+      </segment>
+    </unit>
+    <unit id="flash.deleteFailed.message">
+      <segment>
+        <source>The mail could not be deleted.</source>
+        <target>Die Mail konnte nicht gelöscht werden.</target>
+      </segment>
+    </unit>
+    <unit id="flash.notAllowed.message">
+      <segment>
         <source>The mail catcher must not be switched on in this environment.</source>
         <target>Der Mailcatcher darf in dieser Umgebung nicht eingeschaltet werden.</target>
-      </trans-unit>
-      <trans-unit id="flash.enabled.message" resname="flash.enabled.message" approved="yes">
+      </segment>
+    </unit>
+    <unit id="flash.enabled.message">
+      <segment>
         <source>Mail catcher switched on — no mail is being sent from now on.</source>
         <target>Mailcatcher eingeschaltet — ab jetzt wird keine Mail mehr versendet.</target>
-      </trans-unit>
-      <trans-unit id="flash.disabled.message" resname="flash.disabled.message" approved="yes">
+      </segment>
+    </unit>
+    <unit id="flash.disabled.message">
+      <segment>
         <source>Mail catcher switched off — mails are being delivered normally again.</source>
         <target>Mailcatcher ausgeschaltet — Mails werden wieder normal zugestellt.</target>
-      </trans-unit>
-      <trans-unit id="flash.deletedAll.message" resname="flash.deletedAll.message" approved="yes">
+      </segment>
+    </unit>
+    <unit id="flash.deletedAll.message">
+      <segment>
         <source>Deleted %1$s captured mails.</source>
         <target>%1$s abgefangene Mails gelöscht.</target>
-      </trans-unit>
-      <trans-unit id="status.active" resname="status.active" approved="yes">
+      </segment>
+    </unit>
+    <unit id="status.active">
+      <segment>
         <source>Active — no mail is being sent</source>
         <target>Aktiv — es wird keine Mail versendet</target>
-      </trans-unit>
-      <trans-unit id="status.inactive" resname="status.inactive" approved="yes">
+      </segment>
+    </unit>
+    <unit id="status.inactive">
+      <segment>
         <source>Inactive — mails are delivered normally</source>
         <target>Inaktiv — Mails werden normal zugestellt</target>
-      </trans-unit>
-      <trans-unit id="status.notTakingEffect" resname="status.notTakingEffect" approved="yes">
+      </segment>
+    </unit>
+    <unit id="status.notTakingEffect">
+      <segment>
         <source>Switched on but ineffective — mails are being sent</source>
         <target>Eingeschaltet, aber wirkungslos — Mails werden versendet</target>
-      </trans-unit>
-      <trans-unit id="status.notTakingEffect.hint" resname="status.notTakingEffect.hint" approved="yes">
+      </segment>
+    </unit>
+    <unit id="status.notTakingEffect.hint">
+      <segment>
         <source>The transport assignment is missing from config/system/additional.php. Until it is added, switching the catcher on has no effect — see the Reports module for details.</source>
         <target>In config/system/additional.php fehlt die Zuweisung des Transports. Bis sie ergänzt ist, bleibt das Einschalten wirkungslos — Details im Modul „Berichte“.</target>
-      </trans-unit>
-      <trans-unit id="status.strayTransport" resname="status.strayTransport" approved="yes">
+      </segment>
+    </unit>
+    <unit id="status.strayTransport">
+      <segment>
         <source>Switched off, but the transport points at the catcher</source>
         <target>Ausgeschaltet, aber der Transport zeigt auf den Mailcatcher</target>
-      </trans-unit>
-      <trans-unit id="status.strayTransport.hint" resname="status.strayTransport.hint" approved="yes">
+      </segment>
+    </unit>
+    <unit id="status.strayTransport.hint">
+      <segment>
         <source>The mail transport is set to the catcher although it is switched off, so no mail is delivered. Most likely a fixed assignment in the configuration — see the Reports module for details.</source>
         <target>Der Mail-Transport ist auf den Mailcatcher gesetzt, obwohl dieser ausgeschaltet ist — es wird nichts zugestellt. Vermutlich eine feste Zuweisung in der Konfiguration; Details im Modul „Berichte“.</target>
-      </trans-unit>
-      <trans-unit id="status.locked" resname="status.locked" approved="yes">
+      </segment>
+    </unit>
+    <unit id="status.locked">
+      <segment>
         <source>Switched on, but locked in this environment — mails are being sent</source>
         <target>Eingeschaltet, aber in dieser Umgebung gesperrt — Mails werden versendet</target>
-      </trans-unit>
-      <trans-unit id="status.locked.hint" resname="status.locked.hint" approved="yes">
+      </segment>
+    </unit>
+    <unit id="status.locked.hint">
+      <segment>
         <source>The switch is on, but the catcher must not run in this context, so nothing is captured and every mail is delivered normally. See the Reports module for how to unlock it.</source>
         <target>Der Schalter steht auf an, der Mailcatcher darf in diesem Kontext aber nicht laufen — es wird nichts abgefangen und jede Mail ganz normal zugestellt. Wie sich das freischalten lässt, steht im Modul „Berichte“.</target>
-      </trans-unit>
-      <trans-unit id="status.notAllowed" resname="status.notAllowed" approved="yes">
+      </segment>
+    </unit>
+    <unit id="status.notAllowed">
+      <segment>
         <source>Locked in this environment. Set MAILCATCHER_ALLOWED=1 to unlock it.</source>
         <target>In dieser Umgebung gesperrt. Mit MAILCATCHER_ALLOWED=1 freischalten.</target>
-      </trans-unit>
-      <trans-unit id="status.storage" resname="status.storage" approved="yes">
+      </segment>
+    </unit>
+    <unit id="status.storage">
+      <segment>
         <source>Storage directory</source>
         <target>Ablageverzeichnis</target>
-      </trans-unit>
-      <trans-unit id="action.enable" resname="action.enable" approved="yes">
+      </segment>
+    </unit>
+    <unit id="action.enable">
+      <segment>
         <source>Switch on</source>
         <target>Einschalten</target>
-      </trans-unit>
-      <trans-unit id="action.disable" resname="action.disable" approved="yes">
+      </segment>
+    </unit>
+    <unit id="action.disable">
+      <segment>
         <source>Switch off</source>
         <target>Ausschalten</target>
-      </trans-unit>
-      <trans-unit id="action.delete" resname="action.delete" approved="yes">
+      </segment>
+    </unit>
+    <unit id="action.delete">
+      <segment>
         <source>Delete</source>
         <target>Löschen</target>
-      </trans-unit>
-      <trans-unit id="action.deleteAll" resname="action.deleteAll" approved="yes">
+      </segment>
+    </unit>
+    <unit id="action.deleteAll">
+      <segment>
         <source>Delete all</source>
         <target>Alle löschen</target>
-      </trans-unit>
-      <trans-unit id="action.back" resname="action.back" approved="yes">
+      </segment>
+    </unit>
+    <unit id="action.back">
+      <segment>
         <source>Back to the list</source>
         <target>Zurück zur Liste</target>
-      </trans-unit>
-      <trans-unit id="action.download" resname="action.download" approved="yes">
+      </segment>
+    </unit>
+    <unit id="action.download">
+      <segment>
         <source>Download</source>
         <target>Herunterladen</target>
-      </trans-unit>
-      <trans-unit id="list.empty" resname="list.empty" approved="yes">
+      </segment>
+    </unit>
+    <unit id="list.empty">
+      <segment>
         <source>No mails captured yet.</source>
         <target>Bisher wurden keine Mails abgefangen.</target>
-      </trans-unit>
-      <trans-unit id="list.findings" resname="list.findings" approved="yes">
+      </segment>
+    </unit>
+    <unit id="list.findings">
+      <segment>
         <source>Findings</source>
         <target>Befunde</target>
-      </trans-unit>
-      <trans-unit id="list.subject" resname="list.subject" approved="yes">
+      </segment>
+    </unit>
+    <unit id="list.subject">
+      <segment>
         <source>Subject</source>
         <target>Betreff</target>
-      </trans-unit>
-      <trans-unit id="list.from" resname="list.from" approved="yes">
+      </segment>
+    </unit>
+    <unit id="list.from">
+      <segment>
         <source>From</source>
         <target>Von</target>
-      </trans-unit>
-      <trans-unit id="list.to" resname="list.to" approved="yes">
+      </segment>
+    </unit>
+    <unit id="list.to">
+      <segment>
         <source>To</source>
         <target>An</target>
-      </trans-unit>
-      <trans-unit id="list.date" resname="list.date" approved="yes">
+      </segment>
+    </unit>
+    <unit id="list.date">
+      <segment>
         <source>Date</source>
         <target>Datum</target>
-      </trans-unit>
-      <trans-unit id="list.size" resname="list.size" approved="yes">
+      </segment>
+    </unit>
+    <unit id="list.size">
+      <segment>
         <source>Size</source>
         <target>Größe</target>
-      </trans-unit>
-      <trans-unit id="show.noFindings" resname="show.noFindings" approved="yes">
+      </segment>
+    </unit>
+    <unit id="show.noFindings">
+      <segment>
         <source>No findings — this mail passes every check.</source>
         <target>Keine Befunde — diese Mail besteht alle Prüfungen.</target>
-      </trans-unit>
-      <trans-unit id="show.tab.checks" resname="show.tab.checks" approved="yes">
+      </segment>
+    </unit>
+    <unit id="show.tab.checks">
+      <segment>
         <source>Findings</source>
         <target>Befunde</target>
-      </trans-unit>
-      <trans-unit id="show.tab.html" resname="show.tab.html" approved="yes">
+      </segment>
+    </unit>
+    <unit id="show.tab.html">
+      <segment>
         <source>HTML</source>
         <target>HTML</target>
-      </trans-unit>
-      <trans-unit id="show.tab.text" resname="show.tab.text" approved="yes">
+      </segment>
+    </unit>
+    <unit id="show.tab.text">
+      <segment>
         <source>Text</source>
         <target>Text</target>
-      </trans-unit>
-      <trans-unit id="show.tab.headers" resname="show.tab.headers" approved="yes">
+      </segment>
+    </unit>
+    <unit id="show.tab.headers">
+      <segment>
         <source>Headers</source>
         <target>Header</target>
-      </trans-unit>
-      <trans-unit id="show.tab.source" resname="show.tab.source" approved="yes">
+      </segment>
+    </unit>
+    <unit id="show.tab.source">
+      <segment>
         <source>Source</source>
         <target>Quelltext</target>
-      </trans-unit>
-      <trans-unit id="show.tab.attachments" resname="show.tab.attachments" approved="yes">
+      </segment>
+    </unit>
+    <unit id="show.tab.attachments">
+      <segment>
         <source>Attachments</source>
         <target>Anhänge</target>
-      </trans-unit>
-      <trans-unit id="show.noHtmlPart" resname="show.noHtmlPart" approved="yes">
+      </segment>
+    </unit>
+    <unit id="show.noHtmlPart">
+      <segment>
         <source>This mail has no HTML part.</source>
         <target>Diese Mail hat keinen HTML-Teil.</target>
-      </trans-unit>
-      <trans-unit id="show.noTextPart" resname="show.noTextPart" approved="yes">
+      </segment>
+    </unit>
+    <unit id="show.noTextPart">
+      <segment>
         <source>This mail has no plain text part.</source>
         <target>Diese Mail hat keinen Textteil.</target>
-      </trans-unit>
-      <trans-unit id="show.noAttachments" resname="show.noAttachments" approved="yes">
+      </segment>
+    </unit>
+    <unit id="show.noAttachments">
+      <segment>
         <source>This mail has no attachments.</source>
         <target>Diese Mail hat keine Anhänge.</target>
-      </trans-unit>
-      <trans-unit id="show.previewNote" resname="show.previewNote" approved="yes">
-        <source>Images are loaded, scripts are blocked. Remote images can tell the sender the mail was opened.</source>
-        <target>Bilder werden geladen, Skripte sind blockiert. Externe Bilder können dem Absender das Öffnen melden.</target>
-      </trans-unit>
-      <trans-unit id="show.header.replyTo" resname="show.header.replyTo" approved="yes">
+      </segment>
+    </unit>
+    <unit id="show.previewNote">
+      <segment>
+        <source>Scripts and forms are blocked.</source>
+        <target>Skripte und Formulare sind blockiert.</target>
+      </segment>
+    </unit>
+    <unit id="show.remoteImagesBlocked">
+      <segment>
+        <source>Remote images are not loaded — they can include tracking pixels that tell the sender who opened the mail, and when.</source>
+        <target>Externe Bilder werden nicht geladen — sie können Tracking-Pixel enthalten, die dem Absender melden, wer die Mail wann geöffnet hat.</target>
+      </segment>
+    </unit>
+    <unit id="show.loadRemoteImages">
+      <segment>
+        <source>Load remote images</source>
+        <target>Externe Bilder laden</target>
+      </segment>
+    </unit>
+    <unit id="show.header.replyTo">
+      <segment>
         <source>Reply to</source>
         <target>Antwort an</target>
-      </trans-unit>
-      <trans-unit id="show.header.cc" resname="show.header.cc" approved="yes">
+      </segment>
+    </unit>
+    <unit id="show.header.cc">
+      <segment>
         <source>Cc</source>
         <target>Cc</target>
-      </trans-unit>
-      <trans-unit id="show.header.bcc" resname="show.header.bcc" approved="yes">
+      </segment>
+    </unit>
+    <unit id="show.header.bcc">
+      <segment>
         <source>Bcc</source>
         <target>Bcc</target>
-      </trans-unit>
-      <trans-unit id="show.header.context" resname="show.header.context" approved="yes">
+      </segment>
+    </unit>
+    <unit id="show.header.context">
+      <segment>
         <source>Origin</source>
         <target>Herkunft</target>
-      </trans-unit>
-    </body>
+      </segment>
+    </unit>
   </file>
 </xliff>

@@ -58,11 +58,16 @@ final class ResendCommand extends Command
             return Command::INVALID;
         }
 
+        // A mistyped limit must not mean "no limit": --limit=2O would otherwise
+        // send everything, and in a Development context without asking.
         $rawLimit = $input->getOption('limit');
-        $limit = is_numeric($rawLimit) ? (int)$rawLimit : null;
-        if ($limit !== null && $limit < 1) {
-            $inputOutput->error('The limit must be at least one.');
-            return Command::INVALID;
+        $limit = null;
+        if ($rawLimit !== null) {
+            if (!is_string($rawLimit) || preg_match('/^\d+$/', $rawLimit) !== 1 || (int)$rawLimit < 1) {
+                $inputOutput->error('The limit must be a whole number of at least one.');
+                return Command::INVALID;
+            }
+            $limit = (int)$rawLimit;
         }
 
         $pending = $this->resendService->describePending($limit);

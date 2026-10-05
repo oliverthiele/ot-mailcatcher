@@ -6,10 +6,11 @@ namespace OliverThiele\OtMailcatcher\Service;
 
 use OliverThiele\OtMailcatcher\Check\MailAddressHelper;
 use OliverThiele\OtMailcatcher\Domain\Repository\CapturedMailRepository;
+use OliverThiele\OtMailcatcher\Mail\FileTransport;
 use Symfony\Component\Mailer\Envelope;
 use Symfony\Component\Mime\Address;
 use Symfony\Component\Mime\RawMessage;
-use TYPO3\CMS\Core\Mail\Mailer;
+use TYPO3\CMS\Core\Mail\MailerInterface;
 
 /**
  * Delivers captured mails after the fact.
@@ -39,7 +40,7 @@ final class ResendService
 
     public function __construct(
         private readonly CapturedMailRepository $capturedMailRepository,
-        private readonly Mailer $mailer,
+        private readonly MailerInterface $mailer,
     ) {
     }
 
@@ -53,13 +54,7 @@ final class ResendService
      */
     public function resendAll(?int $limit = null): array
     {
-        if (MailcatcherState::isEnabled()) {
-            throw new \RuntimeException(
-                'Refusing to resend while the mail catcher is switched on — the mails would be captured again. '
-                . 'Switch it off first.',
-                1756080002
-            );
-        }
+        self::assertResendPossible();
 
         $sent = 0;
         $failed = 0;
@@ -126,10 +121,10 @@ final class ResendService
                 continue;
             }
 
-            foreach (array_merge($full->to, $full->cc, $full->bcc) as $address) {
+            foreach ($full->getDeliveryRecipients() as $address) {
                 $recipients++;
                 $bare = MailAddressHelper::extractAddress($address);
-                if ($ownDomain === '' || MailAddressHelper::extractDomain($address) !== $ownDomain) {
+                if (!MailAddressHelper::belongsToDomain(MailAddressHelper::extractDomain($address), $ownDomain)) {
                     // Counted twice on purpose: how many deliveries leave the
                     // site, and how many different people receive them. Reporting
                     // only the distinct addresses against the total recipients
@@ -159,31 +154,31 @@ final class ResendService
      */
     public function resendOne(string $identifier): ?string
     {
-        if (MailcatcherState::isEnabled()) {
-            throw new \RuntimeException(
-                'Refusing to resend while the mail catcher is switched on — the mail would be captured again. '
-                . 'Switch it off first.',
-                1756080002
-            );
-        }
+        self::assertResendPossible();
 
         $mail = $this->capturedMailRepository->findByIdentifier($identifier);
         if ($mail === null || $mail->rawSource === '') {
             return sprintf('%s: could not be read', $identifier);
         }
 
-        $recipients = $this->toAddresses(array_merge($mail->to, $mail->cc, $mail->bcc));
-        $sender = $this->toAddresses([$mail->from])[0] ?? null;
+        // The stored envelope, so Bcc recipients and a rewritten envelope are
+        // honoured — see FileTransport.
+        $recipients = $this->toAddresses($mail->getDeliveryRecipients());
+        $sender = $this->toAddresses([$mail->getDeliverySender()])[0] ?? null;
 
         if ($sender === null || $recipients === []) {
             return sprintf('%s: no usable sender or recipient', $identifier);
         }
 
         try {
-            // The raw source is sent unchanged, so the message keeps its original
-            // headers — including Date, which therefore shows when the mail was
-            // captured rather than when it was delivered.
-            $this->mailer->send(new RawMessage($mail->rawSource), new Envelope($sender, $recipients));
+            // The raw source is sent unchanged apart from the debugging header,
+            // so the message keeps its original headers — including Date, which
+            // therefore shows when the mail was captured rather than when it was
+            // delivered.
+            $this->mailer->send(
+                new RawMessage(self::removeHeader($mail->rawSource, CapturedMailRepository::CONTEXT_HEADER)),
+                new Envelope($sender, $recipients)
+            );
         } catch (\Throwable $exception) {
             return sprintf('%s: %s', $identifier, $exception->getMessage());
         }
@@ -219,12 +214,66 @@ final class ResendService
 
     private function moveToSent(string $identifier, string $sentDirectory): bool
     {
-        if (!is_dir($sentDirectory) && !mkdir($sentDirectory, 0775, true) && !is_dir($sentDirectory)) {
+        if (!is_dir($sentDirectory) && !@mkdir($sentDirectory, 0775, true) && !is_dir($sentDirectory)) {
             return false;
         }
 
         $source = MailcatcherState::getStorageDirectory() . '/' . $identifier;
+        if (!is_file($source) || !rename($source, $sentDirectory . '/' . $identifier)) {
+            return false;
+        }
+        $envelopeFile = $source . FileTransport::ENVELOPE_SUFFIX;
+        if (is_file($envelopeFile)) {
+            @rename($envelopeFile, $sentDirectory . '/' . $identifier . FileTransport::ENVELOPE_SUFFIX);
+        }
 
-        return is_file($source) && rename($source, $sentDirectory . '/' . $identifier);
+        return true;
+    }
+
+    /**
+     * Refuses while sending would not reach anybody: with the catcher switched
+     * on, or with the transport still pointing at it although it is off — then
+     * the mail would be captured again and reported as sent.
+     */
+    private static function assertResendPossible(): void
+    {
+        if (MailcatcherState::isEnabled()) {
+            throw new \RuntimeException(
+                'Refusing to resend while the mail catcher is switched on — the mails would be captured again. '
+                . 'Switch it off first.',
+                1756080002
+            );
+        }
+        if (MailcatcherState::isWired()) {
+            throw new \RuntimeException(
+                'Refusing to resend: the mail transport still points at the mail catcher, so the mails would be '
+                . 'captured again. Remove the transport assignment from config/system/additional.php first.',
+                1790900003
+            );
+        }
+    }
+
+    /**
+     * Removes one header, folded continuation lines included, from the header
+     * block of a raw message. The body is left untouched.
+     */
+    public static function removeHeader(string $rawSource, string $headerName): string
+    {
+        $separator = str_contains($rawSource, "\r\n\r\n") ? "\r\n\r\n" : "\n\n";
+        $parts = explode($separator, $rawSource, 2);
+        $lineBreak = $separator === "\r\n\r\n" ? "\r\n" : "\n";
+        $kept = [];
+        $skipping = false;
+        foreach (explode($lineBreak, $parts[0]) as $line) {
+            if ($skipping && ($line !== '' && ($line[0] === ' ' || $line[0] === "\t"))) {
+                continue;
+            }
+            $skipping = stripos($line, $headerName . ':') === 0;
+            if (!$skipping) {
+                $kept[] = $line;
+            }
+        }
+
+        return implode($lineBreak, $kept) . (isset($parts[1]) ? $separator . $parts[1] : '');
     }
 }
