@@ -6,7 +6,7 @@
 
 <f:variable name="ll" value="LLL:EXT:ot_mailcatcher/Resources/Private/Language/locallang_mod.xlf:"/>
 
-<p><f:link.action action="index" class="btn btn-default btn-sm">&#8592; <f:translate key="{ll}action.back"/></f:link.action></p>
+<p><f:link.action action="index" arguments="{currentPage: currentPage}" class="btn btn-default btn-sm">&#8592; <f:translate key="{ll}action.back"/></f:link.action></p>
 
 <h1>{mail.subject}</h1>
 
@@ -56,7 +56,7 @@
                     <f:else>
                         <p class="small">
                             <f:translate key="{ll}show.remoteImagesBlocked"/>
-                            <f:link.action action="show" arguments="{identifier: mail.identifier, remoteImages: '1'}" class="btn btn-default btn-sm ms-2" data="{testid: 'mailcatcher-load-images'}"><f:translate key="{ll}show.loadRemoteImages"/></f:link.action>
+                            <f:link.action action="show" arguments="{identifier: mail.identifier, remoteImages: '1', currentPage: currentPage}" class="btn btn-default btn-sm ms-2" data="{testid: 'mailcatcher-load-images'}"><f:translate key="{ll}show.loadRemoteImages"/></f:link.action>
                         </p>
                     </f:else>
                 </f:if>

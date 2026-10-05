@@ -5,6 +5,16 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- Page through the captured mails in the backend module, 50 per page. Only
+  the mails on the current page are parsed and checked; before, opening the
+  module parsed every captured mail, which after an incident on a live system
+  can be thousands. Deleting, resending and the back link from a mail return
+  to the page it was on.
+
 ## [0.8.0] — 2026-10-05
 
 ### Fixed

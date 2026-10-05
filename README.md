@@ -149,8 +149,8 @@ its recipient.
 
 ### Backend module
 
-**System → Mailcatcher** lists the captured mails with a finding count, and shows
-headers, findings, HTML, plain text, source and attachments per mail. The HTML part
+**System → Mailcatcher** lists the captured mails with a finding count, 50 per
+page, and shows headers, findings, HTML, plain text, source and attachments per mail. The HTML part
 is served through its own route into a sandboxed iframe, so foreign mail content
 never shares the backend document. Remote images stay blocked until you load
 them for the one mail: a captured mail is often real customer mail, and its

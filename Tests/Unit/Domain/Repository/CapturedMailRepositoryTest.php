@@ -224,5 +224,38 @@ final class CapturedMailRepositoryTest extends AbstractStorageTestCase
     {
         self::assertSame([], $this->subject->findAll());
         self::assertSame(0, $this->subject->countAll());
+        self::assertSame([], $this->subject->findIdentifiers());
+    }
+
+    #[Test]
+    public function identifiersAreNewestFirstLikeTheList(): void
+    {
+        // The module pages through these, so their order is the list order.
+        $this->placeCapturedMail('2026-08-25_100000-older.eml');
+        $this->placeCapturedMail('2026-08-25_120000-newer.eml');
+
+        self::assertSame(
+            ['2026-08-25_120000-newer.eml', '2026-08-25_100000-older.eml'],
+            $this->subject->findIdentifiers()
+        );
+    }
+
+    #[Test]
+    public function listEntriesKeepTheRequestedOrderAndSkipWhatIsGone(): void
+    {
+        $this->placeCapturedMail('2026-08-25_100000-one.eml', "Subject: One\r\n\r\nBody");
+        $this->placeCapturedMail('2026-08-25_100100-two.eml', "Subject: Two\r\n\r\nBody");
+
+        $mails = $this->subject->findListEntries([
+            '2026-08-25_100000-one.eml',
+            '2026-08-25_100200-deleted-meanwhile.eml',
+            '../outside.eml',
+            '2026-08-25_100100-two.eml',
+        ]);
+
+        self::assertSame(
+            ['One', 'Two'],
+            array_map(static fn($mail) => $mail->subject, $mails)
+        );
     }
 }

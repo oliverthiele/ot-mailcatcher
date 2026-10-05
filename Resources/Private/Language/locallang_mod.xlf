@@ -427,6 +427,21 @@
         <source>Size</source>
       </segment>
     </unit>
+    <unit id="pagination.range">
+      <segment>
+        <source>Mails %1$s–%2$s of %3$s</source>
+      </segment>
+    </unit>
+    <unit id="pagination.previous">
+      <segment>
+        <source>Previous page</source>
+      </segment>
+    </unit>
+    <unit id="pagination.next">
+      <segment>
+        <source>Next page</source>
+      </segment>
+    </unit>
     <unit id="show.noFindings">
       <segment>
         <source>No findings — this mail passes every check.</source>
